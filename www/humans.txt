@@ -1,0 +1,25 @@
+/* TEAM */
+
+	Chief: Anders Isaksson
+	Contact: anders.isaksson[at]medsci.uu.se
+	Location: Uppsala, Swede
+
+	Bioinformatician/Site Builder: Sebastian DiLorenzo
+	Contact: sebastian.dilorenzo[at]medsci.uu.se
+	Location: Uppsala, Sweden
+
+	Bioinformatician: Markus Mayrhofer
+	Contact: markus.mayrhofer[at]medsci.uu.se
+	Location: Uppsala, Sweden
+	
+/* THANKS */
+
+	Consultant: Martin Dahlo
+	Contact: martin.dahlo[at]scilifelab.uu.se
+	Location: Uppsala, Sweden
+
+/* SITE */
+	Last Update:2012/04/16
+	Language:English / Swedish
+	Standards: HTML5
+	IDE: Sublime Text 2, MAMP

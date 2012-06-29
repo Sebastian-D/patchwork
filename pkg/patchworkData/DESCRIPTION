@@ -1,0 +1,13 @@
+Package: patchworkData
+Type: Package
+Title: Data for patchwork package.
+Version: 2.0
+Date: 2011-10-13
+Author: Markus Rasmussen, Sebastian DiLorenzo
+Maintainer: Markus Rasmussen <Markus.Mayrhofer@medsci.uu.se>
+Description: Supplementary data package for patchwork. (Note: Not necessary for patchworkCG)
+License: GPL-2
+#LazyLoad: no
+#LazyData: yes
+Namespace: auto
+Depends: R (>= 2.10)

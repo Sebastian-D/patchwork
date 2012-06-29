@@ -1,0 +1,23 @@
+import(patchworkData)
+
+export(karyotype_check,
+		karyotype_chroms,
+		karyotype_chromsCN,
+		karyotype,
+		patchwork.alleledata,
+		patchwork.applyref,
+		patchwork.plot,
+		patchwork.createreference,
+		patchwork.copynumbers,
+		patchwork.GCNorm,
+		patchwork.Medians_n_AI,
+		patchwork.readChroms,
+		patchwork.segment,
+		patchwork.smoothing,
+		#subfunctions_copynumbers
+		weightedMedian,
+		weightedMean,
+		is.autosome,
+		deChrom_ucsc,
+		chrom_ucsc,
+		assignAI)

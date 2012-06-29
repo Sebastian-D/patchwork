@@ -1,0 +1,11 @@
+Package: patchwork
+Type: Package
+Title: Allele-specific Copy Number Analysis of whole genome data
+Version: 2.1
+Date: 2012-17-04
+Author: Markus Rasmussen, Sebastian DiLorenzo
+Maintainer: Markus Rasmussen <Markus.Mayrhofer@medsci.uu.se>
+Description: Performs a copy number analysis of whole genome data.
+License: GPL-2
+Imports: patchworkData
+Depends: DNAcopy

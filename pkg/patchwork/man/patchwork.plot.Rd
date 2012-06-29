@@ -1,0 +1,109 @@
+ \name{patchwork.plot}
+\alias{patchwork}
+\alias{patchwork.plot}
+
+
+\title{
+Patchwork main function
+}
+
+\description{
+The main function of patchwork.
+In details there is some very important information, highly recommended!
+
+For now the package is only able to run on unix based systems since it uses
+several system commands when executing such as cp and rm.
+
+\bold{You should use either the reference parameter OR the Normal.bam and Normal.pileup parameters.}
+
+}
+
+\usage{
+patchwork.plot(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.pileup=NULL,Alpha=0.0001,SD=1)
+}
+
+\arguments{
+  \item{BamFile}{
+  	Aligned, Sorted Bam-file.
+	}
+  \item{Pileup}{
+	Pileup file generated through 
+	samtools -vcf reference.fasta bamfile > outfile.
+	}
+  \item{Reference}{
+  	Default is NULL.
+	Path to a reference file that can be created using patchwork.createreference() or downloaded from patchworks homepage.
+	}
+	\item{Normal.bam}{
+	Default is NULL.
+	The matched normal sample of the your BamFile.
+	}
+	\item{Normal.pileup}{
+	Default is NULL.
+	The pileup of your normal sample.
+	}
+	\item{Alpha}{
+	Default 0.0001, change if you want to try to get a better segmentation from patchwork.segment().
+	From DNAcopy (?segment):
+	 alpha: significance levels for the test to accept change-points.
+	}
+	\item{SD}{
+	Default 1, change if you want to try to get a better segmentation from patchwork.segment().
+	From DNAcopy (?segment):
+	undo.SD: the number of SDs between means to keep a split if undo.splits="sdundo".
+	}
+}
+
+\details{
+\bold{Make sure to only run one sample at a time in a single working directory
+as standard file names are created. If you do not heed this warning you
+will end up with a complete mess and probably runtime errors as patchwork
+tries to run simultaniously for multiple samples in the same working directory.}
+
+Upon completion of the function you may receive some warning messages.
+
+This is not unusal, it just means that it is the first time you've run the patchwork.plot function in this directory.
+The patchwork function will check if you have some of the saved .Rdata files
+in your working directory to avoid remaking these, should they already exist.
+
+\bold{This also means that to make a completely clean run of patchwork.plot you need to
+delete <filename>_data.Rdata, <filename>_copynumbers.Rdata, <filename>_pile.alleles.Rdata, <filename>_smoothed.Rdata, <filename>_Segments.Rdata from your working directory!!}
+}
+
+%\value{
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+%}
+
+%\references{
+%% ~put references to the literature/web site here ~
+%}
+
+\author{
+Markus Mayrhofer, \email{markus.mayrhofer@medsci.uu.se}
+Sebastian DiLorenzo, \email{sebastian.dilorenzo@medsci.uu.se}
+}
+%\note{
+%%  ~~further notes~~
+%}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+%\seealso{
+%% ~~objects to See Also as \code{\link{help}}, ~~~
+%}
+
+%\examples{
+%##---- Should be DIRECTLY executable !! ----
+%##-- ==>  Define data, use random,
+%##--	or do  help(data=index)  for the standard data sets.
+%Run examples of karyotype stuff. or not, maybe just point back to patchwork.plot.
+%}
+
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+%\keyword{ ~kwd1 }
+%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
