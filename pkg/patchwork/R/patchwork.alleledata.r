@@ -4,8 +4,8 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL)
 	#Load data included in package
 	packagepath = system.file(package="patchwork")
 	#load(paste(packagepath,"/data/commonSnps132.RData",sep=""))
-	
-	data(commonSnps132,package="patchworkData")
+
+	#data(commonSnps132,package="patchworkData")
 
 	#if .perl folder exists, delete it.
 	#test = getwd()
@@ -49,7 +49,21 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL)
 		alf$achr[alf$achr == as.character(i)] = paste("chr",as.character(i),sep="")
 		}
 	
-	
+	#Check if HG18 or HG19 should be applied
+	con = file(Pileup,"rt")
+	firstline = readLines(con,1)
+	hgcheck = strsplit(firstline,"\t")
+
+
+	if (hgcheck[[1]][2] <= 10000)
+		{
+		data(commonSnpsHG18,package="patchworkData")
+		}
+	else
+		{
+		data(commonSnps132,package="patchworkData")
+		}
+
 	alf=merge(alf,dbSnp[,c(1,3)], all=F, by=1:2)
 
 	#Finally, if a matched normal was available, remove SNPs that were not (somewhat) heterozygous there.

@@ -24,7 +24,7 @@ patchwork.plot(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.pileup=NULL,
 
 \arguments{
   \item{BamFile}{
-  	Aligned, Sorted Bam-file.
+  	Path to an aligned and sorted Bam-file.
 	}
   \item{Pileup}{
 	Pileup file generated through 

@@ -268,7 +268,7 @@ Usually you do not need to bother with <b>maxCn</b> and <b>ceiling</b> arguments
 An example run of patchwork.copynumbers(): <br />
 
 <pre>
-	patchwork.copynumbers(cn2=0.8, delta=0.28, het=0.21, hom=0.79)
+	patchwork.copynumbers(CNFile="path/to/prefix_copynumbers.Rdata",cn2=0.8, delta=0.28, het=0.21, hom=0.79)
 </pre>
 
 This will generate an additional set of plots in your working directory. <br /><br />
