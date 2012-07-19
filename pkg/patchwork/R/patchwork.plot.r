@@ -1,7 +1,8 @@
-patchwork.plot <- function(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.pileup=NULL,Alpha=0.0001,SD=1)
+patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL,Normal.pileup=NULL,Normal.vcf=NULL,
+							Reference=NULL,Alpha=0.0001,SD=1)
 	{
 
-	name = strsplit(tolower(BamFile),".bam")
+	name = strsplit(tolower(Tumor.bam),".bam")
 
 	name = strsplit(name[[1]],"/")
 
@@ -17,8 +18,8 @@ patchwork.plot <- function(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.
 	if(is.null(alf))
 		{
 		cat("Initiating Allele Data Generation \n")
-		if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup)
-		alf = patchwork.alleledata(Pileup, normalalf=normalalf)
+		if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
+		alf = patchwork.alleledata(Tumor.pileup, normalalf=normalalf,Tumor.vcf)
 		cat("Allele Data Generation Complete \n")
 		save(alf,file=paste(name,"_pile.alleles.Rdata",sep=""))
 		}
@@ -37,7 +38,7 @@ patchwork.plot <- function(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.
 	#perform the function on the chromosomes to create the object.
 	if(is.null(data)) {
 		cat("Initiating Read Chromosomal Coverage \n")
-		data = patchwork.readChroms(BamFile,chroms)
+		data = patchwork.readChroms(Tumor.bam,chroms)
 		cat("Read Chromosomal Coverage Complete \n")
 		save(data,file=paste(name,"_data.Rdata",sep=""))
 	}

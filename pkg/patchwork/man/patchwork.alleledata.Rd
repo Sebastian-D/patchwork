@@ -14,17 +14,21 @@ as the alf object and then the file pile.alleles removed.
 }
 
 \usage{
-patchwork.alleledata(Pileup, normalalf=NULL)
+patchwork.alleledata(Pileup,normalalf=NULL,vcf)
 }
 
 \arguments{
-  \item{Pileup}{
+  	\item{Pileup}{
   	Pileup file from patchwork.plot() input.
 	}
-\item{normalalf}{
-	normalalf is generated and used if you have supplied a normal.pileup in its argument
+	\item{normalalf}{
+	normalalf is generated and used if you have supplied a normal.pileup in it's argument
 	at patchwork.plot.
-}
+	}
+	\item{vcf}{
+	The vcf file if you have used a newer version (>=0.1.17) of SAMtools instead of an older version (<=0.1.16).
+	See patchwork homepage for clarification or just ?patchwork.plot.
+	}
 }
 
 \details{

@@ -62,6 +62,8 @@ while (<STDIN>) {
 		$snpCount = $baseString =~ tr/GgTt/GgTt/;
 	} elsif ($snps{$chr}{$pos}{'snp'} eq 'C|T') {
 		$snpCount = $baseString =~ tr/CcTt/CcTt/;
+	} else {
+		$snpCount = 0;
 	}
 	$snps{$chr}{$pos}{'depth'} = $depth;
 	$snps{$chr}{$pos}{'freq'} = $snpCount;
