@@ -67,6 +67,7 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	#Check if HG18 or HG19 should be applied
 	con = file(Pileup,"rt")
 	firstline = readLines(con,1)
+	close(con)
 	hgcheck = strsplit(firstline,"\t")
 
 
