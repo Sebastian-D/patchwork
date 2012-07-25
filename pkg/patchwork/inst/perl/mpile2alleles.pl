@@ -59,6 +59,7 @@ while (<VCF>)
 		if ($vchr eq $chr && $vpos == $pos)
 			{
 			$ref = uc $ref;
+			next if $ref eq '*';
 			my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
 			$snps{$chr}{$pos}{'ref'} = $ref;
 			$snps{$chr}{$pos}{'snp'} = $snp;
