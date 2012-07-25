@@ -60,6 +60,7 @@ while (<VCF>)
 			{
 			$ref = uc $ref;
 			next if $ref eq '*';
+			next if $cons eq 'N';
 			my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
 			$snps{$chr}{$pos}{'ref'} = $ref;
 			$snps{$chr}{$pos}{'snp'} = $snp;

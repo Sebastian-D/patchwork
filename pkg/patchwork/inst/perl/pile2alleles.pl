@@ -37,7 +37,8 @@ while (<STDIN>) {
 	chomp;
 	my ($chr, $pos, $ref, $cons, $consQual, $depth, $baseString) = (split /\t/, $_)[0,1,2,3,4,7,8];
 	$ref = uc $ref;
-	next if $ref eq '*';
+	if ($ref eq '*'){next;}
+	if ($cons eq 'N'){next;}
 	my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
 	$snps{$chr}{$pos}{'ref'} = $ref;
 	$snps{$chr}{$pos}{'snp'} = $snp;
