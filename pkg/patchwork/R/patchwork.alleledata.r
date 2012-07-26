@@ -39,7 +39,7 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	
 	colnames(alf) = c('achr','apos','atype','aqual','atot','amut')
 	alf$aref = alf$atot - alf$amut
-	#alf = alf [alf$amut >= 1 & alf$aref >= 1,]
+	alf = alf [alf$amut >= 1 & alf$aref >= 1,]
 	alf$amax = apply(alf[,6:7],1,max)
 	alf$amin = alf$atot-alf$amax
 	#alf=alf[alf$atot<100,] # outlierz
