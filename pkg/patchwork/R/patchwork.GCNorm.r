@@ -18,17 +18,9 @@ patchwork.GCNorm <- function(data)
 		info$sd[i] = sd(data$counts[ix])
 		info$np[i] = sum(ix)
 		xnorm[ix] = 1 * ( data$counts[ix] / info$mean[i] )
-		}
-	
-	#xnorm = data$counts
-	
-	#for (i in 1:nrow(info))
-	#	{
-	#	ix = (data$gc >= info$from[i]) & (data$gc <= info$to[i])
-	#	xnorm[ix] = 1 * ( data$counts[ix] / info$mean[i] )
-	#	}
+		}	
 		
-	xnorm = round(xnorm,2)
+	xnorm = round(xnorm,2) 
 		
 	# 2nd round
 	info2 = data.frame(from=c(0,seq(20,80,2)),to=c(seq(20,80,2),100),mean=NA,median=NA,np=NA)
@@ -43,14 +35,7 @@ patchwork.GCNorm <- function(data)
 		info2$np[i] = sum(ix)
 		xnorm2[ix] = 1 * ( xnorm[ix] / info2$mean[i] )
 		}
-		
-	#xnorm2 = xnorm
-	#for (i in 1:nrow(info2))
-	#	{
-	#	ix = (data$gck >= info2$from[i]) & (data$gck <= info2$to[i])
-	#	xnorm2[ix] = 1 * ( xnorm[ix] / info2$mean[i] )
-	#	}
-		
+
 	xnorm2 = round(xnorm2,2)
 	data$norm=xnorm2
 	return(data)

@@ -20,9 +20,17 @@ patchwork.plot <- function(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.
 		if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup)
 		alf = patchwork.alleledata(Pileup, normalalf=normalalf)
 		cat("Allele Data Generation Complete \n")
-		save(alf,file=paste(name,"_pile.alleles.Rdata",sep=""))
+		save(alf, normalalf,file=paste(name,"_pile.alleles.Rdata",sep=""))
 		}
 	
+	if (!is.null(normalalf)) {
+		normalalf <- normalalf[normalalf$amin/normalalf$atot > 0.2,]
+		alf <- merge(normalalf[,1:2],alf,by=1:2,all=F)
+	}
+
+
+
+
 	#Generate chroms object depending on the naming in pileup (alf).
 	#either chr1...chr22,chrX,chrY or 1...22,X,Y
 	data(ideogram,package="patchworkData")
@@ -74,7 +82,7 @@ patchwork.plot <- function(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.
 	
 	# Smooth the data.
 	kbsegs = NULL
-	try( load(paste(name,"_smoothed.Rdata",sep="")), silent=TRUE )	
+	#try( load(paste(name,"_smoothed.Rdata",sep="")), silent=TRUE )	
 	if(length(kbsegs) == 0)
 		{
 		cat("Initiating Smoothing \n")

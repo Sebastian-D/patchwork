@@ -24,7 +24,7 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL)
 	
 	colnames(alf) = c('achr','apos','atype','aqual','atot','amut')
 	alf$aref = alf$atot - alf$amut
-	alf = alf [alf$amut >= 1 & alf$aref >= 1,]
+	#alf = alf [alf$amut >= 1 & alf$aref >= 1,]
 	alf$amax = apply(alf[,6:7],1,max)
 	alf$amin = alf$atot-alf$amax
 	#alf=alf[alf$atot<100,] # outlierz
@@ -64,13 +64,13 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL)
 		data(commonSnps132,package="patchworkData")
 		}
 
-	alf=merge(alf,dbSnp[,c(1,3)], all=F, by=1:2)
+	alf=merge(alf,dbSnp[,c(1,3)], all.x=T, all.y=F, by=1:2)
 
 	#Finally, if a matched normal was available, remove SNPs that were not (somewhat) heterozygous there.
-	if (!is.null(normalalf)) {
-		normalalf <- normalalf[normalalf$amin/normalalf$atot > 0.1,]
-		alf <- merge(normalalf[,1:2],alf,by=1:2,all=F)
-	}
+	#if (!is.null(normalalf)) {
+	#	normalalf <- normalalf[normalalf$amin/normalalf$atot > 0.1,]
+	#	alf <- merge(normalalf[,1:2],alf,by=1:2,all=F)
+	#}
 	
 	return(alf)
 	}

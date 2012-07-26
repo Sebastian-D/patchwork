@@ -275,11 +275,16 @@ patchwork.copynumbers = function(CNfile,cn2,delta,het,hom,maxCn=8,ceiling=1,forc
     regions$mCn <- mCn
     regions$fullCN <- fullCN
 	
+    temp <- temp[!is.na(temp$Cn),]
     temp <- regions[is.autosome(regions$chr),]
-	meanCn <- weightedMean(temp$Cn,temp$np)
+	
+ 
+    meanCn <- weightedMean(temp$Cn,temp$np)
 	ix1 <- temp$Cn==trunc(meanCn)
 	ix2 <- temp$Cn==ceiling(meanCn)
 	xdelta <- weightedMean(temp$median[ix2],temp$np[ix2]) - weightedMean(temp$median[ix1],temp$np[ix1])
+    xdelta <- xdelta / weightedMean(temp$median,temp$np)
+
 	expected_delta <- 1/meanCn
 	
 	tumor_percentDNA <- xdelta / expected_delta
@@ -319,11 +324,11 @@ patchwork.copynumbers = function(CNfile,cn2,delta,het,hom,maxCn=8,ceiling=1,forc
     write.csv(regions,file=paste(name,'_Copynumbers.csv',sep=""))
 
 
-	karyotype_check(regions$chr,regions$start,regions$end,regions$mean,regions$ai,
+	karyotype_check(regions$chr,regions$start,regions$end,regions$median,regions$ai,
 					regions$Cn,regions$mCn,list(int=int,ai=ai),name=name,
 					xlim=c(0,2.4),ylim=c(0.1,1))
 					
-	karyotype_chromsCN(regions$chr,regions$start,regions$end,regions$mean,regions$ai,
+	karyotype_chromsCN(regions$chr,regions$start,regions$end,regions$median,regions$ai,
 						regions$Cn,regions$mCn,kbsegs$chr,
 						kbsegs$pos,kbsegs$ratio,alf$achr,alf$apos,
 						(1-alf$amin/alf$amax),name=name,xlim=c(0,2.4),
