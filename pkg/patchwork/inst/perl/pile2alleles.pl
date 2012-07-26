@@ -37,6 +37,8 @@ while (<STDIN>) {
 	chomp;
 	my ($chr, $pos, $ref, $cons, $consQual, $depth, $baseString) = (split /\t/, $_)[0,1,2,3,4,7,8];
 	$ref = uc $ref;
+	if ($ref eq '*'){next;}
+	if ($cons eq 'N'){next;}
 	my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
 	$snps{$chr}{$pos}{'ref'} = $ref;
 	$snps{$chr}{$pos}{'snp'} = $snp;
@@ -62,6 +64,8 @@ while (<STDIN>) {
 		$snpCount = $baseString =~ tr/GgTt/GgTt/;
 	} elsif ($snps{$chr}{$pos}{'snp'} eq 'C|T') {
 		$snpCount = $baseString =~ tr/CcTt/CcTt/;
+	} else {
+		$snpCount = 0;
 	}
 	$snps{$chr}{$pos}{'depth'} = $depth;
 	$snps{$chr}{$pos}{'freq'} = $snpCount;

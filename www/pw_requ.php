@@ -35,9 +35,9 @@ You can also run patchwork.plot() with only a reference file.<br />
 Here are two standard reference files for HG19. It is very important that you choose a reference
 which matches the sequencing technology and reference genome used on your tumor sample.<br />
 
-<a href="http://130.238.204.28/open/patchwork/references/datasolexa.RData" target="_blank" style="text-decoration:none;">
+<a href="http://130.238.204.28/patchwork/references/datasolexa.RData" target="_blank" style="text-decoration:none;">
 	Solexa/Illumina reference</a> <br />
-<a href="http://130.238.204.28/open/patchwork/references/datasolid.RData" target="_blank" style="text-decoration:none;">
+<a href="http://130.238.204.28/patchwork/references/datasolid.RData" target="_blank" style="text-decoration:none;">
 	SOLiD reference</a> <br /><br />
 
 If you wish to create your own reference file, for example one that works for HG18, use patchworks.createreference().

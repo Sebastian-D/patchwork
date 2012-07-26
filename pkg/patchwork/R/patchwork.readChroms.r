@@ -79,6 +79,8 @@ patchwork.readChroms <- function(BamFile,chroms)
 			gc = readRDS(paste(datapath,"/extdata/",c,".mark.rds",sep=""))
 			}
 
+		gc = gc[!is.na(gc$pos),]
+		gc = gc[order[gc$pos],]
 		xpos=gc[,1]
 		xgc=gc[,2]
 		xgck=gc[,3]

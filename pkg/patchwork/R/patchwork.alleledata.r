@@ -1,4 +1,4 @@
-patchwork.alleledata <- function(Pileup, normalalf=NULL)
+patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	{
 	
 	#Load data included in package
@@ -15,12 +15,27 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL)
 	#	setwd("..")
 	#	system("rm -r .perl")
 	#	}
-	
+
+	#Copy perl information from package install location
 	system(paste("cp -r ",packagepath,"/perl .perl",sep=""))
-	system(paste("cat ",Pileup," | perl .perl/pile2alleles.pl > ",getwd(),"/pile.alleles",sep=""))
-	system("rm -r .perl")
-	alf = read.csv('pile.alleles', sep='\t',header=F)[,1:6]
-	#system("rm pile.alleles")
+
+	if (is.null(vcf)==F)
+		{
+		#mpileup and bcftools used. read the pileup and vcf.
+		system(paste("perl .perl/mpile2alleles.pl ",Pileup," ",vcf," >",getwd(),"/pile.alleles",sep=""))
+		}
+		else 
+		{
+		#old samtools pileup -vcf used.
+		system(paste("cat ",Pileup," | perl .perl/pile2alleles.pl > ",getwd(),"/pile.alleles",sep=""))
+		}
+
+		#Cleanup
+		system("rm -r .perl")
+
+		#Read the generated pile.alleles
+		alf = read.csv('pile.alleles', sep='\t',header=F)[,1:6]
+		#system("rm pile.alleles")
 	
 	colnames(alf) = c('achr','apos','atype','aqual','atot','amut')
 	alf$aref = alf$atot - alf$amut
@@ -52,6 +67,7 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL)
 	#Check if HG18 or HG19 should be applied
 	con = file(Pileup,"rt")
 	firstline = readLines(con,1)
+	close(con)
 	hgcheck = strsplit(firstline,"\t")
 
 

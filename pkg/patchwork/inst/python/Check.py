@@ -4,8 +4,7 @@ import os
 try:
     import pysam
     print "X"
-    sys.exit()
 except:
-	#It didnt work.
+	#If import pysam failed
     print "Pysam Not Available"
     sys.exit()

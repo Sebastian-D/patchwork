@@ -19,28 +19,44 @@ several system commands when executing such as cp and rm.
 }
 
 \usage{
-patchwork.plot(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.pileup=NULL,Alpha=0.0001,SD=1)
+patchwork.plot(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL,Normal.pileup=NULL,Normal.vcf=NULL,Reference=NULL,Alpha=0.0001,SD=1)
 }
 
 \arguments{
-  \item{BamFile}{
-  	Path to an aligned and sorted Bam-file.
+  	\item{Tumor.bam}{
+  	Path to an aligned and sorted Tumor Bam-file.
 	}
-  \item{Pileup}{
+  	\item{Tumor.pileup}{
 	Pileup file generated through 
-	samtools -vcf reference.fasta bamfile > outfile.
+	samtools -vcf reference.fasta tumor.bam > outfile (SAMtools v0.1.16 or older)
+	or through
+	samtools mpileup -f reference.fasta tumor.bam > outfile (SAMtools v0.1.17 or newer).
 	}
-  \item{Reference}{
-  	Default is NULL.
-	Path to a reference file that can be created using patchwork.createreference() or downloaded from patchworks homepage.
+	\item{Tumor.vcf}{
+	Default is NULL. 
+	If samtools mpileup command has been used you will need to generate a vcf file using
+	samtools mpileup -uf reference.fasta tumor.bam | bcftools view -vcg - > outfile.vcf
 	}
 	\item{Normal.bam}{
 	Default is NULL.
-	The matched normal sample of the your BamFile.
+	The matched normal sample of the your Tumor.bam.
 	}
 	\item{Normal.pileup}{
 	Default is NULL.
-	The pileup of your normal sample.
+	The pileup of your normal sample generated through 
+	samtools -vcf reference.fasta normal.bam > outfile (SAMtools v0.1.16 or older)
+	or through
+	samtools mpileup -f reference.fasta normal.bam > outfile (SAMtools v0.1.17 or newer).
+	}
+	\item{Normal.vcf}{
+	Default is NULL. 
+	If samtools mpileup command has been used you will need to generate a vcf file using
+	samtools mpileup -uf reference.fasta normal.bam | bcftools view -vcg - > outfile.vcf
+	}
+	\item{Reference}{
+  	Default is NULL.
+	Path to a reference file that can be created using patchwork.createreference() or downloaded from patchworks homepage
+	where applicable.
 	}
 	\item{Alpha}{
 	Default 0.0001, change if you want to try to get a better segmentation from patchwork.segment().
