@@ -7,6 +7,11 @@ patchwork.GCNorm <- function(data)
 
 	## GC content normalization
 	info = data.frame(from=c(0,seq(10,90,2)),to=c(seq(10,90,2),100),mean=NA,median=NA,np=NA)
+
+	#Remove NA's from gc and gck. I have only ever seen NA's in gck for HG18 genome.
+	data = data[!is.na(data$gc),]
+	data = data[!is.na(data$gck),]
+	
 	xnorm = data$counts
 	
 	#1st round
@@ -20,7 +25,7 @@ patchwork.GCNorm <- function(data)
 		xnorm[ix] = 1 * ( data$counts[ix] / info$mean[i] )
 		}	
 		
-	xnorm = round(xnorm,2) 
+	xnorm = round(xnorm,2)
 		
 	# 2nd round
 	info2 = data.frame(from=c(0,seq(20,80,2)),to=c(seq(20,80,2),100),mean=NA,median=NA,np=NA)
