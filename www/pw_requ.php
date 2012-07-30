@@ -9,10 +9,11 @@ To successfully run patchwork you will need to obtain/create these items:<br />
 <ul class="checks">
 	<!-- <li>A Human Genome fasta file</li> -->
 	<li>A aligned and sorted BAM file of tumor content</li>
-	<li>A BAI of your BAM file</li>
+	<li>A BAI index of your BAM file</li>
 	<li>A Pileup of your BAM file</li>
 	<li>(optional) A matched normal sample to your tumor in BAM format</li>
 	<li>(optional) A pileup of your normal sample BAM</li>
+	<li>(optional) A BAI index of your normal sample BAM</li>
 	<li>(optional) A standard Reference file. (Illumina/Solexa, SOLiD or your own)</li>
 </ul>
 
@@ -102,10 +103,10 @@ To sort your BAM file: <br />
 	samtools sort &lt;tumorfile&gt;.bam &lt;sortedtumorfile&gt;.bam
 </pre>
 
-To create an index, BAI file, of your BAM file: <br />
+To create an index, BAI file, of either your normal sample or tumor sample BAM files: <br />
 
 <pre>
-	samtools index &lt;tumorfile&gt;.bam
+	samtools index &lt;tumor/normalfile&gt;.bam
 </pre>
 
 The BAI file should always have the same name as your tumor file, for example "tumor.bam"
