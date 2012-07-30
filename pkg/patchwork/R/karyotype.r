@@ -54,18 +54,24 @@ karyotype <- function(chr,start,end,int,ai,
 
             #End of loc_p failed
             p = length(col[ix_p])
-            while(col[ix_p][p]=="NA70")
+            if(p >= 1)
                 {
-                col[ix_p][p] = paste(loc_p[length(loc_p)],'70',sep='')
-                p = p - 1
+                while(col[ix_p][p]=="NA70")
+                    {
+                    col[ix_p][p] = paste(loc_p[length(loc_p)],'70',sep='')
+                    p = p - 1
+                    }
                 }
 
             #End of loc_q failed
             q = length(col[ix_q])
-            while(col[ix_q][q]=="NA70")
+            if(q >= 1)
                 {
-                col[ix_q][q] = paste(loc_q[length(loc_q)],'70',sep='')
-                q = q - 1
+                while(col[ix_q][q]=="NA70")
+                    {
+                    col[ix_q][q] = paste(loc_q[length(loc_q)],'70',sep='')
+                    q = q - 1
+                    }
                 }
 
  
