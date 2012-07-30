@@ -49,6 +49,33 @@ karyotype_chroms <- function(chr,start,end,int,ai,mchr,mpos,mval,
 
             col[ix_p] = paste(loc_p[ceiling(pos[ix_p]/100)],'70',sep='')
             col[ix_q] = paste(loc_q[ceiling((pos[ix_q]-this$end)/100)],'70',sep='')
+
+            #In some cases, it seems HG18, we get an out of bounds for the segments colors.
+            #This results in a NA which calls the color NA70 which obviously does not exists.
+            #To solve this i catch these extremes and simply give them the most extreme color.
+            #It should only possibly happen at the ends as loc_Q/loc_p start at 1.
+
+            #End of loc_p failed
+            p = length(col[ix_p])
+            if(p >= 1)
+                {
+                while(col[ix_p][p]=="NA70")
+                    {
+                    col[ix_p][p] = paste(loc_p[length(loc_p)],'70',sep='')
+                    p = p - 1
+                    }
+                }
+
+            #End of loc_q failed
+            q = length(col[ix_q])
+            if(q >= 1)
+                {
+                while(col[ix_q][q]=="NA70")
+                    {
+                    col[ix_q][q] = paste(loc_q[length(loc_q)],'70',sep='')
+                    q = q - 1
+                    }
+                }
         
         	plot(c(int[!ix],int[ix]),c(ai[!ix],ai[ix]),
             	pch=16,
