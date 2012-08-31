@@ -237,7 +237,6 @@ patchwork.CG.plot <- function(path=NULL,name='CG_sample',manual_file_input = FAL
 	
 	depcov$ratio <- NA
 	
-	#Dubbelkolla, alla segment ej 100kb
 	depcov$ratio = depcov$avgnormcov / mean(depcov$avgnormcov)
 	
 	mastervar$ratio <- mastervar$min <- mastervar$max <- mastervar$mut_count <- NA

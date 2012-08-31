@@ -24,7 +24,7 @@ patchwork.copynumbers(CNfile,cn2,delta,het,hom,maxCn=8,ceiling=1,forcedelta=F,ma
 	The name and path of your copynumbers file, generated from patchwork.plot(). Example Myfile_copynumbers.Rdata.
 	}
   \item{cn2}{
-	The approximate position of copy number 2,diploid, on total intensity axis.
+	The approximate position of copy number 2,diploid, on total intensity / coverage axis.
 	}
   \item{delta}{
 	The difference in total intensity between consecutive copy numbers. For example 1 and 2 or 2 and 3.
