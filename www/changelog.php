@@ -7,11 +7,22 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 
 <hr class="alt1" />
 
+<h5 style="display:inline-block;">patchwork v2.2 - </h5><div style="display:inline-block; width:1px;"></div>
+<h6 style="display:inline-block;">31/08/2012</h6>
+<ul>
+	<li>Parameter naming changes and updates</li>
+	<li>Implemented mpileup compatability so that latest versions of SAMtools can be used. Note that it is still more efficient to use old pileup command</li>
+	<li>Fixed an issue we were seeing with GC normalization when HG18 was used</li>
+	<li>Fixed an issue with some plots being out of bounds when HG18 was used</li>
+</ul>
+
+<hr class="alt1" />
+
 <h5 style="display:inline-block;">patchwork v2.1 - </h5><div style="display:inline-block; width:1px;"></div>
 <h6 style="display:inline-block;">25/06/2012</h6>
 <ul>
 	<li>Improved sex-chromosome handling</li>
-	<li>Added support and documentation for HG18 - NOTE:07272012 There seems to be some issues with hg18 aligned samples at the moment. We are working to get them working as intended asap.</li>
+	<li>Added support and documentation for HG18</li>
 	<li>Updated naming of files created from running patchwork</li>
 </ul>
 
