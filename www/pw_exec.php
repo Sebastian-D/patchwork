@@ -31,25 +31,47 @@ Read the excellent documentation for patchwork.plot(): <br />
 Excerpt from ?patchwork.plot regarding usage and arguments: <br />
 
 <pre>
-	Usage:
+Usage:
 
-	     patchwork.plot(BamFile,Pileup,Reference=NULL,Normal.bam=NULL,Normal.pileup=NULL,Alpha=0.0001,SD=1)
-	     
-	Arguments:
+     patchwork.plot(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL,Normal.pileup=NULL,Normal.vcf=NULL,Reference=NULL,Alpha=0.0001,SD=1)
+     
+Arguments:
 
-	 BamFile: Aligned, Sorted Bam-file.
-	  Pileup: Pileup file generated through samtools -vcf reference.fasta
-	          bamfile > outfile.
+	Tumor.bam: Path to an aligned and sorted Tumor Bam-file.
+
+	Tumor.pileup: Pileup file generated through samtools -vcf
+	          reference.fasta tumor.bam > outfile (SAMtools v0.1.16 or
+	          older) or through samtools mpileup -f reference.fasta
+	          tumor.bam > outfile (SAMtools v0.1.17 or newer).
+
+	Tumor.vcf: Default is NULL.  If samtools mpileup command has been used
+	          you will need to generate a vcf file using samtools mpileup
+	          -uf reference.fasta tumor.bam | bcftools view -vcg - >
+	          outfile.vcf
+
+	Normal.bam: Default is NULL.  The matched normal sample of the your
+	          Tumor.bam.
+
+	Normal.pileup: Default is NULL.  The pileup of your normal sample
+	          generated through samtools -vcf reference.fasta normal.bam >
+	          outfile (SAMtools v0.1.16 or older) or through samtools
+	          mpileup -f reference.fasta normal.bam > outfile (SAMtools
+	          v0.1.17 or newer).
+
+	Normal.vcf: Default is NULL.  If samtools mpileup command has been used
+	          you will need to generate a vcf file using samtools mpileup
+	          -uf reference.fasta normal.bam | bcftools view -vcg - >
+	          outfile.vcf
+
 	Reference: Default is NULL.  Path to a reference file that can be
 	          created using patchwork.createreference() or downloaded from
-	          patchworks homepage.
-	Normal.bam: Default is NULL.  The matched normal sample of the your
-	          BamFile.
-	Normal.pileup: Default is NULL.  The pileup of your normal sample.
+	          patchworks homepage where applicable.
+
 	   Alpha: Default 0.0001, change if you want to try to get a better
 	          segmentation from patchwork.segment().  From DNAcopy
 	          (?segment): alpha: significance levels for the test to accept
 	          change-points.
+
 	      SD: Default 1, change if you want to try to get a better
 	          segmentation from patchwork.segment().  From DNAcopy
 	          (?segment): undo.SD: the number of SDs between means to keep
@@ -60,7 +82,7 @@ Excerpt from ?patchwork.plot regarding usage and arguments: <br />
 Example run of patchwork.plot() where output has been left for display: <br />
 
 <pre style="height:200px;overflow:scroll;">
-	patchwork.plot(BamFile="patchwork.example.bam",Pileup="patchwork.example.pileup",Reference="../HCC1954/datasolexa.RData")
+	patchwork.plot(Tumor.bam="patchwork.example.bam",Tumor.pileup="patchwork.example.pileup",Reference="../HCC1954/datasolexa.RData")
 		Initiating Allele Data Generation
 		Initiating Read Chromosomal Coverage 
 		Reading chr1 
