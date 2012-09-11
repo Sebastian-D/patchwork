@@ -4,11 +4,12 @@
 alt="Flowchart of requirements for patchwork" title="Flowchart of requirements">
 </div><br /> -->
 
+Here is information on what files you need and how to get them.<br /><br />
 To successfully run patchwork you will need to obtain/create these items:<br />
 
 <ul class="checks">
 	<!-- <li>A Human Genome fasta file</li> -->
-	<li>A aligned and sorted BAM file of tumor content</li>
+	<li>An aligned and sorted BAM file of tumor content</li>
 	<li>A BAI index of your BAM file</li>
 	<li>A Pileup of your BAM file</li>
 	<li>(optional) A matched normal sample to your tumor in BAM format</li>
@@ -33,8 +34,9 @@ In some cases it may be better to use the reference file and a pileup.
 You can also run patchwork.plot() with only a reference file.<br />
 <br />
 
-Here are two standard reference files for HG19. It is very important that you choose a reference
-which matches the sequencing technology and reference genome used on your tumor sample.<br />
+Here are two standard reference files created for patchwork for samples where alignment used the UCSC HG19 reference.
+It is very important that you choose a reference which matches the sequencing technology and reference genome used on
+ your tumor sample.<br />
 
 <a href="http://130.238.204.28/patchwork/references/datasolexa.RData" target="_blank" style="text-decoration:none;">
 	Solexa/Illumina reference</a> <br />
@@ -42,8 +44,8 @@ which matches the sequencing technology and reference genome used on your tumor 
 	SOLiD reference</a> <br /><br />
 
 If you wish to create your own reference file, for example one that works for HG18, use patchworks.createreference().
-For this you should use a pool of non-tumor BAM files, preferably no less than three, where the same sequencing
-technology was applied as to your tumor sample. <br /><br />
+<!--For this you should use a pool of non-tumor BAM files, preferably no less than three, where the same sequencing
+technology was applied as to your tumor sample. --> <br /><br />
 
 <h4>patchwork.createreference()</h4> <br />
 
@@ -55,9 +57,13 @@ This function creates a reference using a pool of samples of your selection.
  	<li>They should be sequenced using the same technique</li>
  	<li>They should be from the same organism</li>
  	<li>They should be non-tumerous</li>
+ 	<li>They should be same sex</li>
  </ul>
 
 It is recommended that you use atleast 3 BAM files to create your reference.
+Note also that if your tumor sample is from a different sex than your reference samples you may not get optimal results.
+There is a paramter in the second part of analysis, patchwork.copynumbers(), to correct for this however if you are interested
+specifically in the sex chromosomes we would definitely recommend using the same sex in reference as in tumor sample.
 <br /><br />
 
 Initiate R and load the patchwork and patchworkData libraries: <br />
@@ -67,20 +73,19 @@ Initiate R and load the patchwork and patchworkData libraries: <br />
 	library(patchworkData)
 </pre>
 
-Read the amazing documentation for patchwork.createreference():<br />
+Read the documentation for patchwork.createreference():<br />
 
 <pre>
 	?patchwork.createreference
 </pre>
 
-The function takes a series of files with respective paths if they are not in your working directory, which is
-where you started your R session by default. It also has a "output" parameter for customizing
-output name. <br /><br />
+The function takes a series of BAM files as input and outputs a single reference file. 
+It also has a "output" parameter for customizing output name. <br /><br />
 
 Execute the function, pointing to your desired files: <br />
 
 <pre>
-	patchwork.createreference("file1","path/to/file2","../file3","~/heres/file4",output="REFOUT")
+	patchwork.createreference("file1","path/to/file2","../file3","~/here_is/file4",output="REFOUT")
 </pre>
 
 This will generate REFOUT.Rdata, or whichever prefix you chose, in your working directory.
@@ -91,13 +96,10 @@ Use this file for the reference parameter of patchwork.plot(). <br /><br />
 Many of the tasks that you will need to perform can be achieved using 
 <a href="http://sourceforge.net/projects/samtools/files/" target="_blank" style="text-decoration:none;">
 	SAMtools</a>. </br>
-It is of special importance that you install SAMtools version 0.1.16 or older or the pileup generated will
-have an incorrect format.<br />
-An example of the correct format of your pileup file is included below. <br /><br />
-
+If you wish to save space and computation time you should install SAMtools version 0.1.16 or older or the pileup generated will
+have an incorrect format. Instructions for using the newest version of SAMtools or older version is below.<br /><br />
 
 To sort your BAM file: <br />
-
 
 <pre>
 	samtools sort &lt;tumorfile&gt;.bam &lt;sortedtumorfile&gt;.bam
@@ -106,7 +108,7 @@ To sort your BAM file: <br />
 To create an index, BAI file, of either your normal sample or tumor sample BAM files: <br />
 
 <pre>
-	samtools index &lt;tumor/normalfile&gt;.bam
+	samtools index &lt;tumor_or_normalfile&gt;.bam
 </pre>
 
 The BAI file should always have the same name as your tumor file, for example "tumor.bam"
@@ -115,11 +117,12 @@ would have "tumor.bam.bai". If patchwork.plot() cannot find a correct BAI file t
 <a onmouseover="popup('Traceback &#40;most recent call last&#41;&#58; <br /> File &quot;.python/Pysamloader.py&quot;, line 20, in &lt; module &gt; <p><dd> for read in infile.fetch&#40;a[1]&#41;&#58; </dd></p> File &quot;csamtools.pyx&quot;, line 745, in csamtools.Samfile.fetch &#40;pysam/csamtools.c&#58;8332&#41;<br />File &quot;csamtools.pyx&quot;, line 684, in csamtools.Samfile._parseRegion &#40;pysam/csamtools.c&#58;7615&#41; <br />ValueError: invalid reference &lsquo;1&lsquo;<br />Error in read.table(file = file, header = header, sep = sep, quote = quote,  &#58; <p><dd> no lines available in input </p></dd> Calls&#58; patchwork.plot -&gt; patchwork.readChroms -&gt; read.csv -&gt; read.table');">
 error</a> is displayed.<br /><br />
 
+<h5>Instructions for SAMtools &lt;= 0.1.16 </h5>
 
 To pileup either your normal sample or tumor sample BAM files: <br />
 
 <pre>
-	samtools pileup -vcf &lt;humangenome&gt;.fasta &lt;tumor/normalfile&gt;.bam &gt; pileup
+	samtools pileup -vcf &lt;humangenome&gt;.fasta &lt;tumor_or_normalfile&gt;.bam &gt; pileup
 </pre>
 
 Your pileup file should have this format: <br />
@@ -140,6 +143,23 @@ Your pileup file should have this format: <br />
 		chr1    104697  g       K       0       2       60      1       T       A
 		chr1    127285  A       R       0       3       60      1       g       B
 </pre>
+
+<h5>Instructions for SAMtools &gt; 0.1.16 </h5>
+
+To mpileup either your normal sample or tumor sample BAM files: <br />
+
+<pre>
+	samtools mpileup -f &lt;humangenome&gt;.fasta &lt;tumor_or_normalfile&gt;.bam &gt; mpileup
+</pre>
+
+For consensus calling: <br />
+
+<pre>
+	samtools mpileup -uf &lt;humangenome&gt;.fasta &lt;tumor_or_normalfile&gt;.bam | bcftools view -vcg - &gt; &lt;output&gt;.vcf
+</pre>
+
+Remember to use both of these files when running patchwork.plot() with the vcf file in the Tumor.vcf/Normal.vcf parameter
+ and the mpileup in Tumor.pileup/Normal.pileup parameter. <br /><br />
 
 You should now have all the components needed for execution!
 

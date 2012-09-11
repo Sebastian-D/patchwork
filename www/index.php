@@ -232,7 +232,7 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 			<!-- End of StatCounter Code for Default Guide -->
 			<div style="display:inline-block; width:2px; height:1px;"></div>
 			<!-- LAST MODIFIED -->
-			Last modified: 2012-08-31
+			Last modified: 2012-09-11
 
 
 		</div>
@@ -242,7 +242,7 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 		    <a href="http://www.completegenomics.com" target="_blank" style="text-decoration:none;">
 		    	CompleteGenomics</a> <br />
 		    <a href="http://www.scilifelab.se/index.php?content=home" target="_blank" style="text-decoration:none;">
-		    	SciLifeLab</a><br />
+		    	SciLifeLab</a> <br />
 		    <a href="http://www.akademiska.se/" target="_blank" style="text-decoration:none;">
 		    	Akademiska Sjukhuset</a> <br />
 		    <a href="http://www.medsci.uu.se" target="_blank" style="text-decoration:none;">

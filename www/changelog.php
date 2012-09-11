@@ -7,6 +7,14 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 
 <hr class="alt1" />
 
+<h5 style="display:inline-block;">Homepage - </h5><div style="display:inline-block; width:1px;"></div>
+<h6 style="display:inline-block;">11/09/2012</h6>
+<ul>
+	<li>Changes and updates to all information in tabs under Patchwork</li>
+</ul>
+
+<hr class="alt1" />
+
 <h5 style="display:inline-block;">patchwork v2.2 - </h5><div style="display:inline-block; width:1px;"></div>
 <h6 style="display:inline-block;">31/08/2012</h6>
 <ul>

@@ -35,11 +35,11 @@
 
 
 		What this basically does is separate chromosomal regions by their allele constitution. -->
-		Allelic-imbalance basically separates chromosomal regions by their allele constitution.
-		A normal diploid person will have one maternal and one paternal copy of a chromosome.
+		Allelic-imbalance separates chromosomal regions by their allele constitution.
+		A diploid cell, which is the norm, will have one maternal and one paternal copy of a chromosome.
 		For each copy number there can be losses of segments to either of the
-		chromosomes as well as copies/gains. It is this allele-specific information that our
-		allelic imbalance captures. It does not, however, distinguish the origin of a segment,
+		chromosomes as well as copies/gains. It is this allele-specific information that
+		allelic imbalance captures. It does not, however, discern the origin of a segment,
 		that is to say that two paternal copies have the same allelic imbalance ratio as two
 		 maternal copies. Below is an attempt to explain the different possible allelic combinations
 		 for a few copy numbers,
@@ -67,7 +67,7 @@
 
 		<tr style="height:66px">
 			<th style="border-bottom:1px solid black;">Copy Number</th>
-			<th colspan=3 style="border-bottom:1px solid black;">Possible segment combinations</th>
+			<th colspan=3 style="border-bottom:1px solid black;">Possible chromosomal segment combinations</th>
 		</tr>
 
 		<tr>
@@ -172,7 +172,7 @@
 
 		</table><br />
 
-		Here is a an example of a plot generated using patchworks where I have added the possible
+		Here is a an example of a plot generated using patchwork where I have added the possible
 		allele combinations next to the clusters. <br />
 
 		<img src="css/img/Allelic_plot.png" alt="Allele-specific tutorial" title="Allele-specific graphic guide"

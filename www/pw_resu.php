@@ -17,11 +17,27 @@ A colored circles gradient and size correlate with its segments position and siz
  The circles are semi-transparent so a darker hue, both for colored and grey,
  indicate a greater amount of genomic content in that region.<br /><br />
 
-We know that each cluster has a certain copy number and allele content and we know that
-a human is usually diploid (copy number 2, heterozygous). Finally we know that the average
-copy number of the genome in question is at position 1 on the Coverage axis.
-We can use this information to determine the clusters probable copy number
-and allele content.<br /><br />
+The structure and relationships in the plot can be interpreted
+to figure out the most probable location the allele-specific copynumbers.
+Each cluster has a certain copy number and allele content.<br /><br />
+
+Quote from Execution tab: <br />
+<adress><p>
+	What do we expect a hypothetical plots arrangement of clusters to look like? We know that the average ploidy of the sample will
+	be 1 on coverage axis as it is normalized. The sample may be highly rearranged but quite often this is a starting point for
+	finding copynumber 2 or copynumber 3. As there will be less reads
+	covering copynumber 1 in the sample than higher copynumbers and copynumber 1 cannot have different allele constitutions, by
+	its very nature of being one allele, copynumber 1 will be represented by a single cluster farthest to the left on coverage
+	axis when compared to the other clusters.<br />
+	So what if we do not have any copynumber 1 in the sample? Then perhaps the far left
+	of the plot will be occupied by two clusters, indicating the LoH and diploid state of copynumber 2. It then stands to reason
+	that the next cluster we will encounter, again; moving from left to right on coverage axis, will be of copynumber 3. In the
+	same way we would expect copynumber 2 to follow copynumber 1 in the previous scenario. <br />
+
+	It is with reasoning such as this, looking at the plot and how the clusters are arranged and what cluster constitutions are
+	physically possible, that we can determine the allele-specific copynumbers in our sample.<br />
+</p></adress>
+<br />
 
 The far left tiny cluster, on Coverage axis, is the deletions, copy number 1.
 Moving to the right the next two clusters, lower cluster is quite small,
@@ -81,7 +97,9 @@ OR 3 paternal and 1 maternal copies.<br />
 Another example; if a segments total copy number is 2 and minor copy number is 0 then
 that segment of the chromosome has 2 paternal OR 2 maternal copies.
 
-<br /><br />For more background information please read our submitted article!
+<!-- <br /><br />For more background information please read our submitted article! -->
+
+<br /><br />For more background information please contact us!
 
 <br /><br /><div style="text-align:center;"><a href="#top" style="text-decoration:none;">Top</a></div>
 

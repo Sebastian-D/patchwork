@@ -33,7 +33,7 @@ If something still does not work with installation, here are links to the locati
 
 <h4>Python and Pysam</h4>
 
-Patchwork uses a python mod called pysam for chromosome reading. The package already checks if you have
+Patchwork uses a python mod called pysam for "reading" the chromosomes. The package already checks if you have
 it installed and otherwise installs it for you the first time you run patchwork however if you lack python
 or python development on your system the installation fails. It seems to already be included in MAC OS X but
 on other systems you should install/update it. Here is a 
