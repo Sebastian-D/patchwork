@@ -9,7 +9,7 @@ patchwork.CG.plot <- function(path=NULL,name='CG_sample',manual_file_input = FAL
 	if(manual_file_input==TRUE)
 		{
 		#Prompt for input of path to your files.
-		cat("ex: ~/user/documents/projekt/masterVarBeta-123-456-ASM-T1-N1.tsv")
+		cat("ex: ~/user/documents/projekt/masterVarBeta-123-456-ASM-T1-N1.tsv.bz2")
 		cat("\n","Enter complete path AND filename to your masterVarBeta file:","\n")
 		mv = scan(n=1,what=character())
 		cat("\n","ex: ~/user/documents/projekt/somaticCnvSegmentsNondiploidBeta-123-456-ASM-T1-N1.tsv")

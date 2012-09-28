@@ -26,6 +26,7 @@ patchwork.smoothing <- function(data,normaldata=NULL,reference=NULL,chroms)
 		
 		#attach(data[as.character(data$chr)==c & data$pos<ideogram$start[i],])
 		
+		#index of we are on the right chromosome and before centromere
 		ix = as.character(data$chr)==c & data$pos<ideogram$start[i]
 		norm = data$norm[ix]
 		pos = data$pos[ix]
@@ -44,6 +45,7 @@ patchwork.smoothing <- function(data,normaldata=NULL,reference=NULL,chroms)
 			for (i in 1:nsegs) 
 				{
 				j=kbposix[i]
+				#Create 50 bp windows to take median coverage of for tumor and normal/reference
 				ix <- (j-(window/2)):(j+(window/2))
 				coverage[i] <- mean(norm[ix], na.rm=T)
 				refcoverage[i] <- mean(reference[ix], na.rm=T)
@@ -57,6 +59,7 @@ patchwork.smoothing <- function(data,normaldata=NULL,reference=NULL,chroms)
 		i=which(as.character(ideogram$chr)==c) #!!
 		#attach(data[as.character(data$chr)==c & data$pos>ideogram$end[i],])
 		
+		#index of we are on the right chromosome and after centromere
 		ix = as.character(data$chr)==c & data$pos>ideogram$end[i]
 		norm = data$norm[ix]
 		pos = data$pos[ix]
@@ -72,6 +75,7 @@ patchwork.smoothing <- function(data,normaldata=NULL,reference=NULL,chroms)
 		for (i in 1:nsegs) 
 			{
 			j=kbposix[i]
+			#Create 50 bp windows to take median coverage of for tumor and normal/reference
 			ix <- (j-(window/2)):(j+(window/2))
 			coverage[i] <- median(norm[ix], na.rm=T)
 			refcoverage[i] <- median(reference[ix], na.rm=T)
@@ -81,6 +85,8 @@ patchwork.smoothing <- function(data,normaldata=NULL,reference=NULL,chroms)
 		#detach()
 		}
 	colnames(kbsegs) <- c('chr','pos','coverage','refcoverage')
+
+	#the normalized coverage ratio is the tumors coverage over the reference coverage which should normalize for positional effect.
 	kbsegs$ratio <- kbsegs$coverage/kbsegs$refcoverage
 	return(kbsegs)
 	}
