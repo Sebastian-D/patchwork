@@ -1,3 +1,7 @@
+Patchwork works on Unix (Linux, Ubuntu, MacOSX, etc) based systems. You will probably get an error
+when trying to install it on Windows, and you definitely can't run it.
+<br /><br />
+
 Begin by starting R. It is recommended that you use the latest version.
 
 <br /><br />

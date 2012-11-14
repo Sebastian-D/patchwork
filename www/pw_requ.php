@@ -11,9 +11,11 @@ To successfully run patchwork you will need to obtain/create these items:<br />
 	<!-- <li>A Human Genome fasta file</li> -->
 	<li>An aligned and sorted BAM file of tumor content</li>
 	<li>A BAI index of your BAM file</li>
-	<li>A Pileup of your BAM file</li>
+	<li>A pileup of your BAM file</li>
+	<li>(optional) A VCF file of your tumor pileup</li>
 	<li>(optional) A matched normal sample to your tumor in BAM format</li>
 	<li>(optional) A pileup of your normal sample BAM</li>
+	<li>(optional) A VCF file of your normal pileup</li>
 	<li>(optional) A BAI index of your normal sample BAM</li>
 	<li>(optional) A standard Reference file. (Illumina/Solexa, SOLiD or your own)</li>
 </ul>
@@ -28,11 +30,17 @@ There are several (optional) files in the list, what we mean by this is that you
 files. There is really no point in using all of them.
 <br /><br />
 If you have a matched normal sample you should make a pileup of this and use those two arguments.
+If you have a normal you should also create a BAI file of it, it will not be a parameter but is
+required for the file to be read by patchwork.
 <br />
 In some cases it may be better to use the reference file and a pileup.
 <br />
 You can also run patchwork.plot() with only a reference file.<br />
 <br />
+
+The optional VCF files need to be supplied if you are using a later version of samtools and have opted
+for using samtools mpileup to create the pileup file as they contain consensus and variant information.
+More information on this is farther down.<br /><br />
 
 Here are two standard reference files created for patchwork for samples where alignment used the UCSC HG19 reference.
 It is very important that you choose a reference which matches the sequencing technology and reference genome used on
@@ -155,8 +163,14 @@ To mpileup either your normal sample or tumor sample BAM files: <br />
 For consensus calling: <br />
 
 <pre>
-	samtools mpileup -uf &lt;humangenome&gt;.fasta &lt;tumor_or_normalfile&gt;.bam | bcftools view -vcg - &gt; &lt;output&gt;.vcf
+	samtools mpileup -uf &lt;humangenome&gt;.fasta &lt;tumor_or_normalfile&gt;.bam | bcftools view -bvcg - &gt; &lt;unfiltered_output&gt;.bcf
+
+	bcftools view &lt;unfiltered_output&gt;.bcf | vcfutils.pl varFilter -D100 > &lt;output&gt;.vcf
 </pre>
+
+The -D100 option filters out SNPs that had read depth higher than 100,
+(They might be from repeat regions in your sample.) you should change this parameter based on the kind of coverage 
+your sample has. For average coverage 30x =~ -D100, average coverage 120x =~ -D500 etc. <br /><br />
 
 Remember to use both of these files when running patchwork.plot() with the vcf file in the Tumor.vcf/Normal.vcf parameter
  and the mpileup in Tumor.pileup/Normal.pileup parameter. <br /><br />

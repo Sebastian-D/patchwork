@@ -232,7 +232,7 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 			<!-- End of StatCounter Code for Default Guide -->
 			<div style="display:inline-block; width:2px; height:1px;"></div>
 			<!-- LAST MODIFIED -->
-			Last modified: 2012-09-11
+			Last modified: 2012-11-14
 
 
 		</div>
