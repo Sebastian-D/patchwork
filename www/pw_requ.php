@@ -39,7 +39,8 @@ You can also run patchwork.plot() with only a reference file.<br />
 <br />
 
 The optional VCF files need to be supplied if you are using a later version of samtools and have opted
-for using samtools mpileup to create the pileup file as they contain consensus and variant information.
+for using samtools mpileup to create the pileup file. The vcfs contain consensus and variant information which
+the mpileup generated pileup lacks.
 More information on this is farther down.<br /><br />
 
 Here are two standard reference files created for patchwork for samples where alignment used the UCSC HG19 reference.
@@ -157,20 +158,22 @@ Your pileup file should have this format: <br />
 To mpileup either your normal sample or tumor sample BAM files: <br />
 
 <pre>
-	samtools mpileup -f &lt;humangenome&gt;.fasta &lt;tumor_or_normalfile&gt;.bam &gt; mpileup
+	samtools mpileup -f &lt;humangenome&gt;.fasta &lt;tumor_or_normal&gt;.bam &gt; mpileup
 </pre>
 
 For consensus calling: <br />
 
 <pre>
-	samtools mpileup -uf &lt;humangenome&gt;.fasta &lt;tumor_or_normalfile&gt;.bam | bcftools view -bvcg - &gt; &lt;unfiltered_output&gt;.bcf
+	samtools mpileup -uf &lt;humangenome&gt;.fasta &lt;tumor_or_normal&gt;.bam |
+		bcftools view -bvcg - &gt; &lt;unfiltered_output&gt;.bcf
 
 	bcftools view &lt;unfiltered_output&gt;.bcf | vcfutils.pl varFilter -D100 > &lt;output&gt;.vcf
 </pre>
 
 The -D100 option filters out SNPs that had read depth higher than 100,
 (They might be from repeat regions in your sample.) you should change this parameter based on the kind of coverage 
-your sample has. For average coverage 30x =~ -D100, average coverage 120x =~ -D500 etc. <br /><br />
+your sample has.<br />
+For average coverage 30x =~ -D100, average coverage 120x =~ -D500 etc. <br /><br />
 
 Remember to use both of these files when running patchwork.plot() with the vcf file in the Tumor.vcf/Normal.vcf parameter
  and the mpileup in Tumor.pileup/Normal.pileup parameter. <br /><br />

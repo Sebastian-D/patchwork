@@ -1,5 +1,6 @@
 PatchworkCG works on Unix (Linux, Ubuntu, MacOSX, etc) based systems. You will probably get an error
-when trying to install it on Windows, and you definitely can't run it.
+when trying to install it on Windows. If you get it to work on Windows send us an email and
+let us know, we have not tested it.
 <br /><br />
 
 Begin by starting R. It is recommended that you use the latest version.
