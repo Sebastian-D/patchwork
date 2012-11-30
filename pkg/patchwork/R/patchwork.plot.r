@@ -124,8 +124,8 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			}
 
 		#Assign AI to kbsegs. (not in use atm)
-		object = assignAI(alf$achr,alf$apos,alf$amin,alf$amax,
-		kbsegs$chr,(kbsegs$pos-5000),(kbsegs$pos+5000))
+		#object = assignAI(alf$achr,alf$apos,alf$amin,alf$amax,
+		#kbsegs$chr,(kbsegs$pos-5000),(kbsegs$pos+5000))
 
 		kbsegs = cbind(kbsegs[,1:5],object[,4])
 		colnames(kbsegs)=c("chr","pos","coverage","refcoverage","ratio","ai")
