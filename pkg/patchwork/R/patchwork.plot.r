@@ -123,12 +123,12 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			cat("Segmentation Complete \n")
 			}
 
-		#Assign AI to kbsegs. (not in use atm)
+		#Assign AI to kbsegs. (not in use atm)   ---MARKUS ---
 		#object = assignAI(alf$achr,alf$apos,alf$amin,alf$amax,
 		#kbsegs$chr,(kbsegs$pos-5000),(kbsegs$pos+5000))
 
-		kbsegs = cbind(kbsegs[,1:5],object[,4])
-		colnames(kbsegs)=c("chr","pos","coverage","refcoverage","ratio","ai")
+		#kbsegs = cbind(kbsegs[,1:5],object[,4])
+		#colnames(kbsegs)=c("chr","pos","coverage","refcoverage","ratio","ai")
 		
 		if(length(segs) == 6)
 			{
