@@ -37,8 +37,8 @@ karyotype_check(chr,start,end,int,ai,Cn,mCn,t,name='',xlim=c(-1.02,1.02),ylim=0:
   	Copy number.
 	}
 	\item{mCn}{
-  	mCn.
-	}
+  	Minor Copy Number
+  	}
 	\item{t}{
   	A list between int and ai.
 	}

@@ -8,7 +8,7 @@ patchwork function which computes medians and allelec imbalance of the segment.
 }
 
 \description{
-description
+Computes medians and Allelic imbalance for segments of the input genome.
 }
 
 \usage{
@@ -28,7 +28,7 @@ patchwork.Medians_n_AI(segs,kbsegs,alf)
 }
 
 \details{
-Details
+See homepage at http://patchwork.r-forge.r-project.org/ for more information.
 }
 
 %\value{

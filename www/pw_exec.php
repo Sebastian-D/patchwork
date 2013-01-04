@@ -46,9 +46,17 @@ Arguments:
 		  or (SAMtools v 0.1.17 or newer)
 		  samtools mpileup -f reference.fasta tumor.bam > outfile
 
-	Tumor.vcf: Default is NULL. If samtools mpileup command has been used
-	          you will need to generate a vcf file using 
-	      	  samtools mpileup -uf reference.fasta tumor.bam | bcftools view -vcg - > outfile.vcf
+	Tumor.vcf: Default is NULL.  If samtools mpileup command has been used
+          you will need to generate a vcf file using
+          samtools mpileup -uf reference.fasta tumor.bam | bcftools
+          view -bvcg - > raw.bcf
+          and then
+          bcftools view raw.bcf | vcfutils.pl varFilter -D100 >
+          outfile.vcf
+          Where the -D100 option filters out SNPs with a read depth
+          higher than 100. It should be changed depending on coverage,
+          at 30x -D100 should be ok and at 120x -D500 might be more
+          suitable for example.
 
 	Normal.bam: Default is NULL. The matched normal sample of the your
 	          Tumor.bam.
