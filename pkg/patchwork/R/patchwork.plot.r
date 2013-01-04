@@ -27,8 +27,33 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 		if(is.null(alf))
 			{
 			cat("Initiating Allele Data Generation \n")
-			if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
-			alf = patchwork.alleledata(Tumor.pileup, normalalf=normalalf,Tumor.vcf)
+
+			#If Normal.pileup exists, use with normal.vcf (if mpileup) or without (if pileup) to 
+			#create normalalf in patchwork.alleledata()
+
+			#Note that right not normalalf isnt even enabled.
+			#if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
+
+			alf = patchwork.alleledata(Tumor.pileup, 
+												#normalalf=normalalf,
+												vcf=Tumor.vcf)
+
+			# if(!is.null(Normal.pileup) & !is.null(Reference))
+			# 	{
+			# 	cat("ATTENTION: You have values for both Reference and Normal.pileup parameters. Normal will \n
+			# 		be used for allele extraction from pileup.")
+			# 	}
+
+			# #If both normal.pileup and normal.vcf exists use them to create a normal alf (samtools mpileup)
+			# if (!is.null(Normal.pileup) & !is.null(Normal.vcf)) normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
+			# alf = patchwork.alleledata(Tumor.pileup, normalalf=normalalf,Tumor.vcf)
+
+			# #If we have normal.pileup but not normal.vcf (samtools pileup)
+			# if (!is.null(Normal.pileup) & is.null(Normal.vcf)) normalalf <- patchwork.alleledata(Normal.pileup)
+			# alf = patchwork.alleledata(Tumor.pileup, normalalf=normalalf)
+
+			# #No normal sample
+			# if (!is.null(Reference) & is.null(Normal.pileup)) alf <- patchwork.alleledata(Tumor.pileup)
 			cat("Allele Data Generation Complete \n")
 			save(alf, normalalf,file=paste(name,"_pile.alleles.Rdata",sep=""))
 			}

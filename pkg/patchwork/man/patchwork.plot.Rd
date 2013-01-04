@@ -36,7 +36,11 @@ patchwork.plot(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL,Normal.pile
 	\item{Tumor.vcf}{
 	Default is NULL. 
 	If samtools mpileup command has been used you will need to generate a vcf file using
-	samtools mpileup -uf reference.fasta tumor.bam | bcftools view -vcg - > outfile.vcf
+	samtools mpileup -uf reference.fasta tumor.bam | bcftools view -bvcg - > raw.bcf
+	and then
+	bcftools view raw.bcf | vcfutils.pl varFilter -D100 > outfile.vcf
+	Where the -D100 option filters out SNPs with a read depth higher than 100. It should be changed
+	depending on coverage, at 30x -D100 should be ok and at 120x -D500 might be more suitable for example.
 	}
 	\item{Normal.bam}{
 	Default is NULL.
