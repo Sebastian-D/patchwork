@@ -328,7 +328,7 @@ axis. In this example hom is ~0.79. <br /><br />
 An example run of patchwork.copynumbers(): <br />
 
 <pre>
-	patchwork.copynumbers(CNFile="path/to/prefix_copynumbers.Rdata",cn2=0.8, delta=0.28, het=0.21, hom=0.79)
+	patchwork.copynumbers(CNfile="path/to/prefix_copynumbers.Rdata",cn2=0.8, delta=0.28, het=0.21, hom=0.79)
 </pre>
 
 This will generate an additional set of plots in your working directory. <br /><br />

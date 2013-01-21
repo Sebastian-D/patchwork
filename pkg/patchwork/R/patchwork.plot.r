@@ -2,6 +2,11 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 							Reference=NULL,Alpha=0.0001,SD=1)
 	{
 
+	if(is.null(Normal.bam) & is.null(Reference))
+		{
+		stop("You must give either a normal bam or a reference file for patchwork to run properly! \n")
+		}
+
 	#Extract the name from tumor.bam
 
 	name = strsplit(tolower(Tumor.bam),".bam")
@@ -31,8 +36,8 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			#If Normal.pileup exists, use with normal.vcf (if mpileup) or without (if pileup) to 
 			#create normalalf in patchwork.alleledata()
 
-			#Note that right not normalalf isnt even enabled.
-			#if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
+			#Create normalalf
+			if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
 
 			alf = patchwork.alleledata(Tumor.pileup, 
 												#normalalf=normalalf,
