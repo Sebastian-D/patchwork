@@ -232,15 +232,11 @@ patchwork.CG.copynumbers = function(cn2,delta,het,hom,maxCn=8,ceiling=1,name="co
     	distance <- Inf
     	for (cn in 0:maxCn) 
     		{
-            cat("cn: ",cn,"\n")
         	t_int <- int[paste('cn',cn,sep='')][[1]]    ## get Log-R of particular cn from 'int'
-            cat("t_int: ",t_int,"\n")
         	t_dis <- abs(regions$ratio[i]-t_int)            ## distance to that particular cn
-            cat("t_dis: ",t_dis,"\n")
         	if (t_dis < distance) 
         		{                        ## nearest so far, save.
         		distance <- t_dis -> intDist[i]
-                cat("distance: ",distance,"\n")
         		Cn[i] <- cn
         		}
     		}
