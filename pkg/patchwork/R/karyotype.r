@@ -25,8 +25,8 @@ karyotype <- function(chr,start,end,int,ai,
     
     	size=rep(0.5,length(chr))
     	size[length>2000000]=1
-    	size[length>5000000]=2
-    	size[length>10000000]=3
+    	size[length>5000000]=1.5
+    	size[length>10000000]=2
  
     
     	for (c in 1:24) 

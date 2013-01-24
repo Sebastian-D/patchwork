@@ -27,11 +27,11 @@ CG_karyotype <- function(chr,start,end,int,ai,
     	length=end-start
     
     size=rep(0.5,length(chr))
-    size[length>1000000]=1
-    size[length>3000000]=2
-    size[length>5000000]=3
-    size[length>10000000]=4
-    size[length>20000000]=5
+    size[length>1000000]=0.5
+    size[length>3000000]=1
+    size[length>5000000]=1.5
+    size[length>10000000]=2
+    size[length>20000000]=2.5
  
     
     	for (c in 1:24) 
