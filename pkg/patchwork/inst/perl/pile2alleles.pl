@@ -32,44 +32,51 @@ $iupac{'T'}{'R'} = 'A|G';
 $iupac{'T'}{'S'} = 'G|C';
 $iupac{'T'}{'M'} = 'A|C';
 
-
 while (<STDIN>) {
 	chomp;
-	my ($chr, $pos, $ref, $cons, $consQual, $depth, $baseString) = (split /\t/, $_)[0,1,2,3,4,7,8];
-	$ref = uc $ref;
-	if ($ref eq '*'){next;}
-	if ($cons eq 'N'){next;}
-	my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
-	$snps{$chr}{$pos}{'ref'} = $ref;
-	$snps{$chr}{$pos}{'snp'} = $snp;
-	$snps{$chr}{$pos}{'qual'} = $consQual;
-	my $snpCount;
-	if ($snps{$chr}{$pos}{'snp'} eq 'A') {
-		$snpCount = $baseString =~ tr/Aa/Aa/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'C') {
-		$snpCount = $baseString =~ tr/Cc/Cc/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'G') {
-		$snpCount = $baseString =~ tr/Gg/Gg/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'T') {
-		$snpCount = $baseString =~ tr/Tt/Tt/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|C') {
-		$snpCount = $baseString =~ tr/AaCc/AaCc/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|G') {
-		$snpCount = $baseString =~ tr/AaGg/AaGg/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|T') {
-		$snpCount = $baseString =~ tr/AaTt/AaTt/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'G|C') {
-		$snpCount = $baseString =~ tr/GgCc/GgCc/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'G|T') {
-		$snpCount = $baseString =~ tr/GgTt/GgTt/;
-	} elsif ($snps{$chr}{$pos}{'snp'} eq 'C|T') {
-		$snpCount = $baseString =~ tr/CcTt/CcTt/;
-	} else {
-		$snpCount = 0;
+	#if ($_ == ""){next;}
+	if ($_ =~ /(\S+)\t(\S+)\t(\S+)\t(\S+)\t(\S+)\t\S+\t\S+\t(\S+)\t(\S+)\t\S+/)
+	{
+		my ($chr, $pos, $ref, $cons, $consQual, $depth, $baseString) = ($1,$2,$3,$4,$5,$6,$7); #(split /\t/, $_)[0,1,2,3,4,7,8];
+		$ref = uc $ref;
+		if ($ref eq '*'){next;}
+		if ($cons eq 'N'){next;}
+		my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
+		$snps{$chr}{$pos}{'ref'} = $ref;
+		$snps{$chr}{$pos}{'snp'} = $snp;
+		$snps{$chr}{$pos}{'qual'} = $consQual;
+		my $snpCount;
+		if ($snps{$chr}{$pos}{'snp'} eq 'A') {
+			$snpCount = $baseString =~ tr/Aa/Aa/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'C') {
+			$snpCount = $baseString =~ tr/Cc/Cc/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'G') {
+			$snpCount = $baseString =~ tr/Gg/Gg/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'T') {
+			$snpCount = $baseString =~ tr/Tt/Tt/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|C') {
+			$snpCount = $baseString =~ tr/AaCc/AaCc/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|G') {
+			$snpCount = $baseString =~ tr/AaGg/AaGg/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|T') {
+			$snpCount = $baseString =~ tr/AaTt/AaTt/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'G|C') {
+			$snpCount = $baseString =~ tr/GgCc/GgCc/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'G|T') {
+			$snpCount = $baseString =~ tr/GgTt/GgTt/;
+		} elsif ($snps{$chr}{$pos}{'snp'} eq 'C|T') {
+			$snpCount = $baseString =~ tr/CcTt/CcTt/;
+		} else {
+			$snpCount = 0;
+		}
+		$snps{$chr}{$pos}{'depth'} = $depth;
+		$snps{$chr}{$pos}{'freq'} = $snpCount;
+		$snps{$chr}{$pos}{'pct'} = sprintf '%.2f', ($snpCount/$depth);
+		}
+	else
+	{
+		print STDERR "Line incompatible: $_ \n";
 	}
-	$snps{$chr}{$pos}{'depth'} = $depth;
-	$snps{$chr}{$pos}{'freq'} = $snpCount;
-	$snps{$chr}{$pos}{'pct'} = sprintf '%.2f', ($snpCount/$depth);
 }
 
 

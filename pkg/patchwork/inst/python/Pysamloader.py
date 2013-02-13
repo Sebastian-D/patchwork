@@ -4,10 +4,12 @@ import os
 
 import pysam
 
+filename = sys.argv[1]
+
 try:
     infile = pysam.Samfile(sys.argv[1],"rb")
 except IOError,eStr:
-    print "Error:Cannot open",infile," for reading: ", eStr
+    print "Error:Cannot open ",filename," for reading: ", eStr
     sys.exit()
     
 outfile = open(".Tmp_chr_pos","w")
