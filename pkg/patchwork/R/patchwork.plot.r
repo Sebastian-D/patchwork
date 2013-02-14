@@ -65,6 +65,12 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 	
 		if (!is.null(normalalf)) 
 			{
+			## Extract somatic variants
+			normaltemp=data.frame(achr=normalalf$achr,apos=normalalf$apos,normal=T)
+			somatic <- merge(normaltemp,alf,by=1:2,all.x=F, all.y=T)
+			somatic <- somatic[is.na(somatic$normal),]
+			save(somatic,file=paste(name,"_somatic.Rdata",sep=""))
+			## Remove all but the heterozygous SNPs
 			normalalf <- normalalf[normalalf$amin/normalalf$atot > 0.2,]
 			alf <- merge(normalalf[,1:2],alf,by=1:2,all=F)
 			}

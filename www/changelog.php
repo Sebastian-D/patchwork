@@ -5,6 +5,14 @@
 Here you can find the recent changes made to the patchwork and patchworkCG packages.
 <br />
 
+<!-- <hr class="alt1" />
+
+<h5 style="display:inline-block;">patchwork v2.3 - </h5><div style="display:inline-block; width:1px;"></div>
+<h6 style="display:inline-block;">2013</h6>
+<ul>
+	<li>Patchwork now gives you an additional file, &lt;sample_name&gt;_somatic.Rdata, which contains possible, unfiltered, somatic variants.</li>
+</ul> -->
+
 <hr class="alt1" />
 
 <h5 style="display:inline-block;">Homepage - </h5><div style="display:inline-block; width:1px;"></div>
