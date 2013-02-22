@@ -182,7 +182,7 @@
 
 		Coverage is measured as total DNA content and normalized around 1. You will get a 
 		clearer picture at higher coverage data, 120x etc, however patchworkCG has high quality results
-		with low coverage aswell.
+		with low coverage as well.
 
 	</div>
 	<div class="clear"></div>

@@ -10,10 +10,12 @@ patchwork.plot() is a function that visualizes allele-specific copy numbers from
  whole-genome sequenced data of tumors.<br /><br />
 
 It is recommended that you run patchwork from a "clean" working directory to avoid the risk
- of having files write over eachother if you run multiple different samples.<br /><br />
+ of having files overwrite in the case of running patchwork on multiple samples.<br /><br />
 
 Execution may take quite a while depending on the size of your sample,
-if possible run it on a dedicated computer.<br /><br />
+if possible run it on a dedicated computer. (A 50GB tumor sample with a matched 50GB normal sample took ~6 hours
+and used 10GB (out of 24GB available) RAM. However
+there are many factors that influence runtime so be generous with time/RAM allocation!)<br /><br />
 
 Initiate the R environment and load the patchwork and patchworkData libraries: <br />
 
@@ -236,8 +238,8 @@ TO COMPLETELY RE-RUN PATCHWORK FROM SCRATCH ALL OF THE ABOVE FILES NEED TO BE DE
  <h4>patchwork.copynumbers()</h4>
 
 
- The function patchwork.copynumbers() determines which relationship between coverage
-  and allelic imbalance signifies what copy number and allele ratio for each segment. <br /><br />
+ The function patchwork.copynumbers() uses the relationship between coverage
+  and allelic imbalance to assign copy number and allele ratio for each segment. <br /><br />
 
 The only file you absolutely must have in your working for the next part of execution is (prefix)_copynumbers.Rdata. <br /><br />
 
@@ -284,7 +286,7 @@ Arguments:
 
 To infer the arguments for patchwork.copynumbers() you will need to look at one of the chromosomal
 plots generated using patchwork.plot(). The structure and relationships in the plot can be interpreted
-to figure out the most probable location the allele-specific copynumbers. <br /><br />
+to figure out the most probable locations of the allele-specific copynumbers. <br /><br />
 
 
 For information to help you understand the axis, allelic imbalance and coverage, and layout of the plot click <a href="AI_Cov.php" target="_blank" style="text-decoration:none;">here</a>.

@@ -30,7 +30,7 @@ There are several (optional) files in the list, what we mean by this is that you
 files. There is really no point in using all of them.
 <br /><br />
 If you have a matched normal sample you should make a pileup of this and use those two arguments.
-If you have a normal you should also create a BAI file of it, it will not be a parameter but is
+You should also create a BAI file of it, it will not be a parameter but is
 required for the file to be read by patchwork.
 <br />
 In some cases it may be better to use the reference file and a pileup.
@@ -65,11 +65,11 @@ This function creates a reference using a pool of samples of your selection.
  	<li>Aligned using same reference genome (HG18/HG19)</li>
  	<li>They should be sequenced using the same technique</li>
  	<li>They should be from the same organism</li>
- 	<li>They should be non-tumerous</li>
+ 	<li>They should be non-tumorous</li>
  	<li>They should be same sex</li>
  </ul>
 
-It is recommended that you use atleast 3 BAM files to create your reference.
+It is recommended that you use at least 3 BAM files to create your reference.
 Note also that if your tumor sample is from a different sex than your reference samples you may not get optimal results.
 There is a paramter in the second part of analysis, patchwork.copynumbers(), to correct for this however if you are interested
 specifically in the sex chromosomes we would definitely recommend using the same sex in reference as in tumor sample.
