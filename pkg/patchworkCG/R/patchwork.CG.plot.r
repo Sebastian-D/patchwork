@@ -19,6 +19,21 @@ patchwork.CG.plot <- function(path=NULL,name='CG_sample',manual_file_input = FAL
 		cat("\n","Enter complete path AND filename to your depthOfCoverage file:","\n")
 		dc = scan(n=1,what=character())
 		
+
+		#Check if the files exists
+		if(file.exists(mv)==F)
+			{
+			stop("The required file,masterVarBeta, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+		if(file.exists(sm)==F)
+			{
+			stop("The required file,somaticCnvSegmentsNondiploidBeta, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+		if(file.exists(dc)==F)
+			{
+			stop("The required file,depthOfCoverage, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+
 		skip_mv = scan(file=mv,n=1,what=character(),quiet=T)
 		i = 1
 		j = grep(">locus",skip_mv)
@@ -72,7 +87,21 @@ patchwork.CG.plot <- function(path=NULL,name='CG_sample',manual_file_input = FAL
 		}
 	else if(length(masterVarBeta) == 1 & length(somaticCnvSegments) == 1 & length(depthOfCoverage) == 1)
 		{
-		
+
+		#Check if the files exists
+		if(file.exists(masterVarBeta)==F)
+			{
+			stop("The required file,masterVarBeta, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+		if(file.exists(masterVarBeta)==F)
+			{
+			stop("The required file,somaticCnvSegmentsNondiploidBeta, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+		if(file.exists(masterVarBeta)==F)
+			{
+			stop("The required file,depthOfCoverage, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+
 		mv_ = strsplit(masterVarBeta,"/")
 		sm_ = strsplit(somaticCnvSegments,"/")
 		dc_ = strsplit(depthOfCoverage,"/")
@@ -134,6 +163,7 @@ patchwork.CG.plot <- function(path=NULL,name='CG_sample',manual_file_input = FAL
 		}
 	else
 		{
+		#Check that path is given
 		if(length(path)==0)
 			{
 			stop("You must input the required files, either by the path parameter, manual_file_input parameter or individual pointer parameters to the files in question. See ?patchwork.CG.plot")
@@ -143,6 +173,20 @@ patchwork.CG.plot <- function(path=NULL,name='CG_sample',manual_file_input = FAL
 		segm_ = list.files(path=path_segm,pattern="somaticCnvSegmentsNondiploid")
 		depcov_ = list.files(path=path_segm,pattern="depthOfCoverage")
 		
+		#If the files were not found.
+		if(length(mastervar_)==0)
+			{
+			stop("The required file,masterVarBeta, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+		if(length(segm_)==0)
+			{
+			stop("The required file,somaticCnvSegmentsNondiploidBeta, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+		if(length(depcov_)==0)
+			{
+			stop("The required file,depthOfCoverage, could not be found. Did you input the correct path? See ?patchwork.CG.plot")
+			}
+
 		skip_mv = scan(file=paste(path,"/",mastervar_,sep=""),n=1,what=character(),quiet=T)
 		i = 1
 		j = grep(">locus",skip_mv)

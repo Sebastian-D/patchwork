@@ -90,6 +90,10 @@ karyotype <- function(chr,start,end,int,ai,
         		xaxt="n")
         	axis(1,cex.axis=1.5)
         	axis(2,cex.axis=1.5)
+            if(c==1)
+                {
+                title(main=paste("Sample: ",name,sep=""),cex.main=2)
+                }
 			par(new=F)  
     		}
     dev.off()

@@ -17,7 +17,7 @@ if possible run it on a dedicated computer. (A 50GB tumor sample with a matched 
 and used 10GB (out of 24GB available) RAM. However
 there are many factors that influence runtime so be generous with time/RAM allocation!)<br /><br />
 
-Initiate the R environment and load the patchwork and patchworkData libraries: <br />
+Start by initiate the R environment and loading the patchwork and patchworkData libraries: <br />
 
 <pre>
 	library(patchwork)
@@ -209,6 +209,8 @@ Example run of patchwork.plot() where output has been left for display: <br />
 		Warning messages:
 		(Some warning messages about trying to load the files in the checklist below is not uncommon)
 </pre>
+
+If you get any errors not mentioned on the homepage please send us an <a onmouseover="popup('sebastian.dilorenzo(at)medsci.uu.se <br /> markus.mayrhofer(at)medsci.uu.se <br /> anders.isaksson(at)medsci.uu.se');">email</a>, and we will get back to you as soon as possible!<br /><br />
 
 Your working directory should now have the plots generated from the function, 1 overview
  plot and 24 chromosomal plots. <br /><br />

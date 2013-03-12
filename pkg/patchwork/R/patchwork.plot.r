@@ -193,7 +193,7 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			ylim=c(0.1,1))
 	cat("Plotting Complete \n")
 	cat("patchwork.plot Complete.\n")
-	cat("Below you may see some warning messages, you can read about these on our homepage. They are nothing to be worried about. \n")
+	cat("Below you may see some warning messages, you can read about these on our homepage. They are either nothing to be worry about (\"Tried to load file, it didn't exist.\") or something you should send us an email about. \n")
 	}
 	
 	

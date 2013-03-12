@@ -56,6 +56,7 @@ karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,name='',xlim=c(-1.02,1
         	xaxt="n")
         	axis(1,cex.axis=2)
         	axis(2,cex.axis=2)
+            title(main=paste("Sample: ",name,sep=""),cex.main=2)
         	
 		text(variants_data[,1],variants_data[,2],
         	labels=variants,

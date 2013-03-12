@@ -11,6 +11,8 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 <h6 style="display:inline-block;">2013</h6>
 <ul>
 	<li>Patchwork now gives you an additional file, &lt;sample_name&gt;_somatic.Rdata, which contains possible, unfiltered, somatic variants.</li>
+	<li>PatchworkCG now has better file handling to avoid an error where it would not start reading files but not give an error either.</li>
+	<li>Patchwork now includes sample filename as title in plot output.</li>
 </ul> -->
 
 <hr class="alt1" />

@@ -94,6 +94,10 @@ karyotype_chroms <- function(chr,start,end,int,ai,mchr,mpos,mval,
         	axis(2,at=seq(0,1,0.1),cex.axis=2)
         	mtext(text="Allelic imbalance",side=2,line=4,las=3,cex=2)
         	mtext(text="Coverage, all segments",side=1,line=4,cex=2,las=1)
+            if(c==1)
+                {
+                title(main=paste("Sample: ",name,sep=""),cex.main=2)
+                }
 		
         	par(new=F)
         	mix <- mchr==as.character(this$chr)
