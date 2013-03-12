@@ -39,9 +39,7 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			#Create normalalf
 			if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
 
-			alf = patchwork.alleledata(Tumor.pileup, 
-												#normalalf=normalalf,
-												vcf=Tumor.vcf)
+			alf = patchwork.alleledata(Tumor.pileup, vcf=Tumor.vcf)
 
 			# if(!is.null(Normal.pileup) & !is.null(Reference))
 			# 	{
@@ -63,6 +61,7 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			save(alf, normalalf,file=paste(name,"_pile.alleles.Rdata",sep=""))
 			}
 	
+		## If there is a pileup for matched normal
 		if (!is.null(normalalf)) 
 			{
 			## Extract somatic variants
@@ -73,6 +72,10 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			## Remove all but the heterozygous SNPs
 			normalalf <- normalalf[normalalf$amin/normalalf$atot > 0.2,]
 			alf <- merge(normalalf[,1:2],alf,by=1:2,all=F)
+			} else 
+			{ ## If there is NO pileup for matched normal
+				alf <- alf[alf$dbSnp==T,]
+				alf <- alf[alf$min>1 & alf$ref>2,]
 			}
 
 

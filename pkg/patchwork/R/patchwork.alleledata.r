@@ -80,7 +80,10 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 		data(commonSnps132,package="patchworkData")
 		}
 
+	# Annotate with dbSNP
+	dbSnp=dbSnp[,c(1,3)]; dbSnp$dbSnp=T
 	alf=merge(alf,dbSnp[,c(1,3)], all.x=T, all.y=F, by=1:2)
+	alf$dbSnp[is.na(alf$dbSnp)]=F
 
 	#Finally, if a matched normal was available, remove SNPs that were not (somewhat) heterozygous there.
 	#if (!is.null(normalalf)) {
