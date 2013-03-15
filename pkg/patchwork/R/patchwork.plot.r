@@ -73,9 +73,9 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			normalalf <- normalalf[normalalf$amin/normalalf$atot > 0.2,]
 			alf <- merge(normalalf[,1:2],alf,by=1:2,all=F)
 			} else 
-			{ ## If there is NO pileup for matched normal
-				alf <- alf[alf$dbSnp==T,]
-				alf <- alf[alf$min>1 & alf$ref>2,]
+			{ ## If there was NO pileup for matched normal
+			alf <- alf[alf$dbSnp==T,]
+			alf <- alf[alf$amin>1 & alf$aref>2,]
 			}
 
 
