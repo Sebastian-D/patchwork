@@ -32,7 +32,11 @@ $iupac{'T'}{'R'} = 'A|G';
 $iupac{'T'}{'S'} = 'G|C';
 $iupac{'T'}{'M'} = 'A|C';
 
-while (<STDIN>) {
+#my $filename = <STDIN>;
+#$filename = chomp($filename);
+
+while (<STDIN>) 
+{
 	chomp;
 	#if ($_ == ""){next;}
 	if ($_ =~ /(\S+)\t(\S+)\t(\S+)\t(\S+)\t(\S+)\t\S+\t\S+\t(\S+)\t(\S+)\t\S+/)
@@ -75,6 +79,7 @@ while (<STDIN>) {
 		}
 	else
 	{
+		#print STDERR "In file $filename, line incompatible: $_ \n";
 		print STDERR "Line incompatible: $_ \n";
 	}
 }

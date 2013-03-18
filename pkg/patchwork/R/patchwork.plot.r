@@ -31,14 +31,25 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 		#you are running R from. (getwd())
 		if(is.null(alf))
 			{
-			cat("Initiating Allele Data Generation \n")
-
 			#If Normal.pileup exists, use with normal.vcf (if mpileup) or without (if pileup) to 
 			#create normalalf in patchwork.alleledata()
 
 			#Create normalalf
-			if (!is.null(Normal.pileup)) normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
+			
+			if (!is.null(Normal.pileup))
+				{
+				normal.pileup.name = strsplit(Normal.pileup,"/")
 
+				normal.pileup.name = normal.pileup.name[[1]][length(normal.pileup.name[[1]])]
+				cat(paste("Initiating Normal Allele Data Generation (",normal.pileup.name,") \n",sep=""))
+				normalalf <- patchwork.alleledata(Normal.pileup, vcf=Normal.vcf)
+				} 
+
+			tumor.pileup.name = strsplit(Tumor.pileup,"/")
+
+			tumor.pileup.name = tumor.pileup.name[[1]][length(tumor.pileup.name[[1]])]
+
+			cat(paste("Initiating Tumor Allele Data Generation (",tumor.pileup.name,") \n",sep=""))
 			alf = patchwork.alleledata(Tumor.pileup, vcf=Tumor.vcf)
 
 			# if(!is.null(Normal.pileup) & !is.null(Reference))
