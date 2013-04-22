@@ -1,0 +1,11 @@
+Package: TAPS
+Type: Package
+Title: Tumor Abberation Prediction Suite
+Version: 1.0
+Date: 2013-02-11
+Author: Markus Rasmussen, Hanna Goransson-Kultima
+Maintainer: Markus Rasmussen <Markus.Mayrhofer@medsci.uu.se>
+Description: Performs a allele-specific copy number analysis of array data.
+License: GPL-2
+Depends: R (>= 2.10), DNAcopy, stats, fields, affxparser
+Packaged: 2013-03-22 10:05:27 UTC; S_D
