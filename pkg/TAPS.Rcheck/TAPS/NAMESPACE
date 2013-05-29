@@ -1,5 +1,0 @@
-export(TAPS_plot,
-		TAPS_call,
-		TAPS_region)
-
-
