@@ -19,15 +19,16 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	#Copy perl information from package install location
 	system(paste("cp -r ",packagepath,"/perl .perl",sep=""))
 
-	if (is.null(vcf)==F)
-		{
-		#mpileup and bcftools used. read the pileup and vcf.
-		system(paste("perl .perl/mpile2alleles.pl ",Pileup," ",vcf," >",getwd(),"/pile.alleles",sep=""))
-		}
-		else 
+	if(is.null(vcf))
 		{
 		#old samtools pileup -vcf used.
+		cat("pileup used \n")
 		system(paste("cat ",Pileup," | perl .perl/pile2alleles.pl > ",getwd(),"/pile.alleles",sep=""))
+		} else 
+		{
+		#mpileup and bcftools used. read the pileup and vcf.
+		cat("mpileup used \n")
+		system(paste("perl .perl/mpile2alleles.pl ",Pileup," ",vcf," >",getwd(),"/pile.alleles",sep=""))
 		}
 
 		#Cleanup
@@ -48,7 +49,10 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	#Force compatability between naming of chromosomes to our chromosome names
 	#from ideogram file. chr1...chr22,chrX,chrY
 	data(ideogram,package="patchworkData")
-	alf = alf[-grep("M",alf$achr),]
+	if(length(grep("M",alf$achr))!=0)
+		{
+		alf = alf[-grep("M",alf$achr),]
+		}
 	alf$achr = as.character(alf$achr)
 	
 	x_x = strsplit(alf$achr[1],"chr")
@@ -81,8 +85,7 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	if (as.numeric(hgcheck[[1]][2]) <= 10000)
 		{
 		data(commonSnpsHG18,package="patchworkData")
-		}
-	else
+  } else
 		{
 		data(commonSnps132,package="patchworkData")
 		}

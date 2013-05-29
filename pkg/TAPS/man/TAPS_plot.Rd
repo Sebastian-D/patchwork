@@ -14,8 +14,7 @@ Tumor Abberation Prediction Suite
 Tumor Aberration Prediction Suite. Version 1.9, April 2013
 
 This package contains all functions used to run (and used by) Tumor Aberration Prediction Suite (TAPS).
-Author: Markus Rasmussen @ Uppsala University. (Developed September 2009 --> January 2011, packaged 2013)
-Contact: markus.rasmussen@medsci.uu.se or arrayplatform@medsci.uu.se
+(Developed September 2009 --> January 2011, packaged 2013)
 Updates: Check http://patchwork.r-forge.r-project.org/ as we intend to extend some functionality.
 }
 
@@ -25,7 +24,9 @@ TAPS_plot(directory=NULL,bin=400)
 
 \arguments{
 	\item{directory}{
-	Default is getwd().
+	Default is getwd(). Specifying to a specific samples directory will run TAPS_plot on that directory.
+	Specifying a directory containing one or more subdirectories that are samples (and not any other subdirectories
+	or TAPS_plot will error when trying to run them!) will iteratively run TAPS_plot on all samples.
 	}
 %	\item{xlim}{
 %	Default is c(-1,2).
@@ -39,35 +40,38 @@ TAPS_plot(directory=NULL,bin=400)
 }
 
 \details{
------Instructions, allele-specific copy number analysis:-------------------------------- \\
+Instructions, allele-specific copy number analysis \cr
 
-Note to users:
+Note to users:\cr
 TAPS is a tool to help you actively investigate genomic aberrations of the most complex tumor samples.
 TAPS visualizes samples using log-ratio and allelic imbalance ratio. If the sample is deemed suitable,
  it can be subjected to automated copy number calling.
-Data: Validated automatic copy number calling is available for Affymetrix SNP6 and 250k/500k data.
-  Automatic copy number calling is suitable but unvalidated for OncoScan (an Affymetrix SNP array)
 
-Data preparation.
-Nexus (BioDiscovery) 5.0: find your "Samples" folder after segmentation (SNP-rank) and normalization.
+Data: \cr
+Validated automatic copy number calling is available for Affymetrix SNP6, 250k/500k data and cytoscan HD.
+Automatic copy number calling is suitable but unvalidated for OncoScan (an Affymetrix SNP array).
+If you have some other microarray data please contact us, it is possible that there is a way to make it work.
 
-Other: See example package folders. Store Log-ratio as probes.txt and allele frequency as snps.txt
+Data preparation:\cr
+Nexus (BioDiscovery): find your "Samples" folder after segmentation (SNP-rank) and normalization.
+
+Other: \cr
+Store Log-ratio as probes.txt and allele frequency as snps.txt
 in one folder per sample. Do not store other folders than sample folders in your "Samples" folder.
 The 'Array' column in these files is uninformative and may be omitted.
-Optionally (recommended) also put segments.txt in your sample folder. Please inspect the examples
-for table structure and headers.
+Optionally (recommended) also put segments.txt in your sample folder.
 
-Workflow.
-1. From the folder containing your samples (sample folders) run TAPS_plot().
-2. Investigate the scatter plots generated in your sample folders
-3. To proceed with copy number calls, find and open the file "SampleData.txt"
+Workflow:\cr
+1. From the folder containing your samples (sample folders) run TAPS_plot(). \cr
+2. Investigate the scatter plots generated in your sample folders. \cr
+3. To proceed with copy number calls, find and open the file "SampleData.txt". \cr
 4. For each sample, enter an interpretation of Log-Ratio @ copy number 2 ("cn2"), the difference in
-   Log-Ratio to a deletion ("delta") and the allelic imbalance ratio of CNNLOH ("loh"). Save the file.
-5. Run TAPS_call().
-6. Inspect the karyotype_check images, and the new chromosome-wise images.
-7. If all looks reasonable, you will find good copy number estimates in 'Copynumbers.csv'.
-9. Be wary of the result on sex chromosomes which may be difficult to auto-interpret.
-10. Watch all images for signs of segmentation failure and tumor cell heterogeneity.
+   Log-Ratio to a deletion ("delta") and the allelic imbalance ratio of CNNLOH ("loh"). Save the file. \cr
+5. Run TAPS_call(). \cr
+6. Inspect the karyotype_check images, and the new chromosome-wise images. \cr
+7. If all looks reasonable, you will find good copy number estimates in 'Copynumbers.csv'. \cr
+9. Be wary of the result on sex chromosomes which may be difficult to auto-interpret. \cr
+10. Watch all images for signs of segmentation failure and tumor cell heterogeneity. \cr
 }
 
 

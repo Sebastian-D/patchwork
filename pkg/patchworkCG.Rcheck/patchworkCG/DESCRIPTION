@@ -1,0 +1,11 @@
+Package: patchworkCG
+Type: Package
+Title: Allele-specific Copy Number Analysis of CompleteGenomics Whole
+        Genome data
+Version: 2.0
+Date: 2012-11-01
+Author: Markus Rasmussen, Sebastian DiLorenzo
+Maintainer: Markus Rasmussen <Markus.Mayrhofer@medsci.uu.se>
+Description: Visualizes CompleteGenomics Whole genome data
+License: GPL-2
+Built: R 3.0.0; ; 2013-05-13 12:20:40 UTC; unix

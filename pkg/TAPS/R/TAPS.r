@@ -1,4 +1,3 @@
-
 TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
   bin=400) {
 #Automatically check, and if needed install, packages stats and fields
@@ -30,6 +29,7 @@ if (is.null(directory))
   for (i in 1:length(subs)) try( {
     setwd(subs[i])
     name <- subs[i]
+    #if (length(grep('SampleData.txt',dir()))==0) save.txt(data.frame(Sample=name,cn2='',delta='',loh='',completed.analysis='no'),file='SampleData.txt')
     cat(' ..loading', subs[i])
 	
 	if(length(grep("*.cyhd.cychp",dir()))==1)				##cyhd sample
@@ -103,7 +103,10 @@ if (is.null(directory))
     alf=alf[!is.na(alf$Value),]
     
     segments <- readSegments()                                 ## segments if available (CBS recommended)
-   
+    
+    #Remove NA values that some samples give.
+    segments <- segments[!is.nan(segments$Value),]
+
     cat(' ..processing')
     if (is.null(segments)) {                                 ## segmentation using DNA-copy if needed (must then be installed)
     segments <- segment_DNAcopy(Log2)
@@ -145,7 +148,8 @@ if (is.null(directory))
 ###
 
 ###
-TAPS_call <- function(directory=NULL,xlim=c(-1,1),ylim=c(0,1),minseg=1,maxCn=12) {
+TAPS_call <- function(directory=NULL,#xlim=c(-1,1),ylim=c(0,1),
+  minseg=1,maxCn=12) {
 ## TAPS_call outputs the total and minor allele copy numbers of all segments as a text file, and as images for visual confirmation.
 ## sampleInfo_TAPS.txt must be present in each sample folder. If TAPS_plot could not make a good guess of the Log-R of copy number 2 
 ## and the Log-R difference to a deletion, you must interpret the scatter plots and edit sampleInfo_TAPS.txt.
@@ -162,10 +166,17 @@ TAPS_call <- function(directory=NULL,xlim=c(-1,1),ylim=c(0,1),minseg=1,maxCn=12)
   setwd(directory)
   #subs <- getSubdirs()
 
-  sampleData <- load.txt('SampleData.txt')
+  if (length(grep('SampleData.txt',dir()))==1)
+    {
+    sampleData <- load.txt('SampleData.txt')
+    }
+  else
+    {
+    sampleData <- load.txt('../SampleData.txt')
+    }
   subs=as.character(sampleData$Sample)
   #save.txt(sampleData,file='sampleData_old.csv')
-  
+
   if (is.null(subs)) {
     subs=thisSubdir()
     setwd('..')
@@ -180,6 +191,15 @@ TAPS_call <- function(directory=NULL,xlim=c(-1,1),ylim=c(0,1),minseg=1,maxCn=12)
     Log2 <- readLog2()
     alf <- readAlf(localDir)
     segments <- readSegments()
+
+    #Some samples throw NA values, we simply remove these.
+    Log2=Log2[!is.nan(Log2$Value),]
+    Log2=Log2[!is.na(Log2$Value),]
+
+    alf=alf[!is.nan(alf$Value),]
+    alf=alf[!is.na(alf$Value),]
+    
+    segments <- segments[!is.nan(segments$Value),]
 
     segments$Value <- segments$Value-median(Log2$Value) 
     Log2$Value <- Log2$Value-median(Log2$Value)
@@ -197,7 +217,7 @@ TAPS_call <- function(directory=NULL,xlim=c(-1,1),ylim=c(0,1),minseg=1,maxCn=12)
     regions=allRegions$regions
     save(t,regions,file="regions_t.Rdata")
 
-    karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,ideogram=NULL,name=name,xlim=xlim,ylim=ylim)
+    karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,ideogram=NULL,name=name)
 
     karyotype_chromsCN(regions$Chromosome,regions$Start,regions$End,regions$log2,
       regions$imba,regions$Cn,regions$mCn,ideogram=NULL,
@@ -1082,7 +1102,7 @@ setCNs <- function(allRegions,int,ai,maxCn=12) {
 #     }
 # }
 
-karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='',xlim=c(-1.02,1.02),ylim=0:1) {
+karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='') { #xlim=c(-1.02,1.02),ylim=0:1) {
 ## TAPS scatter plot of a full sample, used for visual quality control. 
     
     png(paste(name,'.karyotype_check.png',sep=''),width=1300,height=1300)
@@ -1127,12 +1147,12 @@ karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='',
         cex=c(size),
         cex.lab=2,
         mar=c(0.1,0.1,0.1,0.1),
-    	main = "",
-		xlab = name,
-		ylab = "",
-		col = col,
-		xlim = xlim,
-		ylim = ylim)
+    	  main = "",
+    		xlab = name,
+    		ylab = "",
+    		col = col,
+        xlim=c(-1,2),ylim=c(0,1))
+
 	text(variants_data[,1],variants_data[,2],
         labels=variants,
         col='black',
@@ -1493,64 +1513,16 @@ karyotype_met <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr
 # Added TAPS plot functionality
 #------------------------------------------------------------
 
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
-#Some "what is sent" information that I used to determine which objects and columns were needed to call OverviewPlow
-
-#karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,
-#                regions$imba,regions$Cn,regions$mCn,t,ideogram=NULL,name=name,
-#                  xlim=xlim,ylim=ylim)
-
-
-
-
-#karyotype <- function(chr,start,end,int,ai,ideogram=NULL,name='',xlim=c(-1.02,1.02),ylim=0:1)
-
-#karyotype(regs$chr,regs$start,regs$end,regs$logs,regs$scores,ideogram=NULL,name=name,xlim=xlim,ylim=ylim)
-
-#karyotype  What is sent          What it is in the function
-#              regs$chr,            chr
-#              regs$start,          start
-#              regs$end,            end
-#              regs$logs,           int
-#              regs$scores,         ai
-#              ideogram=NULL,       NULL
-#              name=name,           name
-#              xlim=c(-1,2),        xlim
-#              ylim=c(0,1)          ylim
-
-#karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,
-#                             mchr,mpos,mval,schr,spos,sval,
-#                             name='',xlim=c(-1.02,1.82),ylim=0:1)
-
-
-#karyotype_chroms(regs$chr,regs$start,regs$end,regs$logs,regs$scores,ideogram=NULL,
-#                 as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
-#                 name=name,xlim=xlim,ylim=ylim)
-
-
-#karyotype_chroms What is sent                    What it is in function
-#                regs$chr,                        chr
-#                regs$start,                      start
-#                regs$end,                        end
-#                regs$logs,                       int
-#                regs$scores,                     ai
-#                ideogram=NULL,                   NULL
-#                as.character(Log2$Chromosome),   mchr
-#                Log2$Start,                      mpos
-#                Log2$Value,                      mval
-#                as.character(alf$Chromosome),    schr    
-#                alf$Start,                       spos
-#                alf$Value,                       sval
-#                name=name,                       name
-#                xlim=c(-1,2),                    xlim
-#                ylim=c(0,1)                      ylim
-
-
-
-#Example call to OverviewPlot:
-#OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,ideogram=NULL,
-#    as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
-#    name='wip',xlim=c(-1,2),ylim=c(0,1))
 
 OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-1,2),ylim=c(0,1))
   {
@@ -1583,23 +1555,6 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
     #This details the margins (left,right,bottom,top) of all the screens. 
     #See split.screen section of http://seananderson.ca/courses/11-multipanel/multipanel.pdf
     #for the most complete explanation.
-    # split.screen(as.matrix(data.frame(left=c(0.03,(0.97/8)+0.03,2*(0.97/8)+0.03,3*(0.97/8)+0.03,4*(0.97/8)+0.03,5*(0.97/8)+0.03,6*(0.97/8)+0.03,7*(0.97/8)+0.03,
-    #                                           0.03,(0.97/8)+0.03,2*(0.97/8)+0.03,3*(0.97/8)+0.03,4*(0.97/8)+0.03,5*(0.97/8)+0.03,6*(0.97/8)+0.03,7*(0.97/8)+0.03,
-    #                                           0.03,(0.97/8)+0.03,2*(0.97/8)+0.03,3*(0.97/8)+0.03,4*(0.97/8)+0.03,5*(0.97/8)+0.03,6*(0.97/8)+0.03,7*(0.97/8)+0.03),
-    #                                   right=c((0.97/8)+0.03,2*(0.97/8)+0.03,3*(0.97/8)+0.03,4*(0.97/8)+0.03,5*(0.97/8)+0.03,6*(0.97/8)+0.03,7*(0.97/8)+0.03,8*(0.97/8)+0.03,
-    #                                           (0.97/8)+0.03,2*(0.97/8)+0.03,3*(0.97/8)+0.03,4*(0.97/8)+0.03,5*(0.97/8)+0.03,6*(0.97/8)+0.03,7*(0.97/8)+0.03,8*(0.97/8)+0.03,
-    #                                           (0.97/8)+0.03,2*(0.97/8)+0.03,3*(0.97/8)+0.03,4*(0.97/8)+0.03,5*(0.97/8)+0.03,6*(0.97/8)+0.03,7*(0.97/8)+0.03,8*(0.97/8)+0.03),
-    #                                   bottom=c((0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,
-    #                                           (0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,
-    #                                           0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1),
-    #                                   top=c(0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,
-    #                                         (0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,(0.8/3)*2+0.1,
-    #                                         (0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1,(0.8/3)+0.1))),1) #screen 1 becomes screen 3 - 26
-    # split.screen(as.matrix(data.frame(left=c(0.03,0.03,0.03),
-    #                                   right=c(1,1,1),
-    #                                   bottom=c(0.1,0.45,0.55),
-    #                                   top=c(0.45,0.55,1))),2) #screen 2 become screen 27-29
-   
     split.screen(as.matrix(data.frame(left=c(rep(seq(from=0.05,to=7*(0.9/8)+0.05,by=(0.9/8)),3)),
                                       right=c(rep(seq(from=(0.9/8)+0.05,to=8*(0.9/8)+0.05,by=(0.9/8)),3)),
                                       bottom=c(rep(2*(0.75/3)+0.15,8),rep((0.75/3)+0.15,8),rep(0.15,8)),
@@ -1687,9 +1642,9 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
         }
 
       #If we are one of the chromosomes plotted to the left edge or bottom, add axis
-      if(c %in% c(1,9,17)) axis(side=2,cex.axis=0.6,at=seq(from=0,to=0.8,by=0.2))
+      if(c %in% c(1,9,17)) axis(side=2,cex.axis=0.6,tck=-0.05,at=seq(from=0,to=0.8,by=0.2),las=1)
       if(c %in% c(seq(from=17,to=24,by=1))) axis(side=1,cex.axis=0.6,at=seq(from=-0.5,to=1,by=0.5))
-      if(c %in% c(8,16,24)) axis(side=4,cex.axis=0.6,at=seq(from=0,to=0.8,by=0.2))
+      if(c %in% c(8,16,24)) axis(side=4,cex.axis=0.6,tck=-0.05,at=seq(from=0,to=0.8,by=0.2),las=1)
 
       #Add titles with sample name (name of folder containing sample) and date
       if(c==4)
@@ -1729,8 +1684,21 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
       {
       this <- ideogram[ideogram$c==c,]
       ix <- chr==this$chr
-      mix <- mchr==this$chr & mval>=(-2)
+      mix <- mchr==this$chr #& mval>=(-2)
       six <- schr==this$chr
+
+      #Predefine ymin ymax and sequence between them
+      ymin=floor(min(int))-0.5
+      if(ymin > -1)
+        {
+        ymin = -1
+        }
+      ymax=ceiling(max(int))+0.5
+      if(ymax < 1)
+        {
+        ymax = 1
+        }
+      seqminmax=seq(ymin,ymax,by=0.5)
       
       if(c>1)
         {
@@ -1753,10 +1721,11 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
       }
 
     #Only plot mval higher than -2
-    ix=mval>=(-2)
-    mpos = mpos[ix]
-    mval = mval[ix]
+    #ix=mval>=(-2)
+    #mpos = mpos[ix]
+    #mval = mval[ix]
 
+    #Remove every third value to make plotting more sparse in this overview. (saves space and time)
     ix = seq(3,to=length(mpos),by=3)
     mpos = mpos[-ix]
     mval = mval [-ix]
@@ -1771,13 +1740,13 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
           col = '#00000003',
           xaxt="n",
           axes=F,
-          ylim = c(-2,1.5),
+          ylim = c(ymin,ymax),
           xlim = c(0,max(mpos))
           )
 
     #Add axis to the left & right of signal
-    axis(side=2,at=seq(from=-2,to=1.5,by=0.5),cex.axis=0.6,pos=0)
-    axis(side=4,at=seq(from=-2,to=1.5,by=0.5),cex.axis=0.6,pos=max(mpos))
+    axis(side=2,tck=-0.025,at=seqminmax,cex.axis=0.6,pos=0,las=1)
+    axis(side=4,tck=-0.025,at=seqminmax,cex.axis=0.6,pos=max(mpos),las=1)
     mtext("logRatio",side=2,line=-0.8)
 
     #Add colored segment information for each chromosome, red to blue gradient.
@@ -1791,6 +1760,8 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
       col=rep('#000000',sum(ix))
       col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
       col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
+
+      #Add segments
       segments(x0=start[ix],x1=end[ix],
          y0=int[ix],y1=int[ix],                
          col=col,
@@ -1865,9 +1836,9 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
         )
 
     #Add axis to the left,right and below of AI. The below axis is the chromosome numbers 1-24.
-    axis(side=2,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0)
+    axis(side=2,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
     axis(side=1,at=pre,labels=c(seq(from="1",to="22"),"X","Y"),cex.axis=0.55)
-    axis(side=4,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=max(mpos))
+    axis(side=4,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=max(mpos),las=1)
     mtext("Allele frequency",side=2,line=-0.8)
     mtext("Chromosome numbers",side=1,line=1.5,adj=0.4)
 
@@ -1886,6 +1857,16 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
 
   }
 
+
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
 #Function for generating individual plots for TAPS_call. Gives whole genome, logRatio, cytoband and allele frequency.
 karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-1.02,1.82),ylim=0:1)  
@@ -2013,7 +1994,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
       }
 
     #Insert Y and X axis
-    axis(side=2,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=0,to=1,by=0.2))
+    axis(side=2,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),las=1)
     axis(side=1,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.1))
 
     #Titles,date/time and axis labels
@@ -2035,7 +2016,20 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
     par(mgp =c(0.5,0.25,0))
 
     #Select the correct chromosome and remove stuff lower than -1 
-    mix <- mchr==this$chr & mval>(-1)
+    mix <- mchr==this$chr #& mval>(-1)
+
+    #Predefine ymin ymax and sequence between them
+    ymin=floor(min(int[ix]))-0.5
+    if(ymin > -1)
+      {
+      ymin = -1
+      }
+    ymax=ceiling(max(int[ix]))+0.5
+    if(ymax < 1)
+      {
+      ymax = 1
+      }
+    seqminmax=seq(ymin,ymax,by=0.5)
 
     #Create an index of colors relating to the positions and lengths on this chromosome
     col=rep('#000000',sum(ix))
@@ -2052,7 +2046,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         axes=F,
         col = '#00000005',
         xlim = c(0,this$length),
-        ylim = c(-1,1.5))
+        ylim = c(ymin,ymax))
 
     #Add colored segments based on the logRatio data
     segments(x0=start[ix],x1=end[ix],
@@ -2061,12 +2055,14 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
     lwd=4)
 
     #Add X and Y axis. The (side=4) axis is just a black line showing where the data ends
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.5),
-      labels=c("-1","-.5","0",".5","1","1.5"),cex.axis=0.6,pos=0)
-    axis(side=4,tck=0,pos=this$length,at=seq(from=-1,to=1.5,by=0.5),
-      labels=c("-1","-.5","0",".5","1","1.5"),cex.axis=0.6)
+    axis(side=2,tck=0.926,col.ticks='#808080',at=seqminmax, #seq(from=-1,to=1.5,by=0.5),
+      #labels=c("-1","-.5","0",".5","1","1.5"),
+      cex.axis=0.6,pos=0,las=1)
+    axis(side=4,tck=0,pos=this$length,at=seqminmax,
+      #labels=c("-1","-.5","0",".5","1","1.5"),
+      cex.axis=0.6,las=1)
     axis(side=1,tck=0.926,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
-          labels=FALSE,cex.axis=0.6,pos=-1)
+          labels=FALSE,cex.axis=0.6,pos=ymin)
 
     #Add Y axis label
     mtext("logRatio",side=2,line=-0.8)
@@ -2141,8 +2137,8 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         ylim = c(0,1))
 
     #Add X and Y axis as well as a line to the rightmost of the data (side=4)
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0)
-    axis(side=4,tck=0,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=this$length)
+    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
+    axis(side=4,tck=0,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=this$length,las=1)
     axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
           labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
 
@@ -2155,6 +2151,16 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
     dev.off()
     }
 }
+
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
 
 karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,t,name='',xlim=c(-1.02,1.82),ylim=0:1, maxCn=8)  
@@ -2296,7 +2302,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
       }
 
     #Insert Y and X axis
-    axis(side=2,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=0,to=1,by=0.2))
+    axis(side=2,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),las=1)
     axis(side=1,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.1))
 
     #Add cn and mcn labels
@@ -2357,7 +2363,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         lwd=5)
 
     #Add Y axis
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(0,8,by=1),cex.axis=0.6,pos=0)
+    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(0,8,by=1),cex.axis=0.6,pos=0,las=1)
     axis(side=4,labels=F,tck=0,pos=this$length)
 
     #Add Y label and date/time title
@@ -2376,7 +2382,20 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
     par(mgp =c(0.5,0.25,0))
 
     #Select the correct chromosome and remove stuff lower than -1 
-    mix <- mchr==this$chr & mval>(-1)
+    mix <- mchr==this$chr #& mval>(-1)
+
+    #Predefine ymin ymax and sequence between them
+    ymin=floor(min(int[ix]))-0.5
+    if(ymin > -1)
+      {
+      ymin = -1
+      }
+    ymax=ceiling(max(int[ix]))+0.5
+    if(ymax < 1)
+      {
+      ymax = 1
+      }
+    seqminmax=seq(ymin,ymax,by=0.5)
 
     #Create an index of colors relating to the positions and lengths on this chromosome
     col=rep('#000000',sum(ix))
@@ -2393,7 +2412,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         axes=F,
         col = '#00000005',
         xlim = c(0,this$length),
-        ylim = c(-1,1.5))
+        ylim = c(ymin,ymax))
 
     #Add colored segments based on the logRatio data
     segments(x0=start[ix],x1=end[ix],
@@ -2402,11 +2421,12 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
     lwd=4)
 
     #Add X and Y axis. The (side=4) axis is just a black line showing where the data ends
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.5),
-      labels=c("-1","-.5","0",".5","1","1.5"),cex.axis=0.6,pos=0)
+    axis(side=2,tck=0.926,col.ticks='#808080',at=seqminmax, #seq(from=-1,to=1.5,by=0.5),
+      #labels=c("-1","-.5","0",".5","1","1.5"),
+      cex.axis=0.6,pos=0,las=1)
     axis(side=4,labels=F,tck=0,pos=this$length)
     axis(side=1,tck=0.926,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
-          labels=FALSE,cex.axis=0.6,pos=-1)
+          labels=FALSE,cex.axis=0.6,pos=ymin)
 
     #Add Y axis label
     mtext("logRatio",side=2,line=0.3)
@@ -2482,7 +2502,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         ylim = c(0,1))
 
     #Add X and Y axis as well as a line to the rightmost of the data (side=4)
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0)
+    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
     axis(side=4,labels=F,tck=0,pos=this$length)
     axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
           labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
@@ -2497,12 +2517,15 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
     }
 }
 
-
-
-
-
-
-
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------
@@ -2511,8 +2534,6 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
 #------------------------------------------------------------------------------------------------------
 
 
-
-#Plot function that returns specifics on a region
 TAPS_region <- function(directory=NULL,chr,region,hg18=F)
   {
   if (is.null(directory))
@@ -2526,510 +2547,575 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
 
   #Set working directory and make that directorys name the samplename. If it is too long, shorten it.
   setwd(directory)
-  name = thisSubdir()
-  if(nchar(name)>12)
-    {
-    name = substring(name,1,12)
+  subs <- getSubdirs()
+  if (is.null(subs)) 
+    {                                         ## check samples = subdirectories or a single sample = current directory
+    subs=thisSubdir()
+    setwd('..')
     }
 
-  #From TAPS_plot():
-  #save(regs,Log2,alf,segments,file="TAPS_plot_output.Rdata")  
+  #store chr value in nchr because i made the newbie mistake of having a second variable also
+  #named chr.
+  nchr = chr  
 
-  #Check if TAPS_plot_output.Rdata exists. It must for the plot function to run.
-  #In this file are the objects needed to plot.
-  if(file.exists("TAPS_plot_output.Rdata")==F)
+  #Loop over all subdirectories, should they exist.
+  for (i in 1:length(subs)) try( 
     {
-    cat("TAPS_region could not find a TAPS_plot_output.Rdata file in the sample directory. \n
-     You must run TAPS_plot before TAPS_region. \n")
-    }
-  else
-    {
-    load("TAPS_plot_output.Rdata")
-    }
+    setwd(subs[i])
+    name <- subs[i]
+    cat(' ..plotting', subs[i],"\n")
 
-  #If chr has been given as character
-  if(is.character(chr) == T)
-    {
-    #If chr is longer than 2 characters ("chr1" but not "12")
-    #take out the number and convert it to numeric
-    if(nchar(chr)>2)
+    if(nchar(name)>12)
       {
-      c = strsplit(chr,"chr")
-      c = as.numeric(c[[1]][2])
+      name = substring(name,1,12)
       }
-    #chr has been given as character but without "chr" infront. Convert to numeric.  
+
+    #From TAPS_plot():
+    #save(regs,Log2,alf,segments,file="TAPS_plot_output.Rdata")  
+
+    #Check if TAPS_plot_output.Rdata exists. It must for the plot function to run.
+    #In this file are the objects needed to plot.
+    if(file.exists("TAPS_plot_output.Rdata")==F)
+      {
+      cat("TAPS_region could not find a TAPS_plot_output.Rdata file in the sample directory. \n
+       You must run TAPS_plot before TAPS_region. \n")
+      }
     else
       {
-      c = as.numeric(chr) 
-      }
-    }
-    #else chr has been given as a numeric and can be used directly.
-    else
-      {
-      c = chr
+      load("TAPS_plot_output.Rdata")
       }
 
-  #Rename parameters of TAPS_plot_output so we can re-use other plots as template.
-  chr =regs$chr
-  start = regs$start  
-  end = regs$end
-  int = regs$logs
-  ai = regs$scores
-  ideogram=NULL
-  mchr = as.character(Log2$Chromosome)
-  mpos =  Log2$Start
-  mval =Log2$Value
-  schr = as.character(alf$Chromosome) 
-  spos = alf$Start
-  sval =alf$Value
-  xlim=c(-1,2)
-  ylim=c(0,1)
-
-  #check if hg18 is true
-  #then load hg18 knownGene list
-  if(hg18==T)
-    {
-    kg = knownGene_hg18
-    }
-  else
-    {
-    kg = knownGene
-    }
-
-
-  #
-  #Here is where pretty normal plotting procedure starts
-  #
-
-  #Get ideogram  
-  ideogram=getIdeogram()
-
-  #Set color gradient for p and q arm of chromosome
-  colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
-  colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
-
-  #filter the data (remove NA) and set some standard parameters
-  ai[is.na(ai)]=0
-  aix=ai!=0
-  chr=chr[aix]
-  start=start[aix]
-  end=end[aix]
-  int=int[aix]
-  ai=ai[aix]
-  pos <- (start+end)/2
-  length=end-start
-
-  #Set sizes for circles in whole genome plot
-  size=rep(1,length(chr))
-  size[length>2000000]=2
-  size[length>5000000]=3
-  size[length>10000000]=4
-
-  #Select the chromosome
-  this <- ideogram[ideogram$c==c,]
-
-  #Extract regions start an stop
-  #region inputted in form start:stop
-  Rstart = min(region)
-  Rend = max(region)
-  
-  #Initialize jpeg
-  jpeg(paste(name,'_',this$chr,'_region_',Rstart,"-",Rend,'.jpeg',sep=''),width=11.7,height=8.3,units="in",res=300)
-  
-    #split plot into desired formation
-    split.screen(as.matrix(data.frame(left=c(rep(0.05,4),rep(0.47,3)),
-                                      right=c(0.45,rep(1,6)),
-                                      bottom=c(0.50,0.05,0.2,0.3,0.50,0.70,0.75),
-                                      top = c(0.95,0.2,0.3,0.45,0.70,0.75,0.95)))) #screen 1-5
-
-
-    #Screen configuration overview
-    #-------------------------------------------------------------
-    #-------------------------------------------------------------
-    #                             |                              |
-    #                             |              7               |
-    #                             |                              |
-    #                             |------------------------------| 
-    #            1                |              6               |
-    #                             |------------------------------|
-    #                             |                              |
-    #                             |              5               |
-    #                             |                              | 
-    #-----------------------------|------------------------------|
-    #                                                            |
-    #                             4                              |
-    #------------------------------------------------------------|
-    #                             3                              |
-    #------------------------------------------------------------|
-    #                                                            |
-    #                             2                              |
-    #-------------------------------------------------------------
-
-
-    #------------------------------------------------------------
-    #Left side of the plot (Whole genome)
-    #------------------------------------------------------------
-
-    #index of overlapping the selected chromosome region to the chr object
-    wix <- chr==this$chr & (((Rstart <= start) & (Rend >= end)) | ((Rstart >= start) & (Rstart <= end)) | ((Rend <= end) & (Rend >= start)))
-    ix <- chr==this$chr
-
-    #Create an index of colors relating to the positions and lengths on this chromosome
-    col <- rep('#B0B0B030',length(chr))       
-    col[wix & (pos < this$mid)] <- paste(colors_p(sum(wix & (pos < this$mid))), '70', sep='')  
-    col[wix & (pos > this$mid)] <- paste(colors_q(sum(wix & (pos > this$mid))), '70', sep='')
-
-    #Go to screen 1
-    screen(1)
-
-    #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
-    par(mar = c(0, 0, 0, 0))
-    par(oma = c(0,0,0,0))
-    par(mgp =c(0.5,0.25,0))
-
-    #Whole genome overview plot
-    #Note that we are plotting chrY in the background, despite the fact that it is not an "active" chromosome.
-    plot(c(int[!wix],int[wix]),c(ai[!wix],ai[wix]),
-        pch=16,
-        cex=c(size[!wix],size[wix]),
-        main = "",
-        xlab = "",
-        ylab = "",
-        axes=F, #Remove axis
-        col = c(col[!wix],col[wix]),
-        xlim = c(-1,1.5),
-        ylim = ylim)
-
-    #Insert Y and X axis
-    axis(side=2,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=0,to=1,by=0.2))
-    axis(side=1,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.1))
-
-    #Titles,date/time and axis labels
-    mtext(text="logRatio",side=1,line=1.1,cex=1)
-    mtext(text="Allelic imbalance",side=2,line=1.5,cex=1)
-    mtext(paste("Detailed view of sample: ",name,"\n Chromsome ",c,", Region: ",Rstart,"-",Rend,sep=""),side=3)
-
-    #------------------------------------------------------------
-    #Top Right - Signal
-    #------------------------------------------------------------
-
-    #Go to screen 7
-    screen(7)
-
-    #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
-    par(mar = c(0, 0, 0, 0))
-    par(oma = c(0,0,0,0))
-    par(mgp =c(0.5,0,0))
-    par(xpd=T)
-
-    #Select the correct chromosome and remove stuff lower than -1 
-    mix <- mchr==this$chr & mval>(-1)
-
-    #Create an index of colors relating to the positions and lengths on this chromosome
-    col=rep('#000000',sum(ix))
-    col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
-    col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
-
-    #Plot logRatio over position
-    plot(mpos[mix],mval[mix],
-        pch=20,
-        cex=0.5,
-        main = "",
-        xlab = "",
-        ylab = "",
-        axes=F,
-        col = '#00000005',
-        xlim = c(0,this$length),
-        ylim = c(-1,1.5))
-
-    #Add legend for red region
-    mtext(text=expression(bold("Selected region")),side=3,col='#E8000070',cex=0.8,adj=0.05)
-
-    #Add colored segments based on the logRatio data
-    segments(x0=start[ix],x1=end[ix],
-    y0=int[ix],y1=int[ix],                
-    col=col,
-    lwd=4)
-
-    #Add a rectangle showing which region has been chosen
-    rect(xleft=Rstart,xright=Rend,ybottom=-1,ytop=1.5,col='#E8000040',lty=0)
-
-    #Add X and Y axis. The (side=4) axis is just a black line showing where the data ends
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.5),
-      labels=c("-1","-.5","0",".5","1","1.5"),cex.axis=0.6,pos=0)
-    axis(side=4,labels=F,tck=0,pos=this$length)
-    axis(side=1,tck=0.926,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
-          labels=FALSE,cex.axis=0.6,pos=-1)
-
-    #Add Y axis label & date/time
-    mtext("logRatio",side=2,line=0.3)
-    mtext(format(Sys.time(),"%Y-%m-%d %H:%M"),side=3,cex=0.6,adj=0.95)
-
-    #------------------------------------------------------------
-    #Middle Right - Cytobands
-    #------------------------------------------------------------
-
-    #Go to screen 6
-    screen(6)
-
-    #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
-    par(mar = c(0, 0, 0, 0))
-    par(oma = c(0,0,0,0))
-    par(mgp =c(0.5,0,0))
-
-    #Create a empty plot with the same ylim and xlim as the plot directly above it (signal) and below (AI)
-    plot(0,0,xlab="",ylab="",main="",type="n",axes=F,xaxt="n",ylim=c(0,0.3),xlim=c(0,max(mpos[mix])))
-
-    #Add Y axis label
-    mtext(text="Cytoband",side=2,las=1,line=-1,cex=0.8)
-
-    #index of the chromData for this chromosome
-    dix = chromData$chr == this$chr
-
-    #Add cytoband information as differently colored rectangles
-    rect(xleft=chromData$chromStart[dix],xright=chromData$chromEnd[dix],
-       #ybottom=0.15-chromData$thickness[dix]*0.03,ytop=0.15+chromData$thickness[dix]*0.03,
-       ybottom=0,ytop=0.3,
-       col=paste(chromData$col[dix],'99',sep=''),
-       lty=0)
-
-    #Add a rectangle showing which region has been chosen
-    rect(xleft=Rstart,xright=Rend,ybottom=0,ytop=0.3,col='#E8000040',lty=0)
-
-    #Att text annotation to cytobands
-    for(j in 1:length(chromData$name[dix]))
-    {
-    #If the cytoband region is larger than 5 Mb, it can fit some text
-    if((chromData$chromEnd[dix][j] - chromData$chromStart[dix][j]) > 4*10^6)
+    #If nchr has been given as character
+    if(is.character(nchr) == T)
       {
-      # Text is added at x position (all of previous chromosome) + (middle of region)
-      # The "srt" flips the text 90 degrees
-      text(x=(chromData$chromStart[dix][j]+((chromData$chromEnd[dix][j]-chromData$chromStart[dix][j])/2)),
-      y=0.15,labels=chromData$name[dix][j], srt=90,cex = 0.5,xpd=T)
-      }
-    }
-
-    #------------------------------------------------------------
-    #Bottom Right - Allele frequency
-    #------------------------------------------------------------ 
-
-    #Go to screen 5
-    screen(5)
-
-    #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
-    par(mar = c(0, 0, 0, 0))
-    par(oma = c(0,0,0,0))
-    par(mgp =c(0.5,0,0))
-
-    #Index of correct chromsome and allele frequency not in either 0 or 1
-    six <- schr==this$chr & !(sval %in% c(0,1))
-
-    #plot allele frequency over position
-    plot(spos[six],sval[six],
-        pch=20,
-        cex=0.5,
-        main = "",
-        xlab = "",
-        ylab = "",
-        #yaxt="n",
-        axes=F,
-        col = '#00000010',
-        xlim = c(0,this$length),
-        ylim = c(0,1))
-
-    #Add X and Y axis as well as a line to the rightmost of the data (side=4)
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0)
-    axis(side=4,labels=F,tck=0,pos=this$length)
-    axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
-          labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
-
-    #Add a rectangle showing which region has been chosen
-    rect(xleft=Rstart,xright=Rend,ybottom=0,ytop=1,col='#E8000040',lty=0)
-
-    #Add X and Y label
-    mtext("Allele frequency",side=2,line=0.3)
-    mtext("Position (Mb)",side=1,line=1)
-
-    #------------------------------------------------------------
-    #Top Bottom - Detailed region signal view
-    #------------------------------------------------------------ 
-
-    #Go to screen 4
-    screen(4)
-
-    #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
-    par(mar = c(0, 0, 0, 0))
-    par(oma = c(0,0,0,0))
-    par(mgp =c(0.5,0,0))
-
-    #Select the correct chromosome and region and remove stuff lower than -1 
-    mix <- mchr==this$chr & mval>(-1) & (mpos >= Rstart) & (mpos <= Rend)
-
-    #Create an index of colors relating to the positions and lengths on this chromosome
-    col=rep('#000000',sum(ix))
-    col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
-    col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
-
-    #Plot logRatio over position
-    plot(mpos[mix],mval[mix],
-        pch=20,
-        cex=0.5,
-        main = "",
-        xlab = "",
-        ylab = "",
-        axes=F,
-        col = '#00000040',
-        xlim = c(Rstart,Rend),
-        ylim = c(-1,1.5))
-
-    wix <- chr==this$chr & (((Rstart <= start) & (Rend >= end)) | ((Rstart >= start) & (Rstart <= end)) | ((Rend <= end) & (Rend >= start)))
-    
-    cix = ((Rstart >= start) & (Rstart <= end))
-    start[cix] = Rstart
-    cix = ((Rend <= end) & (Rend >= start))
-    end[cix] = Rend
-
-    #Add colored segments based on the logRatio data
-    segments(x0=start[wix],x1=end[wix],
-    y0=int[wix],y1=int[wix],                
-    col=col[wix],
-    lwd=4)
-
-    #Add X and Y axis. The (side=4) axis is just a black line showing where the data ends
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.5),
-      labels=c("-1","-.5","0",".5","1","1.5"),cex.axis=0.6,pos=Rstart)
-    axis(side=4,labels=F,tck=0,pos=Rend)
-    #axis(side=1,tck=0.926,col.ticks='#808080',cex.axis=0.6,pos=-1)
-
-    #Add X Y axis label
-    mtext("logRatio",side=2,line=-0.8)
-    #mtext("Position (Mb)",side=1,line=1)
-
-    #------------------------------------------------------------
-    #Middle Bottom - Region Gene view
-    #------------------------------------------------------------ 
-
-    #Go to screen 3
-    screen(3)
-
-    #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
-    par(mar = c(0, 0, 0, 0))
-    par(oma = c(0,0,0,0))
-    par(mgp =c(0.5,0.25,0))
-    #par(xpd=T)
-
-    #Create a empty plot with the same ylim and xlim as the plot directly above it (signal) and below (AI)
-    plot(0,0,xlab="",ylab="",main="",type="n",axes=F,xaxt="n",ylim=c(0,0.48),xlim=c(Rstart,Rend))
-    
-    kg=kg[order(kg$chr,kg$gtxEnd),]
-
-    #Create and index of the genes within region (rstart to rend)
-    #gix <- kg$chr==this$chr & (((Rstart <= kg$gtxStart) & (Rend >= kg$gtxEnd)) | ((Rstart >= kg$gtxStart) & (Rstart <= kg$gtxEnd)) | ((Rend <= kg$gtxEnd) & (Rend >= kg$gtxStart)))
-    gix <- kg$chr==this$chr & ((Rstart <= kg$gtxEnd) & (Rend >= kg$gtxStart)) 
-
-    #If they are only partial overlapping, remove the parts outside of the selected region
-    cix = ((Rstart >= kg$gtxStart) & (Rstart <= kg$gtxEnd))
-    kg$gtxStart[cix] = Rstart
-    cix = ((Rend <= kg$gtxEnd) & (Rend >= kg$gtxStart))
-    kg$gtxEnd[cix] = Rend
-
-    # #Check if any genes are overlapping so they are shown on top of or below eachother
-    d1 = c(rep(0.42,length(which(gix))))
-    d2 = c(rep(0.36,length(which(gix))))
-    j = 1
-
-    for(i in min(which(gix)):max(which(gix)))
-      {
-      #if this gene overlaps with the gene infront of it
-      if(kg$gtxEnd[i] >= kg$gtxStart[i+1])
+      #If chr is longer than 2 characters ("chr1" but not "12")
+      #take out the number and convert it to numeric
+      if(nchar(nchr)>2)
         {
-        d1[j+1] = d1[j]-0.06
-        d2[j+1] = d2[j]-0.06  
+        c = strsplit(nchr,"chr")
+        c = as.numeric(c[[1]][2])
         }
-      j = j + 1
+      #chr has been given as character but without "chr" infront. Convert to numeric.  
+      else
+        {
+        c = as.numeric(nchr) 
+        }
       }
+      #else chr has been given as a numeric and can be used directly.
+      else
+        {
+        c = nchr
+        }
 
-    #Add the genes to plot as horizontal rectangles that cover the transcribed region
-    rect(xleft=kg$gtxStart[gix],xright=kg$gtxEnd[gix],
-        #Between 0 - 0.3
-        ybottom=d2,ytop=d1,
-        col=rgb(kg$R[gix],kg$G[gix],kg$B[gix],maxColorValue=255),lty=1)
-  
-  #Add legend
-  #
-  text(x=Rstart+(6.2*(Rend-Rstart)/10),y=0.46,labels=expression(bold("Feature in PDB")),col=rgb(0,0,0,maxColorValue=255),cex=0.6)
-  text(x=Rstart+(7.6*(Rend-Rstart)/10),y=0.46,labels=expression(bold("RefSeq,Swissprot or CCDS validated")),col=rgb(12,12,120,maxColorValue=255),cex=0.6)
-  text(x=Rstart+(9*(Rend-Rstart)/10),y=0.46,labels=expression(bold("Other RefSeq")),col=rgb(80,80,160,maxColorValue=255),cex=0.6)
-  text(x=Rstart+(9.8*(Rend-Rstart)/10),y=0.46,labels=expression(bold("non-RefSeq")),col=rgb(130,130,210,maxColorValue=255),cex=0.6)
-  
-  #Add Y label
-  mtext("Known genes",side=2,line=-1.8,,cex=0.9,las=1)
-    
-   #legend(c(Rstart,-1),legend=c("Black","Dark blue","Medium blue","Light blue"),cex=0.4,xpd=T,
-  #         col=c(rgb(130,130,210,maxColorValue=255),
-  #               rgb(12,12,120,maxColorValue=255),
-  #               rgb(0,0,0,maxColorValue=255),
-  #               rgb(80,80,160,maxColorValue=255)))
-    
-    for(i in 1:length(kg$gAlias[gix]))
+    #Rename parameters of TAPS_plot_output so we can re-use other plots as template.
+    chr =regs$chr
+    start = regs$start  
+    end = regs$end
+    int = regs$logs
+    ai = regs$scores
+    ideogram=NULL
+    mchr = as.character(Log2$Chromosome)
+    mpos =  Log2$Start
+    mval =Log2$Value
+    schr = as.character(alf$Chromosome) 
+    spos = alf$Start
+    sval =alf$Value
+    xlim=c(-1,2)
+    ylim=c(0,1)
+
+    #check if hg18 is true
+    #then load hg18 knownGene list
+    if(hg18==T)
       {
-      text(x=(kg$gtxStart[gix][i]+((kg$gtxEnd[gix][i]-kg$gtxStart[gix][i])/2)),
-      #This places the gAlias text at same hight level as the transcribed region rectangle.
-      #y=((d1[i]+d2[i])/2),
-      #This places the gAlias text at the bottom
-      y=0.08,
-      labels=kg$gAlias[gix][i],
-      #This makes the text vertical
-      srt=90,
-      cex = 0.4,xpd=T)
+      kg = knownGene_hg18
+      }
+    else
+      {
+      kg = knownGene
       }
 
 
+    #
+    #Here is where pretty normal plotting procedure starts
+    #
 
-    #------------------------------------------------------------
-    #Bottom Bottom - Detailed region allele frequency view
-    #------------------------------------------------------------ 
+    #Get ideogram  
+    ideogram=getIdeogram()
 
-    #Go to screen 2
-    screen(2)
+    #Set color gradient for p and q arm of chromosome
+    colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
+    colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
 
-    #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
-    par(mar = c(0, 0, 0, 0))
-    par(oma = c(0,0,0,0))
-    par(mgp =c(0.5,0.25,0))
+    #filter the data (remove NA) and set some standard parameters
+    ai[is.na(ai)]=0
+    aix=ai!=0
+    chr=chr[aix]
+    start=start[aix]
+    end=end[aix]
+    int=int[aix]
+    ai=ai[aix]
+    pos <- (start+end)/2
+    length=end-start
 
-    #Index of correct chromsome and allele frequency not in either 0 or 1
-    six <- schr==this$chr & !(sval %in% c(0,1)) & (spos >= Rstart) & (spos <= Rend)
+    #Set sizes for circles in whole genome plot
+    size=rep(1,length(chr))
+    size[length>2000000]=2
+    size[length>5000000]=3
+    size[length>10000000]=4
 
-    #plot allele frequency over position
-    plot(spos[six],sval[six],
-        pch=20,
-        cex=0.5,
-        main = "",
-        xlab = "",
-        ylab = "",
-        #yaxt="n",
-        axes=F,
-        col = '#00000040',
-        xlim = c(Rstart,Rend),
-        ylim = c(0,1))
+    #Select the chromosome
+    this <- ideogram[ideogram$c==c,]
 
-    #Add X and Y axis as well as a line to the rightmost of the data (side=4)
-    axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=Rstart)
-    axis(side=4,labels=F,tck=0,pos=Rend)
-    #axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
-    #      labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
-    axis(side=1,cex.axis=0.6)
-
-    #Add X and Y label
-    mtext("Allele frequency",side=2,line=-0.8)
-    mtext("Position (Mb)",side=1,line=1)
+    #Extract regions start an stop
+    #region inputted in form start:stop
+    Rstart = min(region)
+    Rend = max(region)
+    
+    #Initialize jpeg
+    jpeg(paste(name,'_',this$chr,'_region_',Rstart,"-",Rend,'.jpeg',sep=''),width=11.7,height=8.3,units="in",res=300)
+    
+      #split plot into desired formation
+      split.screen(as.matrix(data.frame(left=c(rep(0.05,4),rep(0.47,3)),
+                                        right=c(0.45,rep(1,6)),
+                                        bottom=c(0.50,0.05,0.2,0.3,0.50,0.70,0.75),
+                                        top = c(0.95,0.2,0.3,0.45,0.70,0.75,0.95)))) #screen 1-5
 
 
-    #Close all the opened split.screens and release the figure
-    close.screen(all.screens=T)
-    dev.off()
-    setwd("..")
+      #Screen configuration overview
+      #-------------------------------------------------------------
+      #-------------------------------------------------------------
+      #                             |                              |
+      #                             |              7               |
+      #                             |                              |
+      #                             |------------------------------| 
+      #            1                |              6               |
+      #                             |------------------------------|
+      #                             |                              |
+      #                             |              5               |
+      #                             |                              | 
+      #-----------------------------|------------------------------|
+      #                                                            |
+      #                             4                              |
+      #------------------------------------------------------------|
+      #                             3                              |
+      #------------------------------------------------------------|
+      #                                                            |
+      #                             2                              |
+      #-------------------------------------------------------------
+
+
+      #------------------------------------------------------------
+      #Left side of the plot (Whole genome)
+      #------------------------------------------------------------
+
+      #index of overlapping the selected chromosome region to the chr object
+      wix <- chr==this$chr & (((Rstart <= start) & (Rend >= end)) | ((Rstart >= start) & (Rstart <= end)) | ((Rend <= end) & (Rend >= start)))
+      ix <- chr==this$chr
+
+      #Create an index of colors relating to the positions and lengths on this chromosome
+      col <- rep('#B0B0B030',length(chr))       
+      col[wix & (pos < this$mid)] <- paste(colors_p(sum(wix & (pos < this$mid))), '70', sep='')  
+      col[wix & (pos > this$mid)] <- paste(colors_q(sum(wix & (pos > this$mid))), '70', sep='')
+
+      #Go to screen 1
+      screen(1)
+
+      #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
+      par(mar = c(0, 0, 0, 0))
+      par(oma = c(0,0,0,0))
+      par(mgp =c(0.5,0.25,0))
+      
+      #Whole genome overview plot
+      #Note that we are plotting chrY in the background, despite the fact that it is not an "active" chromosome.
+      plot(c(int[!wix],int[wix]),c(ai[!wix],ai[wix]),
+          pch=16,
+          cex=c(size[!wix],size[wix]),
+          main = "",
+          xlab = "",
+          ylab = "",
+          axes=F, #Remove axis
+          col = c(col[!wix],col[wix]),
+          xlim = c(-1,1.5),
+          ylim = ylim)
+
+      #Insert Y and X axis
+      axis(side=2,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),las=1)
+      axis(side=1,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.1))
+
+      #Titles,date/time and axis labels
+      mtext(text="logRatio",side=1,line=1.1,cex=1)
+      mtext(text="Allelic imbalance",side=2,line=1.5,cex=1)
+      mtext(paste("Detailed view of sample: ",name,"\n Chromosome ",c,", Region: ",Rstart,"-",Rend,sep=""),side=3)
+
+      #------------------------------------------------------------
+      #Top Right - Signal
+      #------------------------------------------------------------
+
+      #Go to screen 7
+      screen(7)
+
+      #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
+      par(mar = c(0, 0, 0, 0))
+      par(oma = c(0,0,0,0))
+      par(mgp =c(0.5,0,0))
+      par(xpd=T)
+
+      #Select the correct chromosome and remove stuff lower than -1 
+      mix <- mchr==this$chr #& mval>(-1)
+
+      #Create an index of colors relating to the positions and lengths on this chromosome
+      col=rep('#000000',sum(ix))
+      col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
+      col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
+
+      #Predefine ymin ymax and sequence between them
+      ymin=floor(min(int[ix]))-0.5
+      if(ymin > -1)
+        {
+        ymin = -1
+        }
+      ymax=ceiling(max(int[ix]))+0.5
+      if(ymax < 1)
+        {
+        ymax = 1
+        }
+      seqminmax=seq(ymin,ymax,by=0.5)
+
+      #Plot logRatio over position
+      plot(mpos[mix],mval[mix],
+          pch=20,
+          cex=0.5,
+          main = "",
+          xlab = "",
+          ylab = "",
+          axes=F,
+          col = '#00000005',
+          xlim = c(0,this$length),
+          ylim = c(ymin,ymax)) #c(-1,1.5))
+
+      #Add legend for red region
+      mtext(text=expression(bold("Selected region")),side=3,col='#E8000070',cex=0.8,adj=0.05)
+
+      #Add colored segments based on the logRatio data
+      segments(x0=start[ix],x1=end[ix],
+      y0=int[ix],y1=int[ix],                
+      col=col,
+      lwd=4)
+
+      #Add a rectangle showing which region has been chosen
+      rect(xleft=Rstart,xright=Rend,ybottom=ymin,ytop=ymax,col='#E8000040',lty=0)
+
+      #Add X and Y axis. The (side=4) axis is just a black line showing where the data ends
+      axis(side=2,tck=0.926,col.ticks='#808080',
+        #Set axis
+        #at=seq(from=-1,to=1.5,by=0.5),
+        #labels=c("-1","-.5","0",".5","1","1.5"),
+        #Dynamic axis
+        at=seqminmax,
+        #labels=paste(seqminmax,'',sep=''),
+        cex.axis=0.6,pos=0,hadj=1.3,las=1)
+
+      axis(side=4,labels=F,tck=0,pos=this$length,
+       at=seqminmax)
+
+      axis(side=1,tck=0.926,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
+            labels=FALSE,cex.axis=0.6,pos=ymin)
+
+      #Add Y axis label & date/time
+      mtext("logRatio",side=2,line=0.3)
+      mtext(format(Sys.time(),"%Y-%m-%d %H:%M"),side=3,cex=0.6,adj=0.95)
+
+      #------------------------------------------------------------
+      #Middle Right - Cytobands
+      #------------------------------------------------------------
+
+      #Go to screen 6
+      screen(6)
+
+      #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
+      par(mar = c(0, 0, 0, 0))
+      par(oma = c(0,0,0,0))
+      par(mgp =c(0.5,0,0))
+      
+
+      #Create a empty plot with the same ylim and xlim as the plot directly above it (signal) and below (AI)
+      plot(0,0,xlab="",ylab="",main="",type="n",axes=F,xaxt="n",ylim=c(0,0.3),xlim=c(0,max(mpos[mix])))
+
+      #Add Y axis label
+      mtext(text="Cytoband",side=2,las=1,line=-1,cex=0.8)
+
+      #index of the chromData for this chromosome
+      dix = chromData$chr == this$chr
+
+      #Add cytoband information as differently colored rectangles
+      rect(xleft=chromData$chromStart[dix],xright=chromData$chromEnd[dix],
+         #ybottom=0.15-chromData$thickness[dix]*0.03,ytop=0.15+chromData$thickness[dix]*0.03,
+         ybottom=0,ytop=0.3,
+         col=paste(chromData$col[dix],'99',sep=''),
+         lty=0)
+
+      #Add a rectangle showing which region has been chosen
+      rect(xleft=Rstart,xright=Rend,ybottom=0,ytop=0.3,col='#E8000040',lty=0)
+
+      #Att text annotation to cytobands
+      for(j in 1:length(chromData$name[dix]))
+      {
+      #If the cytoband region is larger than 5 Mb, it can fit some text
+      if((chromData$chromEnd[dix][j] - chromData$chromStart[dix][j]) > 4*10^6)
+        {
+        # Text is added at x position (all of previous chromosome) + (middle of region)
+        # The "srt" flips the text 90 degrees
+        text(x=(chromData$chromStart[dix][j]+((chromData$chromEnd[dix][j]-chromData$chromStart[dix][j])/2)),
+        y=0.15,labels=chromData$name[dix][j], srt=90,cex = 0.5,xpd=T)
+        }
+      }
+
+      #------------------------------------------------------------
+      #Bottom Right - Allele frequency
+      #------------------------------------------------------------ 
+
+      #Go to screen 5
+      screen(5)
+
+      #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
+      par(mar = c(0, 0, 0, 0))
+      par(oma = c(0,0,0,0))
+      par(mgp =c(0.5,0,0))
+      
+
+      #Index of correct chromsome and allele frequency not in either 0 or 1
+      six <- schr==this$chr & !(sval %in% c(0,1))
+
+      #plot allele frequency over position
+      plot(spos[six],sval[six],
+          pch=20,
+          cex=0.5,
+          main = "",
+          xlab = "",
+          ylab = "",
+          #yaxt="n",
+          axes=F,
+          col = '#00000010',
+          xlim = c(0,this$length),
+          ylim = c(0,1))
+
+      #Add X and Y axis as well as a line to the rightmost of the data (side=4)
+      axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,hadj=1.3,las=1)
+      axis(side=4,labels=F,tck=0,pos=this$length)
+      axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
+            labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
+
+      #Add a rectangle showing which region has been chosen
+      rect(xleft=Rstart,xright=Rend,ybottom=0,ytop=1,col='#E8000040',lty=0)
+
+      #Add X and Y label
+      mtext("Allele frequency",side=2,line=0.3)
+      mtext("Position (Mb)",side=1,line=1)
+
+      #------------------------------------------------------------
+      #Top Bottom - Detailed region signal view
+      #------------------------------------------------------------ 
+
+      #Go to screen 4
+      screen(4)
+
+      #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
+      par(mar = c(0, 0, 0, 0))
+      par(oma = c(0,0,0,0))
+      par(mgp =c(0.5,0,0))
+      
+
+      #Select the correct chromosome and region and remove stuff lower than -1 
+      mix <- mchr==this$chr & (mpos >= Rstart) & (mpos <= Rend) #& mval>(-1)
+
+      wix <- chr==this$chr & (((Rstart <= start) & (Rend >= end)) | ((Rstart >= start) & (Rstart <= end)) | ((Rend <= end) & (Rend >= start)))
+      
+      cix = ((Rstart >= start) & (Rstart <= end))
+      start[cix] = Rstart
+      cix = ((Rend <= end) & (Rend >= start))
+      end[cix] = Rend
+
+      #Predefine ymin ymax and sequence between them
+      ymin=floor(min(int[wix]))-0.5
+      if(ymin > -1)
+        {
+        ymin = -1
+        }
+      ymax=ceiling(max(int[wix]))+0.5
+      if(ymax < 1)
+        {
+        ymax = 1
+        }
+      seqminmax=seq(ymin,ymax,by=0.5)
+
+      #Plot logRatio over position
+      plot(mpos[mix],mval[mix],
+          pch=20,
+          cex=0.5,
+          main = "",
+          xlab = "",
+          ylab = "",
+          axes=F,
+          col = '#00000040',
+          xlim = c(Rstart,Rend),
+          ylim = c(ymin,ymax))#c(round(min(mval[mix]),digits=1),round(max(mval[mix]),digits=1)))#c(-1,1.5))
+
+      #Create an index of colors relating to the positions and lengths on this chromosome
+      col=rep('#000000',sum(wix))
+      col[pos[wix] < this$mid] <- colors_p(sum(pos[wix] < this$mid))
+      col[pos[wix] > this$mid] <- colors_q(sum(pos[wix] > this$mid))
+
+      #Add colored segments based on the logRatio data
+      segments(x0=start[wix],x1=end[wix],
+      y0=int[wix],y1=int[wix],                
+      col=col,
+      lwd=4)
+
+      #Add X and Y axis. The (side=4) axis is just a black line showing where the data ends
+      axis(side=2,tck=0.926,col.ticks='#808080',
+        #Set axis
+        #at=seq(from=-1,to=1.5,by=0.5),
+        #labels=c("-1","-.5","0",".5","1","1.5")
+        #Dynamic axis
+        at=seqminmax,
+        #labels=paste(seqminmax,'',sep=''),
+        ,cex.axis=0.6,pos=Rstart,hadj=1.3,las=1)
+
+      axis(side=4,labels=F,tck=0,pos=Rend)
+      #axis(side=1,tck=0.926,col.ticks='#808080',cex.axis=0.6,pos=-1)
+
+      #Add X Y axis label
+      mtext("logRatio",side=2,line=-0.8)
+      #mtext("Position (Mb)",side=1,line=1)
+
+      #------------------------------------------------------------
+      #Middle Bottom - Region Gene view
+      #------------------------------------------------------------ 
+
+      #Go to screen 3
+      screen(3)
+
+      #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
+      par(mar = c(0, 0, 0, 0))
+      par(oma = c(0,0,0,0))
+      par(mgp =c(0.5,0.25,0))
+      
+      #par(xpd=T)
+
+      #Create a empty plot with the same ylim and xlim as the plot directly above it (signal) and below (AI)
+      plot(0,0,xlab="",ylab="",main="",type="n",axes=F,xaxt="n",ylim=c(0,0.48),xlim=c(Rstart,Rend))
+      
+      kg=kg[order(kg$chr,kg$gtxEnd),]
+
+      #Create and index of the genes within region (rstart to rend)
+      #gix <- kg$chr==this$chr & (((Rstart <= kg$gtxStart) & (Rend >= kg$gtxEnd)) | ((Rstart >= kg$gtxStart) & (Rstart <= kg$gtxEnd)) | ((Rend <= kg$gtxEnd) & (Rend >= kg$gtxStart)))
+      gix <- kg$chr==this$chr & ((Rstart <= kg$gtxEnd) & (Rend >= kg$gtxStart)) 
+
+      #If they are only partial overlapping, remove the parts outside of the selected region
+      cix = ((Rstart >= kg$gtxStart) & (Rstart <= kg$gtxEnd))
+      kg$gtxStart[cix] = Rstart
+      cix = ((Rend <= kg$gtxEnd) & (Rend >= kg$gtxStart))
+      kg$gtxEnd[cix] = Rend
+
+      # #Check if any genes are overlapping so they are shown on top of or below eachother
+      d1 = c(rep(0.42,length(which(gix))))
+      d2 = c(rep(0.36,length(which(gix))))
+      j = 1
+
+      for(i in min(which(gix)):max(which(gix)))
+        {
+        #if this gene overlaps with the gene infront of it
+        if(kg$gtxEnd[i] >= kg$gtxStart[i+1])
+          {
+          d1[j+1] = d1[j]-0.06
+          d2[j+1] = d2[j]-0.06  
+          }
+        j = j + 1
+        }
+
+      #Add the genes to plot as horizontal rectangles that cover the transcribed region
+      rect(xleft=kg$gtxStart[gix],xright=kg$gtxEnd[gix],
+          #Between 0 - 0.3
+          ybottom=d2,ytop=d1,
+          col=rgb(kg$R[gix],kg$G[gix],kg$B[gix],maxColorValue=255),lty=1)
+    
+    #Add legend
+    #
+    text(x=Rstart+(6.2*(Rend-Rstart)/10),y=0.46,labels=expression(bold("Feature in PDB")),col=rgb(0,0,0,maxColorValue=255),cex=0.6)
+    text(x=Rstart+(7.6*(Rend-Rstart)/10),y=0.46,labels=expression(bold("RefSeq,Swissprot or CCDS validated")),col=rgb(12,12,120,maxColorValue=255),cex=0.6)
+    text(x=Rstart+(9*(Rend-Rstart)/10),y=0.46,labels=expression(bold("Other RefSeq")),col=rgb(80,80,160,maxColorValue=255),cex=0.6)
+    text(x=Rstart+(9.8*(Rend-Rstart)/10),y=0.46,labels=expression(bold("non-RefSeq")),col=rgb(130,130,210,maxColorValue=255),cex=0.6)
+    
+    #Add Y label
+    mtext("Known genes",side=2,line=-1.8,,cex=0.9,las=1)
+      
+     #legend(c(Rstart,-1),legend=c("Black","Dark blue","Medium blue","Light blue"),cex=0.4,xpd=T,
+    #         col=c(rgb(130,130,210,maxColorValue=255),
+    #               rgb(12,12,120,maxColorValue=255),
+    #               rgb(0,0,0,maxColorValue=255),
+    #               rgb(80,80,160,maxColorValue=255)))
+      
+      for(i in 1:length(kg$gAlias[gix]))
+        {
+        text(x=(kg$gtxStart[gix][i]+((kg$gtxEnd[gix][i]-kg$gtxStart[gix][i])/2)),
+        #This places the gAlias text at same hight level as the transcribed region rectangle.
+        #y=((d1[i]+d2[i])/2),
+        #This places the gAlias text at the bottom
+        y=0.08,
+        labels=kg$gAlias[gix][i],
+        #This makes the text vertical
+        srt=90,
+        cex = 0.4,xpd=T)
+        }
+
+
+
+      #------------------------------------------------------------
+      #Bottom Bottom - Detailed region allele frequency view
+      #------------------------------------------------------------ 
+
+      #Go to screen 2
+      screen(2)
+
+      #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
+      par(mar = c(0, 0, 0, 0))
+      par(oma = c(0,0,0,0))
+      par(mgp =c(0.5,0.25,0))
+      
+
+      #Index of correct chromsome and allele frequency not in either 0 or 1
+      six <- schr==this$chr & !(sval %in% c(0,1)) & (spos >= Rstart) & (spos <= Rend)
+
+      #plot allele frequency over position
+      plot(spos[six],sval[six],
+          pch=20,
+          cex=0.5,
+          main = "",
+          xlab = "",
+          ylab = "",
+          #yaxt="n",
+          axes=F,
+          col = '#00000040',
+          xlim = c(Rstart,Rend),
+          ylim = c(0,1))
+
+      #Add X and Y axis as well as a line to the rightmost of the data (side=4)
+      axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=Rstart,las=1)
+      axis(side=4,labels=F,tck=0,pos=Rend)
+      #axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
+      #      labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
+      axis(side=1,cex.axis=0.6)
+
+      #Add X and Y label
+      mtext("Allele frequency",side=2,line=-0.8)
+      mtext("Position (Mb)",side=1,line=1)
+
+
+      #Close all the opened split.screens and release the figure
+      close.screen(all.screens=T)
+      dev.off()
+      setwd("..")
+    } , silent=F)
 
   }
 

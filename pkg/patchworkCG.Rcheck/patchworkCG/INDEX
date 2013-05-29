@@ -1,0 +1,14 @@
+CG_KaCh                 Karyotype plotting of each chromosome
+CG_KaChCN               Karyotype plotting for each chromosome post
+                        patchwork.CG.copynumbers().
+CG_Ka_check             Karyotype check function
+CG_karyotype            CompleteGenomics karyotype plotting function
+ideogram                Ideogram data for the chromosomes.
+patchwork.CG.copynumbers
+                        Function plot allele-specific copy numbers of
+                        the genome
+patchwork.CG.plot       The main function of patchworkCG.
+patchworkCG.readme      Welcome to patchworkCG
+subfunctions_copynumbers
+                        A number of subfunctions used within
+                        patchwork.CG.copynumbers().
