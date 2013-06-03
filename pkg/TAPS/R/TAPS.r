@@ -2,6 +2,10 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
   bin=400) {
 #Automatically check, and if needed install, packages stats and fields
 
+#Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
+#pre-install it
+library(stats)
+
 #list.of.packages <- c("stats", "fields")
 #new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 #if(length(new.packages)) install.packages(new.packages)
@@ -291,7 +295,7 @@ return (regs)
 segment_DNAcopy <- function(Log2) {
 ## If segmentation is required, DNAcopy is a good choice. Must be installed. 
   #library(DNAcopy)
-  cat('Using DNAcopy to create segments:\n')
+  cat('..Using DNAcopy to create segments:\n')
   segs=NULL
   chroms=c(as.character(1:22),'X','Y')
   chroms=paste('chr',chroms,sep='')
