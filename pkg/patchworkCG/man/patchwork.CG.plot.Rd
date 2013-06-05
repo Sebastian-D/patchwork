@@ -22,7 +22,8 @@ patchwork.CG.plot(path=NULL,name='CG_sample',manual_file_input=FALSE,
 
 \arguments{
   \item{path}{
-  	Path to the ASM folder. One of the subfolders of your completegenomics directory.
+  	Path to the ASM folder. One of the subfolders of your completegenomics directory. Should be given as a string.
+    Ex. path="path/to/ASM".
 	}
   \item{name}{
 	Default is 'CG_sample'. The name you wish associated with the plots that will be generated.

@@ -22,12 +22,12 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	if(is.null(vcf))
 		{
 		#old samtools pileup -vcf used.
-		cat("pileup used \n")
+		#cat("pileup used \n")
 		system(paste("cat ",Pileup," | perl .perl/pile2alleles.pl > ",getwd(),"/pile.alleles",sep=""))
 		} else 
 		{
 		#mpileup and bcftools used. read the pileup and vcf.
-		cat("mpileup used \n")
+		#cat("mpileup used \n")
 		system(paste("perl .perl/mpile2alleles.pl ",Pileup," ",vcf," >",getwd(),"/pile.alleles",sep=""))
 		}
 
