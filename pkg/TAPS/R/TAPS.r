@@ -12,8 +12,12 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
     
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
     #pre-install it
-    library(stats)
-    
+    #library(stats)
+    suppressPackageStartupMessages(library(stats,character.only=TRUE))
+    suppressPackageStartupMessages(library(DNAcopy,character.only=TRUE))
+    suppressPackageStartupMessages(library(fields,character.only=TRUE))
+
+
     #list.of.packages <- c("stats", "fields")
     #new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
     #if(length(new.packages)) install.packages(new.packages)
@@ -46,9 +50,9 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
         
         if(length(grep("*.cyhd.cychp",dir()))==1)				##cyhd sample
         {
-            ##read CYCHP file from ChAS with logratio info##
+            ##read CYCHP file from ChAS with log-ratio info##
             ################################################
-            library(affxparser)
+            suppressPackageStartupMessages(library(affxparser,character.only=TRUE))
             
             name=list.files(".",pattern="*.cychp")
             temp=readCcg(name)
@@ -1139,7 +1143,7 @@ karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='')
     
     png(paste(name,'.karyotype_check.png',sep=''),width=1300,height=1300)
     
-    ideogram=deogram()
+    ideogram=getIdeogram()
     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
     colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
     
@@ -1927,7 +1931,7 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
 #------------------------------------------------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------------------------------------------------#
 
-#Function for generating individual plots for TAPS_call. Gives whole genome, logRatio, cytoband and allele frequency.
+#Function for generating individual plots for TAPS_call. Gives whole genome, log-ratio, cytoband and allele frequency.
 karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-2,2),ylim=0:1,MAPD,MHOF)  
 {   
     
@@ -2105,7 +2109,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
         col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
         
-        #Plot logRatio over position
+        #Plot log-ratio over position
         plot(mpos[mix],mval[mix],
              pch=20,
              cex=0.5,
@@ -2117,7 +2121,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
              xlim = c(0,this$length),
              ylim = c(ymin,ymax))
         
-        #Add colored segments based on the logRatio data
+        #Add colored segments based on the log-ratio data
         segments(x0=start[ix],x1=end[ix],
                  y0=int[ix],y1=int[ix],                
                  col=col,
@@ -2395,7 +2399,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
              cex=0.75)
         
         #Titles and axis labels
-        mtext(text="Average logRatio",side=1,line=1,cex=1)
+        mtext(text="Average log-ratio",side=1,line=1,cex=1)
         mtext(text="Allelic imbalance",side=2,line=1,cex=1)
         
         #Check if name of sample is too long to be graphically pleasing and cut it if that is the case
@@ -2485,7 +2489,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
         col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
         
-        #Plot logRatio over position
+        #Plot log-ratio over position
         plot(mpos[mix],mval[mix],
              pch=20,
              cex=0.5,
@@ -2497,7 +2501,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
              xlim = c(0,this$length),
              ylim = c(ymin,ymax))
         
-        #Add colored segments based on the logRatio data
+        #Add colored segments based on the log-ratio data
         segments(x0=start[ix],x1=end[ix],
                  y0=int[ix],y1=int[ix],                
                  col=col,
@@ -2512,7 +2516,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
              labels=FALSE,cex.axis=0.6,pos=ymin)
         
         #Add Y axis label
-        mtext("logRatio",side=2,line=0.3)
+        mtext("log-ratio",side=2,line=0.3)
         
         #------------------------------------------------------------
         #Right side, Middle Bottom - Cytobands
@@ -2826,7 +2830,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     axis(side=1,cex.axis=0.6,tck=0.963,col.ticks='#808080',at=seq(from=-1,to=1.5,by=0.1))
     
     #Titles,date/time and axis labels
-    mtext(text="logRatio",side=1,line=1.1,cex=1)
+    mtext(text="log-ratio",side=1,line=1.1,cex=1)
     mtext(text="Allelic imbalance",side=2,line=1.5,cex=1)
     mtext(paste("Detailed view of sample: ",name,"\n Chromosome ",c,", Region: ",Rstart,"-",Rend,sep=""),side=3)
     
@@ -2864,7 +2868,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     }
     seqminmax=seq(ymin,ymax,by=0.5)
     
-    #Plot logRatio over position
+    #Plot log-ratio over position
     plot(mpos[mix],mval[mix],
          pch=20,
          cex=0.5,
@@ -2879,7 +2883,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     #Add legend for red region
     mtext(text=expression(bold("Selected region")),side=3,col='#E8000070',cex=0.8,adj=0.05)
     
-    #Add colored segments based on the logRatio data
+    #Add colored segments based on the log-ratio data
     segments(x0=start[ix],x1=end[ix],
              y0=int[ix],y1=int[ix],                
              col=col,
@@ -2905,7 +2909,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
          labels=FALSE,cex.axis=0.6,pos=ymin)
     
     #Add Y axis label & date/time
-    mtext("logRatio",side=2,line=0.3)
+    mtext("log-ratio",side=2,line=0.3)
     mtext(format(Sys.time(),"%Y-%m-%d %H:%M"),side=3,cex=0.6,adj=0.95)
     
     #------------------------------------------------------------
@@ -3031,7 +3035,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     }
     seqminmax=seq(ymin,ymax,by=0.5)
     
-    #Plot logRatio over position
+    #Plot log-ratio over position
     plot(mpos[mix],mval[mix],
          pch=20,
          cex=0.5,
@@ -3048,7 +3052,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     col[pos[wix] < this$mid] <- colors_p(sum(pos[wix] < this$mid))
     col[pos[wix] > this$mid] <- colors_q(sum(pos[wix] > this$mid))
     
-    #Add colored segments based on the logRatio data
+    #Add colored segments based on the log-ratio data
     segments(x0=start[wix],x1=end[wix],
              y0=int[wix],y1=int[wix],                
              col=col,
@@ -3068,7 +3072,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     #axis(side=1,tck=0.926,col.ticks='#808080',cex.axis=0.6,pos=-1)
     
     #Add X Y axis label
-    mtext("logRatio",side=2,line=-0.8)
+    mtext("log-ratio",side=2,line=-0.8)
     #mtext("Position (Mb)",side=1,line=1)
     
     #------------------------------------------------------------
