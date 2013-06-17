@@ -40,7 +40,12 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
     }
     
     # create SampleData file if there is none.
-    if (length(grep('SampleData.txt',dir()))==0) save.txt(data.frame(Sample=subs,cn2='',delta='',loh='',completed.analysis='no'),file='SampleData.txt')
+    if (length(grep('SampleData.txt',dir()))==0) {
+        sampleData=data.frame(Sample=subs,cn2='',delta='',loh='', MAPD=NA, MHOF=NA, calculate.copynumbers='yes')
+    } else {
+        sampleData=load.txt('SampleData.txt')
+    }
+        
     
     for (i in 1:length(subs)) {
         setwd(subs[i])
@@ -135,22 +140,24 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
         segments$Value <- segments$Value-median(Log2$Value)     ## Median-centering
         Log2$Value <- Log2$Value-median(Log2$Value)             ## Median-centering
         
-        allRegions=NULL; try(load('allRegions.Rdata'),silent=T)
+        allRegions=NULL; #try(load('allRegions.Rdata'),silent=T)
         if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments)            ## Calculates necessary data for segments (all functions are in this file)
         save(allRegions,file='allRegions.Rdata')
-        regs=NULL; try(load('shortRegions.Rdata'),silent=T)
+        regs=NULL; #try(load('shortRegions.Rdata'),silent=T)
         if (is.null(regs)) {
             regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=5)    ## Calculates the same data for shortened segments
             save(regs,file='shortRegions.Rdata')
         }
         
         ## Sample QC 
-        MAPD=round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
-        MHOF=round(median(0.5+regs$hom[regs$scores<0.5],na.rm=T),2)        
+        sampleData$MAPD[i] <- MAPD <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
+        sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+regs$hom[regs$scores<0.5],na.rm=T),1)        
         #MAID=round(median(abs(diff(regs$scores[!is.na(regs$scores)]))),3)
         
         #Save for TAPS_region()
         save(regs,Log2,alf,segments,file="TAPS_plot_output.Rdata")
+        
+        save.txt(sampleData,file='../SampleData.txt')
         
         #Clear warnings generated previously so hopefully I can see what is actually causing the program to fail.
         #assign("last.warning", NULL, envir = baseenv())
@@ -202,13 +209,12 @@ TAPS_call <- function(directory=NULL,#xlim=c(-1,1),ylim=c(0,1),
         sampleData <- load.txt('../SampleData.txt')
     }
     subs=as.character(sampleData$Sample)
-    #save.txt(sampleData,file='sampleData_old.csv')
     
     if (is.null(subs)) {
         subs=thisSubdir()
         setwd('..')
     }
-    for (i in 1:length(subs)) if (sampleData$completed.analysis[i]=='no') {
+    for (i in 1:length(subs)) if (sampleData$calculate.copynumbers[i]=='yes') {
         setwd(subs[i])
         name <- subs[i]
         sampleInfo <- sampleData[sampleData$Sample==subs[i],]
@@ -260,7 +266,7 @@ TAPS_call <- function(directory=NULL,#xlim=c(-1,1),ylim=c(0,1),
         
         setwd('..')
     }
-    save.txt(sampleData,file='SampleData_new.csv')
+    save.txt(sampleData,file='SampleData.txt')
 }
 ###
 regsFromSegs <- function (Log2,alf, segments, bin=200,min=1) {
