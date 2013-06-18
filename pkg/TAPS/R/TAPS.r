@@ -1190,7 +1190,7 @@ karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='')
          cex.lab=2,
          mar=c(0.1,0.1,0.1,0.1),
          main = "",
-         xlab = name,
+         xlab = "",
          ylab = "",
          col = col,
          xlim=c(-1,2),ylim=c(0,1))
@@ -1201,6 +1201,11 @@ karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='')
          cex=2
     )
     
+    mtext("Allelic imbalance",side=2,line=2,cex=2)
+    mtext("Average log-ratio",side=1,line=2.3,cex=2)
+    mtext(name,side=3,line=1.5,cex=2)
+
+
     dev.off()
     
 }

@@ -54,7 +54,6 @@ while (<VCF>)
 		my ($chr, $pos, $ref, $depth, $baseString) = (split /\t/, $_)[0,1,2,3,4];
 
 		#If the position and chromosome match between pileup and vcf
-
 		# add if smaller than
 		if ($vchr eq $chr && $vpos == $pos)
 			{

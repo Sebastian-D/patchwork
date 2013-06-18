@@ -7,5 +7,5 @@ Author: Markus Mayrhofer, Sebastian DiLorenzo
 Maintainer: Markus Mayrhofer <Markus.Mayrhofer@medsci.uu.se>
 Description: Performs a allele-specific copy number analysis of whole genome data.
 License: GPL-2
-Imports: patchworkData
-Depends: DNAcopy
+#Imports: patchworkData
+#Depends: DNAcopy

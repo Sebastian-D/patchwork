@@ -7,5 +7,5 @@ Author: Markus Mayrhofer, Hanna Goransson-Kultima, Sebastian DiLorenzo
 Maintainer: Sebastian DiLorenzo <Sebastian.DiLorenzo@medsci.uu.se> #Markus Mayrhofer <Markus.Mayrhofer@medsci.uu.se>
 Description: Performs a allele-specific copy number analysis of array data.
 License: GPL-2
-Depends:R (>= 2.10), DNAcopy, fields, affxparser
+Depends:R (>= 2.10)
 #Imports: DNAcopy, fields, affxparser

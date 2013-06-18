@@ -35,6 +35,14 @@ If something still does not work with installation, here are links to the locati
 
 <br />
 
+<!--
+You only need to install patchwork once. But remember to keep it up to date!
+
+<pre>
+    update.packages(repos=\"http://R-Forge.R-project.org\")
+</pre>
+-->
+
 <h4>Python and Pysam</h4>
 
 Patchwork uses a python mod called pysam for "reading" the chromosomes. The package already checks if you have
