@@ -14,6 +14,9 @@ use strict;
 open(PILEUP,$ARGV[0]) or die "Could not read from $ARGV[0] , stopping.";
 open(VCF,$ARGV[1]) or die "Could not read from $ARGV[1] , stopping.";
 
+#For testing purposes
+#open(OUT,">out.txt");
+
 my %snps;
 my %iupac;
 $iupac{'A'}{'R'} = 'G';
@@ -41,6 +44,9 @@ $iupac{'T'}{'R'} = 'A|G';
 $iupac{'T'}{'S'} = 'G|C';
 $iupac{'T'}{'M'} = 'A|C';
 
+#For testing purposes
+#my $i = 1;
+#perl mpile2alleles.pl SRR389821.mpileup SRR389821.vcf > test.out
 
 while (<VCF>)
 	{
@@ -48,22 +54,39 @@ while (<VCF>)
 	next if /^#/;
 	my ($vchr, $vpos, $cons, $consQual) = (split /\t/, $_)[0,1,4,5];
 
+	next if $cons eq 'N';
+	next if length $cons > 1;
+
 	while (<PILEUP>) 
 		{
 		chomp;
 		my ($chr, $pos, $ref, $depth, $baseString) = (split /\t/, $_)[0,1,2,3,4];
 
+		#uc upper case
+		$ref = uc $ref;
+		next if $ref eq '*';
+
 		#If the position and chromosome match between pileup and vcf
 		# add if smaller than
 		if ($vchr eq $chr && $vpos == $pos)
 			{
-			$ref = uc $ref;
-			next if $ref eq '*';
-			next if $cons eq 'N';
 			my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
 			$snps{$chr}{$pos}{'ref'} = $ref;
 			$snps{$chr}{$pos}{'snp'} = $snp;
 			$snps{$chr}{$pos}{'qual'} = $consQual;
+
+			#For testing purposes
+			#print OUT "VCF: $vchr $vpos $cons $consQual \n";
+			#print OUT "PILEUP: $chr $pos $ref $depth $baseString \n";
+			#print OUT "snp: $snp \n";
+			#print OUT "assigned: $snps{$chr}{$pos}{'snp'} \n";
+			
+			#if ($i == 10)
+			#{
+			#	close(OUT);
+			#}
+
+			#$i++;
 
 			my $snpCount;
 			if ($snps{$chr}{$pos}{'snp'} eq 'A') {
