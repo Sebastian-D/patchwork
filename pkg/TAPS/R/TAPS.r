@@ -13,9 +13,9 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
     #pre-install it
     #library(stats)
-    suppressPackageStartupMessages(library(stats,character.only=TRUE))
-    suppressPackageStartupMessages(library(DNAcopy,character.only=TRUE))
-    suppressPackageStartupMessages(library(fields,character.only=TRUE))
+    suppressPackageStartupMessages(library(stats))
+    suppressPackageStartupMessages(library(DNAcopy))
+    suppressPackageStartupMessages(library(fields))
 
 
     #list.of.packages <- c("stats", "fields")
@@ -57,7 +57,7 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
         {
             ##read CYCHP file from ChAS with log-ratio info##
             ################################################
-            suppressPackageStartupMessages(library(affxparser,character.only=TRUE))
+            suppressPackageStartupMessages(library(affxparser))
             
             name=list.files(".",pattern="*.cychp")
             temp=readCcg(name)

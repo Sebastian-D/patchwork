@@ -29,7 +29,7 @@ If for some reason that does not work try installing it from source by adding 't
     install.packages("TAPS", repos="http://R-Forge.R-project.org",type="source")
 </pre>
 
-If something still does not work with installation, here are links to the location of the source files: <br />
+If something still does not work with installation, here is a link to the location of the source file: <br />
 
 <a href="http://r-forge.r-project.org/R/?group_id=1250" target="_blank" style="text-decoration:none;">
 	TAPS</a><br />
