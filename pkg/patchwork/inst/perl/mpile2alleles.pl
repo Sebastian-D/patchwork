@@ -15,7 +15,10 @@ open(PILEUP,$ARGV[0]) or die "Could not read from $ARGV[0] , stopping.";
 open(VCF,$ARGV[1]) or die "Could not read from $ARGV[1] , stopping.";
 
 #For testing purposes
-#open(OUT,">out.txt");
+#OUT shows faulty lines and the values they are given
+#OK shows a bunch of OK lines to compare too.
+# open(OUT,">out.txt");
+# open(OK,">OK.txt");
 
 my %snps;
 my %iupac;
@@ -45,7 +48,9 @@ $iupac{'T'}{'S'} = 'G|C';
 $iupac{'T'}{'M'} = 'A|C';
 
 #For testing purposes
-#my $i = 1;
+# my $i = 0;
+# my $j = 0;
+
 #perl mpile2alleles.pl SRR389821.mpileup SRR389821.vcf > test.out
 
 while (<VCF>)
@@ -56,11 +61,15 @@ while (<VCF>)
 
 	next if $cons eq 'N';
 	next if length $cons > 1;
+	$cons = uc $cons;
 
 	while (<PILEUP>) 
 		{
 		chomp;
 		my ($chr, $pos, $ref, $depth, $baseString) = (split /\t/, $_)[0,1,2,3,4];
+
+		#For testing purposes
+		# $j++;
 
 		#uc upper case
 		$ref = uc $ref;
@@ -75,18 +84,29 @@ while (<VCF>)
 			$snps{$chr}{$pos}{'snp'} = $snp;
 			$snps{$chr}{$pos}{'qual'} = $consQual;
 
-			#For testing purposes
-			#print OUT "VCF: $vchr $vpos $cons $consQual \n";
-			#print OUT "PILEUP: $chr $pos $ref $depth $baseString \n";
-			#print OUT "snp: $snp \n";
-			#print OUT "assigned: $snps{$chr}{$pos}{'snp'} \n";
-			
-			#if ($i == 10)
-			#{
-			#	close(OUT);
-			#}
+		# 	#For testing purposes
+		# $j == the faulty line number so we can see what is actually happening there
+		# 	if($j == 576673 || $j == 683784 || $j == 733447)
+		# 		{
+		# 		print OUT "Line: $. \n";
+		# 		print OUT "VCF: $vchr $vpos $cons $consQual \n";
+		# 		print OUT "PILEUP: $chr $pos $ref $depth $baseString \n";
+		# 		print OUT "snp: $snp \n";
+		# 		print OUT "assigned: $snps{$chr}{$pos}{'snp'} \n";
+		# 		$i++;
+		# 		}
 
-			#$i++;
+		# 	print OK "Line: $. \n";
+		# 	print OK "VCF: $vchr $vpos $cons $consQual \n";
+		# 	print OK "PILEUP: $chr $pos $ref $depth $baseString \n";
+		# 	print OK "snp: $snp \n";
+		# 	print OK "assigned: $snps{$chr}{$pos}{'snp'} \n";
+			
+		# 	if ($i == 3)
+		# 	{
+		# 		close(OUT);
+		# 		close(OK);
+		# 	}
 
 			my $snpCount;
 			if ($snps{$chr}{$pos}{'snp'} eq 'A') {
