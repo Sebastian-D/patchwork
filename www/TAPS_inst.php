@@ -3,7 +3,7 @@ TAPS works on Unix (Linux, Ubuntu, MacOSX, etc) based systems and has been teste
 
 Begin by starting R. It is recommended that you use the latest version.
 <br /><br />
-Start by enabling all repositories in R so the dependencies of TAPS can be found.<br /><br />
+Enable all repositories in R so the dependencies of TAPS can be found.<br /><br />
 
 <pre>
     setRepositories()
@@ -16,7 +16,7 @@ Install the packages that TAPS depends on to function correctly. <br /><br />
     install.packages("fields")
 </pre>
 
-To install TAPS enter this command in R.
+Install TAPS.
 
 <br /><br />
 
@@ -24,7 +24,7 @@ To install TAPS enter this command in R.
     install.packages("TAPS", repos="http://R-Forge.R-project.org")
 </pre>
 
-If for some reason that does not work try installing it from source by adding 'type="source"' to the command.
+If for some reason that does not work, try installing it from source by adding 'type="source"' to the command.
 <pre>
     install.packages("TAPS", repos="http://R-Forge.R-project.org",type="source")
 </pre>
