@@ -1,8 +1,0 @@
-pysam/namedtuple
-ctabix
-pysam/Pileup
-csamtools
-cvcf
-TabProxies
-pysam/version
-pysam/__init__
