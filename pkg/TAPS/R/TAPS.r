@@ -136,10 +136,10 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
         segments$Value <- segments$Value-median(Log2$Value)     ## Median-centering
         Log2$Value <- Log2$Value-median(Log2$Value)             ## Median-centering
         
-        allRegions=NULL; #try(load('allRegions.Rdata'),silent=T)
+        allRegions=NULL; try(load('allRegions.Rdata'),silent=T)
         if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments)            ## Calculates necessary data for segments (all functions are in this file)
         save(allRegions,file='allRegions.Rdata')
-        regs=NULL; #try(load('shortRegions.Rdata'),silent=T)
+        regs=NULL; try(load('shortRegions.Rdata'),silent=T)
         if (is.null(regs)) {
             regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=5)    ## Calculates the same data for shortened segments
             save(regs,file='shortRegions.Rdata')
@@ -147,7 +147,8 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
         
         ## Sample QC 
         sampleData$MAPD[i] <- MAPD <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
-        sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+regs$hom[regs$scores<0.5],na.rm=T),1)        
+        sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+abs(0.5-alf$Value)),1)
+            #round(100*median(0.5+regs$hom[regs$scores<0.5],na.rm=T),1)        
         #MAID=round(median(abs(diff(regs$scores[!is.na(regs$scores)]))),3)
         
         #Save for TAPS_region()
@@ -1597,7 +1598,6 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
     #size[length>10000000]=0.8
     
     #Define the name,dimensions and resolution of the plot.
-    #pdf(paste(name,'_overview.pdf',sep=''),paper="a4r")#,width=11.7,height=8.3) #Vectorized pdf did not work well for RAM.
     jpeg(paste(name,'_overview.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
     
     #split the plot into desired formation
