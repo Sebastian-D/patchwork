@@ -5,7 +5,7 @@ patchwork.Medians_n_AI <- function(segs,kbsegs,alf)
 	for (i in 1:nrow(segs))
 		{
 		ix = kbsegs$chr==as.character(segs$chr[i]) & ( kbsegs$pos > segs$start[i] & kbsegs$pos < segs$end[i] )
-		segs$median[i] = median(kbsegs$ratio[ix])
+		segs$median[i] = median(kbsegs$ratio[ix],na.rm=T)
 
 		ix2 = alf$achr==as.character(segs$chr[i]) & ( alf$apos > segs$start[i] & alf$apos < segs$end[i] )
 		segs$snvs[i] = sum(ix2)
