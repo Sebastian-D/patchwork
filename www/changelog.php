@@ -10,10 +10,21 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 <h5 style="display:inline-block;">patchwork v2.3 - </h5><div style="display:inline-block; width:1px;"></div>
 <h6 style="display:inline-block;">2013</h6>
 <ul>
-	<li>Patchwork now gives you an additional file, &lt;sample_name&gt;_somatic.Rdata, which contains possible, unfiltered, somatic variants.</li>
-	<li>PatchworkCG now has better file handling to avoid an error where it would not start reading files but not give an error either.</li>
-	<li>Patchwork now includes sample filename as title in plot output.</li>
+	<li>Update the version of Pysam that Patchwork uses for general compatibility</li>
+	fixes to mpileup reading
+	improvements in all the plots for patchwork, including cytoband information
 </ul> -->
+
+<hr class="alt1" />
+
+<h5 style="display:inline-block;">patchwork / TAPS - </h5><div style="display:inline-block; width:1px;"></div>
+<h6 style="display:inline-block;">18/06/2013</h6>
+<ul>
+	<li>Buggfix for Patchwork</li>
+	<li>Buggfixes for TAPS</li>
+	<li>Added information regarding the tool TAPS to homepage</li>
+	<li>Patchwork now gives you an additional file, &lt;sample_name&gt;_somatic.Rdata, which contains possible, unfiltered, somatic variants.</li>
+</ul>
 
 <hr class="alt1" />
 

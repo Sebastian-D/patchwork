@@ -6,7 +6,7 @@ alt="Flowchart of processes and data for patchwork" title="Flowchart of data and
 
 <h4>patchwork.plot()</h4>
 
-patchwork.plot() is a function that visualizes allele-specific copy numbers from the
+patchwork.plot() is a function that visualizes allele-specific copy numbers from
  whole-genome sequenced data of tumors.<br /><br />
 
 It is recommended that you run patchwork from a "clean" working directory to avoid the risk
@@ -17,7 +17,7 @@ if possible run it on a dedicated computer. (A 50GB tumor sample with a matched 
 and used 10GB (out of 24GB available) RAM. However
 there are many factors that influence runtime so be generous with time/RAM allocation!)<br /><br />
 
-Start by initiate the R environment and loading the patchwork and patchworkData libraries: <br />
+Start by initiating the R environment and loading the patchwork and patchworkData libraries: <br />
 
 <pre>
 	library(patchwork)
@@ -292,15 +292,17 @@ to figure out the most probable locations of the allele-specific copynumbers. <b
 
 
 For information to help you understand the axis, allelic imbalance and coverage, and layout of the plot click <a href="AI_Cov.php" target="_blank" style="text-decoration:none;">here</a>.
-<br />
-<br />
+<br /><br />
 
-What do we expect a hypothetical plots arrangement of clusters to look like? We know that the average ploidy of the sample will
-be 1 on coverage axis as it is normalized. The sample may be highly rearranged but quite often this is a starting point for
-finding copynumber 2 or copynumber 3. As there will be less reads
-covering copynumber 1 in the sample than higher copynumbers and copynumber 1 cannot have different allele constitutions, by
-its very nature of being one allele, copynumber 1 will be represented by a single cluster farthest to the left on coverage
-axis when compared to the other clusters.<br />
+Now lets take a look at the structure and placement of clusters on the whole genome plot.
+What do we expect a hypothetical plots arrangement of clusters to look like? We know that the average ploidy of the
+sample will be 1 on coverage axis as it is normalized. The sample may be highly rearranged but quite often this is
+a starting point for finding copynumber 2 or copynumber 3. As there will be less reads
+covering copynumber 1 in the sample than higher copynumbers and copynumber 1 cannot have different
+allele constitutions, by its very nature of being one allele, copynumber 1 will be represented by a
+single cluster far to the left on coverage axis when compared to the other clusters.<br />
+Sometimes the X chromosome can be far left as well, so you may want to take a peek at the X chromosomes plot to
+avoid the risk of it disturbing your assessment.
 So what if we do not have any copynumber 1 in the sample? Then perhaps the far left
 of the plot will be occupied by two clusters, indicating the LoH and diploid state of copynumber 2. It then stands to reason
 that the next cluster we will encounter, again; moving from left to right on coverage axis, will be of copynumber 3. In the

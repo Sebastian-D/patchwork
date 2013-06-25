@@ -124,7 +124,8 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 			<li><a href="#tabr0">Introduction</a></li>
 			<li><a href="#tabr1">PatchworkCG</a></li>
 			<li><a href="#tabr2">Patchwork</a></li>
-			<li style="margin:0 0 0 52%;"><a href="#tabr3">Changelog</a></li>
+			<li><a href="#tabr3">TAPS</a></li>
+			<li style="margin:0 0 0 44%;"><a href="#tabr4">Changelog</a></li>
 		</ul>
 
 <!-- HOME/INTRODUCTION -->
@@ -168,7 +169,7 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 				<li><a href="#tabr11"><span class="icon" data-icon=","></span>Requirements</a></li>
 				<li><a href="#tabr12"><span class="icon" data-icon="V"></span>Execution</a></li>
 				<li style="margin:0 133px 0 0;"><a href="#tabr13"><span class="icon" data-icon="j"></span>Results</a></li>
-				<li style="visibility:hidden;"><a href="#tabr14"><span class="icon" data-icon="i"></span>Demo Data</a></li>
+			 	<li style="visibility:hidden;"><a href="#tabr14"><span class="icon" data-icon="i"></span>Demo Data</a></li>
 			</ul>
 
 			<div id="tabr10" class="tab-content" style="border:1px solid transparent; border-left:1px solid transparent;">
@@ -188,8 +189,32 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 			</div> -->
 		</div>
 
+<!-- TAPS -->
+		<div id="tabr3" class="tab-content" style="padding:0; margin:0;">
+			<ul class="tabs right">
+				<li><a href="#tabr30"><span class="icon" data-icon="g"></span>Installation</a></li>
+				<li><a href="#tabr31"><span class="icon" data-icon=","></span>Requirements</a></li>
+				<li><a href="#tabr32"><span class="icon" data-icon="V"></span>Execution</a></li>
+				<li style="margin:0 133px 0 0;"><a href="#tabr33"><span class="icon" data-icon="j"></span>Results</a></li>
+				<li style="visibility:hidden;"><a href="#tabr34"><span class="icon" data-icon="i"></span>Demo Data</a></li>
+			</ul>
+
+			<div id="tabr30" class="tab-content" style="border:1px solid transparent; border-left:1px solid transparent;">
+				<?php include("TAPS_inst.php"); ?>
+			</div>
+			<div id="tabr31" class="tab-content" style="border:1px solid transparent; border-left:1px solid transparent;">
+				<?php include("TAPS_requ.php"); ?>
+			</div>
+			<div id="tabr32" class="tab-content" style="border:1px solid transparent; border-left:1px solid transparent;">
+				<?php include("TAPS_exec.php"); ?>
+			</div>
+			<div id="tabr33" class="tab-content" style="border:1px solid transparent; border-left:1px solid transparent;">
+				<?php include("TAPS_resu.php"); ?>
+			</div>
+		</div>
+
 		<!-- CHANGELOG -->
-		<div id="tabr3" class="tab-content">
+		<div id="tabr4" class="tab-content">
 			<?php include("changelog.php"); ?>
 		</div>
 
@@ -232,7 +257,7 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 			<!-- End of StatCounter Code for Default Guide -->
 			<div style="display:inline-block; width:2px; height:1px;"></div>
 			<!-- LAST MODIFIED -->
-			Last modified: 2012-11-14
+			Last modified: 2013-06-18
 
 
 		</div>

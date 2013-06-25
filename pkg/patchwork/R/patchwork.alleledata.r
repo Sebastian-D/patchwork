@@ -74,14 +74,15 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	hgcheck = strsplit(line,"\t")
 
 	#Sometimes chr1 isnt first in the pileup file, traverse until you get to chr1 to see if hg18 or hg19 should be applied.
-	while(hgcheck[[1]][1] != "chr1")
+		#while hgcheck is not "chr1" AND not "1"
+	while((hgcheck[[1]][1] != "chr1") && (hgcheck[[1]][1] != "1"))
 		{
 		line = readLines(con,1)
 		hgcheck = strsplit(line,"\t")
 		}
 	close(con)
 
-
+	#Check pos to see which Snps should be used, hg18 or hg19
 	if (as.numeric(hgcheck[[1]][2]) <= 10000)
 		{
 		data(commonSnpsHG18,package="patchworkData")

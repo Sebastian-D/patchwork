@@ -1,4 +1,4 @@
-import(patchworkData)
+#import(patchworkData)
 
 export(karyotype_check,
 		karyotype_chroms,

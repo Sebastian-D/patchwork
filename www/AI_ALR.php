@@ -172,17 +172,15 @@
 
 		</table><br />
 
-		Here is a an example of a plot generated using patchwork where I have added the possible
-		allele combinations next to the clusters. <br />
+		Here is a an example of a plot generated using TAPS where I have added the possible
+		allele combinations next to the clusters. <br /><br />
 
-		<img src="css/img/Allelic_plot.png" alt="Allele-specific tutorial" title="Allele-specific graphic guide"
+		<img src="css/img/TAPS_AI_ALR.jpeg" alt="Allele-specific tutorial" title="Allele-specific graphic guide"
 		 style="width:880px;">
 
-		<br /><h4>Coverage</h4>
+		<br /><h4>Average log-ratio</h4>
 
-		Coverage is measured as total DNA content, in reads mapped to a genomic position, and normalized around 1.
-		You will get a clearer picture at higher coverage data, 120x etc, however patchworkCG has high quality
-		results with low coverage as well.
+		Log-ratio is calculated as log2(normalized intensity of sample / normalized intensity of reference sample or pool)
 
 	</div>
 	<div class="clear"></div>
