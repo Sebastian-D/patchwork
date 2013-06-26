@@ -1,6 +1,6 @@
 patchwork.segment <- function(kbsegs,chroms,Alpha,SD)
 	{
-	#library(DNAcopy)
+	library(DNAcopy)
 	#Load data included in package
 	#packagepath = system.file(package="patchwork")
 	#load(paste(packagepath,"/data/commonSnps132.RData",sep=""))

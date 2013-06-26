@@ -26,22 +26,22 @@ patchwork.readChroms <- function(BamFile,chroms)
 	system(paste("cp -r ",packagepath,"/python .python",sep=""))
 	
 	#If import pysam doesnt work, ie pysam isnt installed yet, we install pysam.
-	if (system(paste("python ",getwd(),"/.python/Check.py",sep=""),intern=T) == "Pysam Not Available")
-			{
-			setwd(".python")
-			cat("Pysam has not yet been installed on your system. \n Attempting to Build \n")
-			system("sleep 5")
-			# build pysam
-			system("python setup.py build > pysam_build_output.txt")
-			system("cp pysam_build_output.txt ..")
-			cat("Build complete. Output of build can be viewed in file pysam_build_output.txt.
-				\n Attempting to Install \n")
-			# install pysam to site.USER_BASE
-			system("python setup.py install --user > pysam_install_output.txt")
-			system("cp pysam_install_output.txt ..")
-			cat("Install complete. Output of install can be viewed in file pysam_install_output.txt. \n")
-			setwd("..")
-			}
+	# if (system(paste("python ",getwd(),"/.python/Check.py",sep=""),intern=T) == "Pysam Not Available")
+	# 		{
+	# 		setwd(".python")
+	# 		cat("Pysam has not yet been installed on your system. \n Attempting to Build \n")
+	# 		system("sleep 5")
+	# 		# build pysam
+	# 		system("python setup.py build > pysam_build_output.txt")
+	# 		system("cp pysam_build_output.txt ..")
+	# 		cat("Build complete. Output of build can be viewed in file pysam_build_output.txt.
+	# 			\n Attempting to Install \n")
+	# 		# install pysam to site.USER_BASE
+	# 		system("python setup.py install --user > pysam_install_output.txt")
+	# 		system("cp pysam_install_output.txt ..")
+	# 		cat("Install complete. Output of install can be viewed in file pysam_install_output.txt. \n")
+	# 		setwd("..")
+	# 		}
 
 	readlength=80 # this is currently hard coded and may be adjusted.
 	seglength=200 # (do not change)

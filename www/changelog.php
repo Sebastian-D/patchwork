@@ -10,10 +10,18 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 <h5 style="display:inline-block;">patchwork v2.3 - </h5><div style="display:inline-block; width:1px;"></div>
 <h6 style="display:inline-block;">2013</h6>
 <ul>
-	<li>Update the version of Pysam that Patchwork uses for general compatibility</li>
-	fixes to mpileup reading
-	improvements in all the plots for patchwork, including cytoband information
+	<li>Moved Pysam out of package due to auto-install issues. Now you will have to manually install it.
+	See Patchwork -> Installation </li>
 </ul> -->
+
+ <hr class="alt1" />
+
+<h5 style="display:inline-block;">patchwork v2.3 - </h5><div style="display:inline-block; width:1px;"></div>
+<h6 style="display:inline-block;">2013</h6>
+<ul>
+	<li>Moved Pysam out of package due to auto-install issues. Now you will have to manually install it.
+	See Patchwork -> Installation </li>
+</ul>
 
 <hr class="alt1" />
 

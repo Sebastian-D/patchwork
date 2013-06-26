@@ -159,7 +159,7 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			}
 	
 		#Segment the data.
-		library(DNAcopy)
+		#library(DNAcopy)
 		segs = NULL
 		try( load(paste(name,"_Segments.Rdata",sep="")), silent=TRUE )
 		if(length(segs) == 0)
