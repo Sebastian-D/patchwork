@@ -55,5 +55,5 @@ on other systems you should install/update it. Here is a
 Patchwork uses a python mod called pysam for "reading" the chromosomes. <br /> Currently 
 <a href="https://code.google.com/p/pysam" target="_blank" style="text-decoration:none;">Pysam 0.7.4</a> 
 and 
-<a href="http://www.python.org/download/releases/2.6.7/" target="_blank" style="text-decoration:none;">Python 2.6.7 and 2.7</a>
-are supported.
+<a href="http://www.python.org/download/releases/2.6.7/" target="_blank" style="text-decoration:none;">Python 2.6.7 and 2.7.1</a>
+are tested and supported.
