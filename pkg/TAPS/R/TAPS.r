@@ -1644,13 +1644,14 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
     #Top part of the plot
     #------------------------------------------------------------
     
+    #nchr=24; if (sum(chr=='chrY')==0) nchr=23
     #Loop over and plot the 24 chromosomes
     for (c in 1:24) 
     {
         #Pick a chromosome
         this <- ideogram[ideogram$c==c,]
         #Extract that chromosomes information
-        ix <- chr==this$chr
+        ix <- chr==as.character(this$chr)
         #Add color depending on the length of this chromosome
         col <- rep('#B0B0B030',length(chr))       
         col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
@@ -1742,9 +1743,9 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
     for (c in 1:24)
     {
         this <- ideogram[ideogram$c==c,]
-        ix <- chr==this$chr
-        mix <- mchr==this$chr #& mval>=(-2)
-        six <- schr==this$chr
+        ix <- chr==as.character(this$chr)
+        mix <- mchr==as.character(this$chr) #& mval>=(-2)
+        six <- schr==as.character(this$chr)
         
         #Predefine ymin ymax and sequence between them
         ymin=floor(2*min(int,na.rm=T))/2
@@ -1819,7 +1820,7 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
     for(c in 1:24)
     {
         this <- ideogram[ideogram$c==c,]
-        ix <- chr==this$chr
+        ix <- chr==as.character(this$chr)
         col <- rep('#B0B0B030',length(chr))       
         col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
         col[ix & (pos > this$mid)] <- paste(colors_q(sum(ix & (pos > this$mid))), '70', sep='')
@@ -2010,7 +2011,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         #------------------------------------------------------------
         
         #index of the selected chromsome to the chr object
-        ix <- chr==this$chr
+        ix <- chr==as.character(this$chr)
         
         notix1 = chr=="chrX"
         notix = !ix + notix1
@@ -2090,7 +2091,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         par(mgp =c(0.5,0.25,0))
         
         #Select the correct chromosome and remove stuff lower than -1 
-        mix <- mchr==this$chr #& mval>(-1)
+        mix <- mchr==as.character(this$chr) #& mval>(-1)
         
         #Predefine ymin ymax and sequence between them
         ymin=floor(2*min(int,na.rm=T))/2
@@ -2178,7 +2179,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         mtext(text=this$chr,side=2,las=1,line=-1.2)
         
         #index of the chromData for this chromosome
-        dix = chromData$chr == this$chr
+        dix = chromData$chr == as.character(this$chr)
         
         #Add cytoband information as differently colored rectangles
         rect(xleft=chromData$chromStart[dix],xright=chromData$chromEnd[dix],
@@ -2213,7 +2214,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         par(mgp =c(0.5,0.25,0))
         
         #Index of correct chromsome and allele frequency not in either 0 or 1
-        six <- schr==this$chr & !(sval %in% c(0,1))
+        six <- schr==as.character(this$chr) & !(sval %in% c(0,1))
         
         #plot allele frequency over position
         plot(spos[six],sval[six],
@@ -2342,7 +2343,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         #Left side of the plot (Whole genome)
         #------------------------------------------------------------
         #index of the selected chromsome to the chr object
-        ix <- chr==this$chr
+        ix <- chr==as.character(this$chr)
         
         notix1 = chr=="chrX"
         notix = !ix + notix1
@@ -2480,7 +2481,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         par(mgp =c(0.5,0.25,0))
         
         #Select the correct chromosome and remove stuff lower than -1 
-        mix <- mchr==this$chr #& mval>(-1)
+        mix <- mchr==as.character(this$chr) #& mval>(-1)
         
         #Predefine ymin ymax and sequence between them
         ymin=floor(min(int[ix]))-0.5
@@ -2548,7 +2549,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         mtext(text="Cytoband",side=2,las=1,line=-1,cex=0.8)
         
         #index of the chromData for this chromosome
-        dix = chromData$chr == this$chr
+        dix = chromData$chr == as.character(this$chr)
         
         #Add cytoband information as differently colored rectangles
         rect(xleft=chromData$chromStart[dix],xright=chromData$chromEnd[dix],
@@ -2584,7 +2585,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         par(mgp =c(0.5,0.25,0))
         
         #Index of correct chromsome and allele frequency not in either 0 or 1
-        six <- schr==this$chr & !(sval %in% c(0,1))
+        six <- schr==as.character(this$chr) & !(sval %in% c(0,1))
         
         #plot allele frequency over position
         plot(spos[six],sval[six],
@@ -2807,8 +2808,8 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     #------------------------------------------------------------
     
     #index of overlapping the selected chromosome region to the chr object
-    wix <- chr==this$chr & (((Rstart <= start) & (Rend >= end)) | ((Rstart >= start) & (Rstart <= end)) | ((Rend <= end) & (Rend >= start)))
-    ix <- chr==this$chr
+    wix <- chr==as.character(this$chr) & (((Rstart <= start) & (Rend >= end)) | ((Rstart >= start) & (Rstart <= end)) | ((Rend <= end) & (Rend >= start)))
+    ix <- chr==as.character(this$chr)
     
     #Create an index of colors relating to the positions and lengths on this chromosome
     col <- rep('#B0B0B030',length(chr))       
@@ -2859,7 +2860,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     par(xpd=T)
     
     #Select the correct chromosome and remove stuff lower than -1 
-    mix <- mchr==this$chr #& mval>(-1)
+    mix <- mchr==as.character(this$chr) #& mval>(-1)
     
     #Create an index of colors relating to the positions and lengths on this chromosome
     col=rep('#000000',sum(ix))
@@ -2943,7 +2944,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     mtext(text="Cytoband",side=2,las=1,line=-1,cex=0.8)
     
     #index of the chromData for this chromosome
-    dix = chromData$chr == this$chr
+    dix = chromData$chr == as.character(this$chr)
     
     #Add cytoband information as differently colored rectangles
     rect(xleft=chromData$chromStart[dix],xright=chromData$chromEnd[dix],
@@ -2982,7 +2983,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     
     
     #Index of correct chromsome and allele frequency not in either 0 or 1
-    six <- schr==this$chr & !(sval %in% c(0,1))
+    six <- schr==as.character(this$chr) & !(sval %in% c(0,1))
     
     #plot allele frequency over position
     plot(spos[six],sval[six],
@@ -3024,9 +3025,9 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     
     
     #Select the correct chromosome and region and remove stuff lower than -1 
-    mix <- mchr==this$chr & (mpos >= Rstart) & (mpos <= Rend) #& mval>(-1)
+    mix <- mchr==as.character(this$chr) & (mpos >= Rstart) & (mpos <= Rend) #& mval>(-1)
     
-    wix <- chr==this$chr & (((Rstart <= start) & (Rend >= end)) | ((Rstart >= start) & (Rstart <= end)) | ((Rend <= end) & (Rend >= start)))
+    wix <- chr==as.character(this$chr) & (((Rstart <= start) & (Rend >= end)) | ((Rstart >= start) & (Rstart <= end)) | ((Rend <= end) & (Rend >= start)))
     
     cix = ((Rstart >= start) & (Rstart <= end))
     start[cix] = Rstart
@@ -3107,7 +3108,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     
     #Create and index of the genes within region (rstart to rend)
     #gix <- kg$chr==this$chr & (((Rstart <= kg$gtxStart) & (Rend >= kg$gtxEnd)) | ((Rstart >= kg$gtxStart) & (Rstart <= kg$gtxEnd)) | ((Rend <= kg$gtxEnd) & (Rend >= kg$gtxStart)))
-    gix <- kg$chr==this$chr & ((Rstart <= kg$gtxEnd) & (Rend >= kg$gtxStart)) 
+    gix <- kg$chr==as.character(this$chr) & ((Rstart <= kg$gtxEnd) & (Rend >= kg$gtxStart)) 
     
     #If they are only partial overlapping, remove the parts outside of the selected region
     cix = ((Rstart >= kg$gtxStart) & (Rstart <= kg$gtxEnd))
@@ -3182,7 +3183,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     
     
     #Index of correct chromsome and allele frequency not in either 0 or 1
-    six <- schr==this$chr & !(sval %in% c(0,1)) & (spos >= Rstart) & (spos <= Rend)
+    six <- schr==as.character(this$chr) & !(sval %in% c(0,1)) & (spos >= Rstart) & (spos <= Rend)
     
     #plot allele frequency over position
     plot(spos[six],sval[six],
