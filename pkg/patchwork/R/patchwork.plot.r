@@ -79,6 +79,7 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 			normaltemp=data.frame(achr=normalalf$achr,apos=normalalf$apos,normal=T)
 			somatic <- merge(normaltemp,alf,by=1:2,all.x=F, all.y=T)
 			somatic <- somatic[is.na(somatic$normal),]
+			somatic <- somatic[!somatic$amut==0,]
 			save(somatic,file=paste(name,"_somatic.Rdata",sep=""))
 			## Remove all but the heterozygous SNPs
 			normalalf <- normalalf[normalalf$amin/normalalf$atot > 0.2,]
@@ -195,19 +196,24 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 	
 	#Plot it
 	cat("Initiating Plotting \n")
-	karyotype(segs$chr,segs$start,segs$end,segs$median,segs$ai,
-			name=as.character(name),
-			xlim=c(0,2.4),
-			ylim=c(0.1,1))
-	karyotype_chroms(segs$chr,segs$start,segs$end,segs$median,segs$ai,
-			kbsegs$chr,kbsegs$pos,kbsegs$ratio,
-			alf$achr,alf$apos,(1-alf$amin/alf$amax),
-			name=as.character(name),
-			xlim=c(0,2.4),
-			ylim=c(0.1,1))
+	# karyotype(segs$chr,segs$start,segs$end,segs$median,segs$ai,
+	# 		name=as.character(name),
+	# 		xlim=c(0,2.4),
+	# 		ylim=c(0.1,1))
+
+	karyotype(as.character(segs$chr),segs$start,segs$end,segs$median,segs$ai,
+		as.character(kbsegs$chr),kbsegs$pos,kbsegs$ratio,alf$achr,alf$apos,(1-alf$amin/alf$amax),
+		name=as.character(name))
+	# karyotype_chroms(segs$chr,segs$start,segs$end,segs$median,segs$ai,
+	# 		kbsegs$chr,kbsegs$pos,kbsegs$ratio,
+	# 		alf$achr,alf$apos,(1-alf$amin/alf$amax),
+	# 		name=as.character(name),
+	# 		xlim=c(0,2.4),
+	# 		ylim=c(0.1,1))
+	karyotype_chroms(as.character(segs$chr),segs$start,segs$end,segs$median,segs$ai,as.character(kbsegs$chr),kbsegs$pos,kbsegs$ratio,alf$achr,alf$apos,(1-alf$amin/alf$amax),name=as.character(name))
 	cat("Plotting Complete \n")
 	cat("patchwork.plot Complete.\n")
-	cat("Below you may see some warning messages, you can read about these on our homepage. They are either nothing to be worry about (\"Tried to load file, it didn't exist.\") or something you should send us an email about. \n")
+	cat("Below you may see some warning messages, you can read about these on our homepage. They are either nothing to be worried about (\"Tried to load file, it didn't exist.\") or something you should send us an email about. \n")
 	}
 	
 	

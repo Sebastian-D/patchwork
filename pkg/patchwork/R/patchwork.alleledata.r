@@ -48,7 +48,7 @@ patchwork.alleledata <- function(Pileup, normalalf=NULL, vcf)
 	
 	#Force compatability between naming of chromosomes to our chromosome names
 	#from ideogram file. chr1...chr22,chrX,chrY
-	data(ideogram,package="patchworkData")
+	#data(ideogram,package="patchworkData")
 	if(length(grep("M",alf$achr))!=0)
 		{
 		alf = alf[-grep("M",alf$achr),]
