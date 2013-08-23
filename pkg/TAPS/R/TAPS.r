@@ -253,13 +253,16 @@ TAPS_call <- function(directory=NULL,#xlim=c(-1,1),ylim=c(0,1),
             save.txt(u$regions,file=paste(name,'_segmentCN.txt',sep='')) 
             regions=allRegions$regions
             save(t,regions,file="regions_t.Rdata")
+
+            #save parameters as strings
+            parameters=paste("Parameters given: cn2:",sampleInfo$cn2," delta:",sampleInfo$delta," loh:",sampleInfo$loh)
             
             karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,ideogram=NULL,name=name)
             
             karyotype_chromsCN(regions$Chromosome,regions$Start,regions$End,regions$log2,
                                regions$imba,regions$Cn,regions$mCn,ideogram=NULL,
                                as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),
-                               alf$Start,alf$Value,t,name=name,xlim=c(-1,1),ylim=c(0,1))
+                               alf$Start,alf$Value,t,name=name,xlim=c(-1,1),ylim=c(0,1),parameters=parameters)
             
             cat('..done\n')
             sampleData$completed.analysis[i] <- ''
@@ -2262,7 +2265,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
 #------------------------------------------------------------------------------------------------------------------------#
 
 
-karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,t,name='',xlim=c(-1.02,1.82),ylim=0:1, maxCn=8)  
+karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,t,name='',xlim=c(-1.02,1.82),ylim=0:1, maxCn=8,parameters)  
 {   
     
     #Get ideogram
@@ -2609,6 +2612,9 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         #Add X and Y label
         mtext("Allele frequency",side=2,line=0.3)
         mtext("Position (Mb)",side=1,line=1)
+
+        #text describing the parameters used to generate the plot
+        mtext(text=parameters,side=1,line=6,cex=0.7,adj=0.95)
         
         #Close all the opened split.screens and release the figure
         close.screen(all.screens=T)

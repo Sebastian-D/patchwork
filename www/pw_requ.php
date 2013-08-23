@@ -9,15 +9,15 @@ To successfully run patchwork you will need to obtain/create these items:<br />
 
 <ul class="checks">
 	<!-- <li>A Human Genome fasta file</li> -->
-	<li>An aligned and sorted BAM file of tumor content</li>
-	<li>A BAI index of your BAM file</li>
-	<li>A pileup of your BAM file</li>
-	<li>(optional) A VCF file of your tumor pileup</li>
-	<li>(optional) A matched normal sample to your tumor in BAM format</li>
-	<li>(optional) A pileup of your normal sample BAM</li>
+	<!-- <li>An aligned and sorted BAM file of tumor content</li>
+	<li>A BAI index of your BAM file</li> -->
+	<li><b>An aligned and sorted BAM file of tumor content.</b> <br />A BAI index of your BAM file. <br />A pileup of your BAM file. <br />A VCF file of your tumor pileup (if applicable).</li>
+	<!-- <li>(optional) A VCF file of your tumor pileup</li> -->
+	<li><b>(optional) A matched normal sample to your tumor in BAM format.</b><br /> A BAI index of your normal sample BAM.<br /> A pileup of your normal sample BAM. <br />A VCF file of your normal pileup (if applicable). </li>
+	<!-- <li>(optional) A pileup of your normal sample BAM</li>
 	<li>(optional) A VCF file of your normal pileup</li>
-	<li>(optional) A BAI index of your normal sample BAM</li>
-	<li>(optional) A standard Reference file. (Illumina/Solexa, SOLiD or your own)</li>
+	<li>(optional) A BAI index of your normal sample BAM</li> -->
+	<li><b>(optional) A standard Reference file. (Illumina/Solexa, SOLiD or your own)</b></li>
 </ul>
 
 <!--
@@ -26,14 +26,10 @@ HG19 <a href="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/"
   target="_blank" style="text-decoration:none;">(human_g1k_v37)</a>. <br />
 You probably also used such a file when aligning your tumor sequence.<br /><br /> -->
 
-There are several (optional) files in the list, what we mean by this is that you do not need to have all these
-files. There is really no point in using all of them.
+The (optional) files are interchangeable. If you have a normal sample you do not need to supply a reference file.
 <br /><br />
-If you have a matched normal sample you should make a pileup of this and use those two arguments.
-You should also create a BAI file of it, it will not be a parameter but is
-required for the file to be read by patchwork.
-<br />
-In some cases it may be better to use the reference file and a pileup.
+If you have a matched normal sample you should create a pileup and BAI file and use for execution.
+The BAI file is required for the file to be read by patchwork.
 <br />
 You can also run patchwork.plot() with only a reference file.<br />
 <br />

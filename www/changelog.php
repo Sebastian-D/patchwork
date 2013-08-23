@@ -7,17 +7,27 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 
 <!-- <hr class="alt1" />
 
-<h5 style="display:inline-block;">patchwork v2.3 - </h5><div style="display:inline-block; width:1px;"></div>
+<h5 style="display:inline-block;">patchwork v2.4 - </h5><div style="display:inline-block; width:1px;"></div>
 <h6 style="display:inline-block;">2013</h6>
 <ul>
 	<li>Moved Pysam out of package due to auto-install issues. Now you will have to manually install it.
 	See Patchwork -> Installation </li>
 </ul> -->
 
+<!-- <hr class="alt1" />
+
+<h5 style="display:inline-block;">patchwork v2.4 - </h5><div style="display:inline-block; width:1px;"></div>
+<h6 style="display:inline-block;">20/08/2013</h6>
+<ul>
+	<li>Complete makeover of patchwork plots visualization. Now includes cytoband information. </li>
+	<li>New function: patchwork.region(). Shows a region you specify of a chromosome. Contains Known Gene information </li>
+</ul> -->
+
+
  <hr class="alt1" />
 
 <h5 style="display:inline-block;">patchwork v2.3 - </h5><div style="display:inline-block; width:1px;"></div>
-<h6 style="display:inline-block;">2013</h6>
+<h6 style="display:inline-block;">16/08/2013</h6>
 <ul>
 	<li>Moved Pysam out of package due to auto-install issues. Now you will have to manually install it.
 	See Patchwork -> Installation </li>
