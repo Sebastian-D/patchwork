@@ -266,16 +266,15 @@ TAPS_call <- function(samples='all',directory=getwd()) {
             ## adjacent segments with idendical copy number are merged (except over centromere) and all are saved to a text file
             save.txt(u$regions,file=paste(name,'_segmentCN.txt',sep='')) 
             regions=allRegions$regions
-<<<<<<< HEAD
+
             #save(u$model,file="model.Rdata")
             write.table(t(as.data.frame(u$model)),file='model.txt',row.names=T)
-=======
+
             save(t,regions,file="regions_t.Rdata")
 
             #save parameters as strings
             parameters=paste("Parameters given: cn2:",sampleInfo$cn2," delta:",sampleInfo$delta," loh:",sampleInfo$loh)
             
->>>>>>> d63069fedd7b5d39e37a64432b37a149711b9b21
             karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,ideogram=NULL,name=name)
             
             karyotype_chromsCN(regions$Chromosome,regions$Start,regions$End,regions$log2,

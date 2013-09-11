@@ -14,14 +14,16 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 	See Patchwork -> Installation </li>
 </ul> -->
 
-<!-- <hr class="alt1" />
+<hr class="alt1" />
 
-<h5 style="display:inline-block;">patchwork v2.4 - </h5><div style="display:inline-block; width:1px;"></div>
-<h6 style="display:inline-block;">20/08/2013</h6>
+<h5 style="display:inline-block;">patchwork v2.4 & TAPS 2.0- </h5><div style="display:inline-block; width:1px;"></div>
+<h6 style="display:inline-block;">11/09/2013</h6>
 <ul>
 	<li>Complete makeover of patchwork plots visualization. Now includes cytoband information. </li>
 	<li>New function: patchwork.region(). Shows a region you specify of a chromosome. Contains Known Gene information </li>
-</ul> -->
+	<li>New function: TAPS_compare. Compare aberratuin frequencies in two groups of samples.</li>
+	<li>New function: TAPS_freq. Summary of aberration frequencies in several samples.</li>
+</ul>
 
 
  <hr class="alt1" />
@@ -35,7 +37,7 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 
 <hr class="alt1" />
 
-<h5 style="display:inline-block;">patchwork / TAPS - </h5><div style="display:inline-block; width:1px;"></div>
+<h5 style="display:inline-block;">patchwork & TAPS - </h5><div style="display:inline-block; width:1px;"></div>
 <h6 style="display:inline-block;">18/06/2013</h6>
 <ul>
 	<li>Buggfix for Patchwork</li>

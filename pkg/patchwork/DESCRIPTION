@@ -1,7 +1,7 @@
 Package: patchwork
 Type: Package
 Title: Allele-specific Copy Number Analysis of whole genome data
-Version: 2.3
+Version: 2.4
 Date: 2012-30-08
 Author: Markus Mayrhofer, Sebastian DiLorenzo
 Maintainer: Markus Mayrhofer <Markus.Mayrhofer@medsci.uu.se>
