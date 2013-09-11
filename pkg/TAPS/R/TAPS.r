@@ -190,6 +190,8 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
 TAPS_call <- function(samples='all',directory=getwd()) {
     minseg=1
     maxCn=12
+    suppressPackageStartupMessages(library(xlsx))    
+    
     ## TAPS_call outputs the total and minor allele copy numbers of all segments as a text file, and as images for visual confirmation.
     ## sampleInfo_TAPS.txt must be present in each sample folder. If TAPS_plot could not make a good guess of the Log-R of copy number 2 
     ## and the Log-R difference to a deletion, you must interpret the scatter plots and edit sampleInfo_TAPS.txt.
@@ -1286,8 +1288,9 @@ addGenes <- function(data,genes) {
 ### Function for summarizing alteration frquencies in X samples
 TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
     
-    sampleData <- read.xlsx('SampleData.xlsx',1)
+    suppressPackageStartupMessages(library(xlsx))    
     
+    sampleData <- read.xlsx('SampleData.xlsx',1)
     olddir <- getwd()
     if (!is.na(outdir)) {
         try(dir.create(outdir), silent=T)
@@ -1447,7 +1450,8 @@ sum_regionSet <- function(chroms, chromData, genes,
 
 ########### Group comparisons
 TAPS_compare <- function(grp1, grp2, name1='1', name2='2', outdir='frequencies_comp', hg19=T) {
-
+    
+    suppressPackageStartupMessages(library(xlsx))    
 
     sampleData=read.xlsx('SampleData.xlsx',1)
     
