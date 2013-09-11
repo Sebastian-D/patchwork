@@ -13,11 +13,12 @@ Your data can be prepared using Nexus (BioDiscovery, not free), ChAS (Affymetrix
 Using Nexus has the benefit of being able to use their segmentation which reduces running time of TAPS.
 <br /><br />
 
-If you have used <b>Nexus</b>, use "File -> Utilities -> Export from .ivg to.txt" to create "probes.txt",
+If you have used <b>Nexus</b>; we recommend using the SNPRank segmentation algorithm as it is
+CBS based rather than HMM, then use "File -> Utilities -> Export from .ivg to.txt" to create "probes.txt",
  "snps.txt" and "segments.txt". These should be in a sample folder, which is what TAPS takes as input.
 <br /><br />
 
-If you have used <b>ChAS</b>, load the file ending in "cyhd.cychp" into ChAS and create the text file ending in "cyhd.txt"
+If you have used <b>ChAS</b>; load the file ending in "cyhd.cychp" into ChAS and create the text file ending in "cyhd.txt"
 by choosing <b>Reports</b> menu and selecting <b>Export genotype results text file</b>. Then locate the samples folder,
 which is what TAPS takes as input. It should now contain two files ending in "cyhd.txt" and "cyhd.cychp".
 <br /><br />
