@@ -1,8 +1,8 @@
 Package: TAPS
 Type: Package
 Title: Tumor Abberation Prediction Suite
-Version: 1.0
-Date: 2013-05-11
+Version: 2.0
+Date: 2013-09-10
 Author: Markus Mayrhofer, Hanna Goransson-Kultima, Sebastian DiLorenzo
 Maintainer: Sebastian DiLorenzo <Sebastian.DiLorenzo@medsci.uu.se> #Markus Mayrhofer <Markus.Mayrhofer@medsci.uu.se>
 Description: Performs a allele-specific copy number analysis of array data.

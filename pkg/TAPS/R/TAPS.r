@@ -16,6 +16,7 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
     suppressPackageStartupMessages(library(stats))
     suppressPackageStartupMessages(library(DNAcopy))
     suppressPackageStartupMessages(library(fields))
+    suppressPackageStartupMessages(library(xlsx))    
 
 
     #list.of.packages <- c("stats", "fields")
@@ -34,23 +35,25 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
     ## This function takes a directory as input, then builds short-segment TAPS scatter plots for each sample (subdirectory) in the directory.
     setwd(directory)
     subs <- getSubdirs()
+    subs=subs[subs!='frequencies' & subs!='frequencies_comp']
     if (is.null(subs)) {                                         ## check samples = subdirectories or a single sample = current directory
         subs=thisSubdir()
         setwd('..')
     }
     
-    # create SampleData file if there is none.
-    if (length(grep('SampleData.txt',dir()))==0) {
-        sampleData=data.frame(Sample=subs,cn2='',delta='',loh='', MAPD=NA, MHOF=NA, calculate.copynumbers='yes')
+    # create SampleData file if there is none.   
+    if (length(grep('SampleData.xlsx',dir()))==0) {
+        sampleData <- data.frame(Sample=subs,cn1= -0.5, cn2=0, cn3=NA, loh=0.7, MAPD=NA, MHOF=NA)
+        write.xlsx(sampleData,'SampleData.xlsx',row.names=F)
     } else {
-        sampleData=load.txt('SampleData.txt')
+        sampleData=read.xlsx('SampleData.xlsx',1)
     }
         
     
     for (i in 1:length(subs)) {
         setwd(subs[i])
         name <- subs[i]
-        #if (length(grep('SampleData.txt',dir()))==0) save.txt(data.frame(Sample=name,cn2='',delta='',loh='',completed.analysis='no'),file='SampleData.txt')
+        #if (length(grep('sampleData.csv',dir()))==0) save.txt(data.frame(Sample=name,cn2='',delta='',loh='',completed.analysis='no'),file='sampleData.csv')
         cat(' ..loading', subs[i])
         
         if(length(grep("*.cyhd.cychp",dir()))==1)				##cyhd sample
@@ -137,13 +140,13 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
             save.txt(segments,'_segments.txt') 
         }
         
-        segments$Value <- segments$Value-median(Log2$Value)     ## Median-centering
-        Log2$Value <- Log2$Value-median(Log2$Value)             ## Median-centering
+        segments$Value <- segments$Value-mean(Log2$Value)     ## Median-centering
+        Log2$Value <- Log2$Value-mean(Log2$Value)             ## Median-centering
         
-        allRegions=NULL; try(load('allRegions.Rdata'),silent=T)
+        allRegions=NULL; if ('allRegions.Rdata' %in% dir()) load('allRegions.Rdata')
         if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments)            ## Calculates necessary data for segments (all functions are in this file)
         save(allRegions,file='allRegions.Rdata')
-        regs=NULL; try(load('shortRegions.Rdata'),silent=T)
+        regs=NULL; if ('shortRegions.Rdata' %in% dir()) load('shortRegions.Rdata')
         if (is.null(regs)) {
             regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=5)    ## Calculates the same data for shortened segments
             save(regs,file='shortRegions.Rdata')
@@ -151,14 +154,14 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
         
         ## Sample QC 
         sampleData$MAPD[i] <- MAPD <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
-        sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+abs(0.5-alf$Value)),1)
+        sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1)
             #round(100*median(0.5+regs$hom[regs$scores<0.5],na.rm=T),1)        
         #MAID=round(median(abs(diff(regs$scores[!is.na(regs$scores)]))),3)
         
         #Save for TAPS_region()
         save(regs,Log2,alf,segments,file="TAPS_plot_output.Rdata")
         
-        save.txt(sampleData,file='../SampleData.txt')
+        #save.txt(sampleData,file='../sampleData.csv')
         
         #Clear warnings generated previously so hopefully I can see what is actually causing the program to fail.
         #assign("last.warning", NULL, envir = baseenv())
@@ -179,12 +182,14 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
         cat('..done\n')
         setwd('..')
     }
+    write.xlsx(sampleData,'SampleData.xlsx',row.names=F)
 }
 ###
 
 ###
-TAPS_call <- function(directory=NULL,#xlim=c(-1,1),ylim=c(0,1),
-                      minseg=1,maxCn=12) {
+TAPS_call <- function(samples='all',directory=getwd()) {
+    minseg=1
+    maxCn=12
     ## TAPS_call outputs the total and minor allele copy numbers of all segments as a text file, and as images for visual confirmation.
     ## sampleInfo_TAPS.txt must be present in each sample folder. If TAPS_plot could not make a good guess of the Log-R of copy number 2 
     ## and the Log-R difference to a deletion, you must interpret the scatter plots and edit sampleInfo_TAPS.txt.
@@ -197,28 +202,33 @@ TAPS_call <- function(directory=NULL,#xlim=c(-1,1),ylim=c(0,1),
         #directory = readline("Please supply such a directory now: ")
     }
     
-    
     setwd(directory)
     #subs <- getSubdirs()
     
-    if (length(grep('SampleData.txt',dir()))==1)
+    if (length(grep('SampleData.xlsx',dir()))==1)
     {
-        sampleData <- load.txt('SampleData.txt')
+        sampleData=read.xlsx('SampleData.xlsx',1)
     }
     else
     {
-        sampleData <- load.txt('../SampleData.txt')
+        sampleData <- read.xlsx('../SampleData.xlsx',1)
     }
     subs=as.character(sampleData$Sample)
     
     if (is.null(subs)) {
         subs=thisSubdir()
+        subs=subs[subs!='frequencies' & subs!='frequencies_comp']
         setwd('..')
     }
-    for (i in 1:length(subs)) if (sampleData$calculate.copynumbers[i]=='yes') {
+    
+    if (samples[1]=='all') samples=rep(T,length(subs))
+    if (is.logical(samples)) samples=which(samples)
+    subs=subs[samples]
+    
+    for (i in 1:length(subs)) {
         setwd(subs[i])
         name <- subs[i]
-        sampleInfo <- sampleData[sampleData$Sample==subs[i],]
+        sampleInfo <- sampleData[sampleData$Sample==subs[i],2:5]
         if (nrow(sampleInfo)==1) {
             
             cat(' ..loading', subs[i])
@@ -236,24 +246,26 @@ TAPS_call <- function(directory=NULL,#xlim=c(-1,1),ylim=c(0,1),
             segments <- segments[!is.nan(segments$Value),]
             segments <- segments[!is.na(segments$Value),]    
             
-            segments$Value <- segments$Value-median(Log2$Value) 
-            Log2$Value <- Log2$Value-median(Log2$Value)
+            segments$Value <- segments$Value-mean(Log2$Value) 
+            Log2$Value <- Log2$Value-mean(Log2$Value)
             
             cat(' ..processing.\n')
             
             load('allRegions.Rdata')                            ## These were prepared in TAPS_plot
+            load('shortRegions.Rdata')
             #allRegions <- makeRegions(Log2, alf, segments)
             
             ## estimates the Log-R and Allelic Imbalance Ration of all variants up to maxCn
-            t <- findCNs(Log2,alf,allRegions,dmin=0.9,maxCn=maxCn,ceiling=1,sampleInfo=sampleInfo) 
+            t <- findCNs(Log2,alf,allRegions,regs,name,maxCn=maxCn,ceiling=1,sampleInfo=sampleInfo) 
+            save(t,file='t.Rdata')
             
-            u <- setCNs(allRegions,t$int,t$ai,maxCn)            ## Assigns copy number variant for all segments
+            u <- setCNs(allRegions,t$int,t$ai,t$model,maxCn)            ## Assigns copy number variant for all segments
             allRegions$regions <- u$regions
             ## adjacent segments with idendical copy number are merged (except over centromere) and all are saved to a text file
             save.txt(u$regions,file=paste(name,'_segmentCN.txt',sep='')) 
             regions=allRegions$regions
-            save(t,regions,file="regions_t.Rdata")
-            
+            #save(u$model,file="model.Rdata")
+            write.table(t(as.data.frame(u$model)),file='model.txt',row.names=T)
             karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,ideogram=NULL,name=name)
             
             karyotype_chromsCN(regions$Chromosome,regions$Start,regions$End,regions$log2,
@@ -262,12 +274,11 @@ TAPS_call <- function(directory=NULL,#xlim=c(-1,1),ylim=c(0,1),
                                alf$Start,alf$Value,t,name=name,xlim=c(-1,1),ylim=c(0,1))
             
             cat('..done\n')
-            sampleData$completed.analysis[i] <- ''
         } else cat('Skipped',name,'\n')
         
         setwd('..')
     }
-    save.txt(sampleData,file='SampleData.txt')
+    #save.txt(sampleData,file='sampleData.csv')
 }
 ###
 regsFromSegs <- function (Log2,alf, segments, bin=200,min=1) {
@@ -602,96 +613,109 @@ is.autosome <- function(vector) {
 
 ## 
 ###
-findCNs <- function(Log2,alf,allRegions,name=thisSubdir(),dmin=0.9,maxCn=10,ceiling=1,sampleInfo=NULL) {
-    ## This function takes an estimate of the Log-R of copy number two (shift) and the difference in log-R between copy numbers 2 and 1 (delta)
-    ## (3 and 2 works too). Then, the Log-R and Allelic Imbalance Ratio of all possible copy number variants up to maxCn are estimated from
-    ## the Log-R and Allelic Imbalance Ratio of all the segments. This function will NOT be useful unless there is already a solid estimate 
-    ## of 'shift' and 'delta'. See the previous function.
+findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=1,sampleInfo=NULL) {
+    ## This function takes an estimate of the Log-R of copy numbers 1, 2 and 3. At least two of these should be entered.
+    ## Then, the Log-R and Allelic Imbalance Ratio of all possible copy number variants up to maxCn are estimated from
+    ## the Log-R and Allelic Imbalance Ratio of all the segments. 
+    if (is.null(sampleInfo)) cat ('there was no estimation available for',name)
     
-    shift=sampleInfo$cn2
-    delta=sampleInfo$delta
+    cns=1:maxCn; est=sampleInfo[1:3]; est[est==' ']=NA; est=as.numeric(est)
+    m <- lm(2^est ~ cns[1:3])$coefficients # can handle one NA in est. This model is for "ratio as a function of copy number".
+    est[is.na(est)] = log2(m[1]+cns[which(is.na(est))]*m[2]) # simple linear regression to fill the missing
     
     tix=NULL     #temporary index
+    probes=NULL  #number of probes at each copy number, for weighting
     int=NULL     ## contains Log-R estimate of each (total) copy number
     ai=NULL         ## contains Allelic Imbalance Ratio estimate of each copy number variant.
     regions <- allRegions$regions
     regions <- regions[(is.autosome(regions$Chromosome)&regions$lengthMB>1)&(!is.na(regions$imba)),] ## will use these regions
     
-    ## likely cn2 regions sit within delta/3 from shift.
-    expectedAt <- shift
-    tix$cn2 <- abs(regions$log2 - expectedAt) < (delta/3)    ## index of likely cn2 regions
+    ## likely cn2 regions sit near the estimate.
+    expectedAt <- est[2]
+    tix$cn2 <- abs(regions$log2 - expectedAt) < diff(est)[2]/3    ## index of likely cn2 regions
     temp <- regions[tix$cn2,]                                ## cn2 regions
     med <- weightedMedian(temp$log2,temp$probes)            ## improved value of Log-R at cn2 (returns NULL if theres nothing there)
-    int$cn2 <- ifelse(!is.null(med),med,expectedAt)            ## saved to int.
+    probes[2] <- sum(temp$probes)
+    int[2] <- ifelse(!is.null(med),med,expectedAt)            ## saved to int.
     
-    ## likely cn1 regions sit at about cn2 - delta:
-    d <- delta                                                 ## the (Log-R) distance to cn1
-    expectedAt <- int$cn2-d                                     ## cn1 is expected here
-    tix$cn1 <- abs(regions$log2 - expectedAt) < (d/3)        ## index of likely cn1 regions
+    ## likely cn1 regions sit near estimate                                         
+    expectedAt <- est[1]                                     ## cn1 is expected here
+    tix$cn1 <- abs(regions$log2 - expectedAt) < diff(est)[1]/3        ## index of likely cn1 regions
     temp <- regions[tix$cn1,]
     med <- weightedMedian(temp$log2,temp$probes)
-    int$cn1 <- ifelse(!is.null(med),med,expectedAt)
+    probes[1] <- sum(temp$probes)
+    int[1] <- ifelse(!is.null(med),med,expectedAt)
     
-    ## likely cn0 regions sit below cn1 - delta:
-    d <- int$cn2-int$cn1
-    expectedAt <- int$cn1-d                                     
-    tix$cn0 <- regions$log2 < expectedAt
-    temp <- regions[tix$cn0,]
-    med <- weightedMedian(temp$log2,temp$probes)
-    int$cn0 <- ifelse(!is.null(med),med,expectedAt)
-    
-    ## likely cn3 regions sit at about cn2+delta*dmin (dmin is about 0.9, the factor by which the distance between consecutive copy numbers diminish)
-    d <- delta*dmin
-    expectedAt <- int$cn2+d
-    tix$cn3 <- abs(regions$log2 - expectedAt) < (d/3)
+    ## likely cn3 regions sit near estimate
+    expectedAt <- est[3]
+    tix$cn3 <- abs(regions$log2 - expectedAt) < diff(est)[2]/3
     temp <- regions[tix$cn3,]
     med <- weightedMedian(temp$log2,temp$probes)
-    int$cn3 <- ifelse(!is.null(med),med,expectedAt)
+    probes[3] <- sum(temp$probes)
+    int[3] <- ifelse(!is.null(med),med,expectedAt)
     
     ## cn4 follows at ...
-    d <- dmin*(int$cn3-int$cn2) 
-    expectedAt <- int$cn3+d
-    tix$cn4 <- abs(regions$log2 - expectedAt) < (d/4)
+    m <- lm(2^int[1:3] ~ cns[1:3], weights=probes[1:3])$coefficients ## use regression to estimate.
+    expectedAt <- log2(m[1]+4*m[2])
+    tix$cn4 <- abs(regions$log2 - expectedAt) < mean(diff(int))/3
     temp <- regions[tix$cn4,]
     med <- weightedMedian(temp$log2,temp$probes)
-    int$cn4 <- ifelse(!is.null(med),med,expectedAt)
+    probes[4] <- sum(temp$probes)
+    int[4] <- ifelse(!is.null(med),med,expectedAt)
     
     ## generalized for higher cns
     for (cn in 5:maxCn) {
         thisCn <- paste('cn',cn,sep='')
         prevCn <- paste('cn',cn-1,sep='')
         pprevCn <- paste('cn',cn-2,sep='')
-        d <- dmin*(int[prevCn][[1]]-int[pprevCn][[1]])
-        expectedAt <- int[prevCn][[1]]+d
-        tix[[thisCn]] <- abs(regions$log2 - expectedAt) < (d/5)
+        m <- lm(2^int[1:(cn-1)] ~ cns[1:(cn-1)], weights=probes[1:(cn-1)])$coefficients
+        expectedAt <- log2(m[1]+cn*m[2])
+        tix[[thisCn]] <- abs(regions$log2 - expectedAt) < mean(diff(int))/5
         temp <- regions[tix[thisCn][[1]],]
         med <- weightedMedian(temp$log2,temp$probes)
-        int[thisCn] <- ifelse(!is.null(med),med,expectedAt)
+        probes[cn] <- sum(temp$probes)
+        int[cn] <- ifelse(!is.null(med),med,expectedAt)
     }
     
+    ## likely cn0 regions sit below cn1 - delta:
+    expectedAt <- log2(m[1]+0*m[2])
+    tix$cn0 <- abs(regions$log2 - expectedAt) < 0.5*(int[2]-int[1])
+    temp <- regions[tix$cn0,]
+    med <- weightedMedian(temp$log2,temp$probes)
+    int0 <- ifelse(!is.null(med),med,expectedAt) ## "int0"
     
+    
+    ## Estimate tumor dna content from intensity-cn relationship and average ploidy --UNRELIABLE
+    md <- lm(2^int ~ cns, weights=probes)$coefficients
+    m=NULL; m$intercept=md[1][[1]]; m$k=md[2][[1]]
+    probes[is.na(probes)]=0
+    m$meanCn <- mean(rep(cns, probes), na.rm=T)
+    m$theoretical_delta=1/m$meanCn
+    #m$real_delta=0.57*m$theoretical_delta ## The 0.57 is empirical from cancer cell lines    
+    #m$dnafrac=m$k/m$real_delta
+    #m$cellfrac=1/(1+m$meanCn/2*(1/m$dnafrac-1))    
+    
+
+    
+    loh_exp <- as.numeric(sampleInfo[4])
     ## at cn2, find the variant clusters (normal and CNNLOH)
-    ix <- (abs(regions$log2 - int$cn2) < 0.2*(int$cn3-int$cn2) ) # taking only closely-matching segments
+    ix <- (abs(regions$log2 - int[2]) < 0.2*(int[3]-int[2]) ) # taking only closely-matching segments
     data <- regions[ix,]
     data <- data[!is.na(data$imba),] # ...with a calculated allelic imbalance.
-    
-    ix <- (abs(regions$log2 - int$cn3) < 0.2*(int$cn4-int$cn3) )
-    data3 <- regions[ix,]
-    data3 <- data[!is.na(data$imba),]
-    expectedAt <- 0.1
-    ix <- data$imba<min(data3$imba)
+    ## 2m1
+    expectedAt=0.1
+    ix <- abs(data$imba-.1) < abs(data$imba-loh_exp)
     med <- weightedMedian(data$imba[ix],data$snps[ix]) ## Average allelic imbalance weighted on snp count
     ai$cn2m1 <- ifelse (!is.null(med),med,expectedAt)
-    
-    expectedAt <- sampleInfo$loh
-    ix <- abs(data$imba-sampleInfo$loh) < 0.2* (sampleInfo$loh-ai$cn2m1)
+    ## loh
+    expextedAt=loh_exp
+    ix <- !ix
     med <- weightedMedian(data$imba[ix],data$snps[ix]) 
     ai$cn2m0 <- ifelse (!is.null(med),med,expectedAt)
     
     
-    
     ## for cn1 (and 0)
-    ix <- (abs(regions$log2 - int$cn1) < 0.2*(int$cn2-int$cn1) )
+    ix <- (abs(regions$log2 - int[1]) < 0.2*(int[2]-int[1]) )
     data <- regions[ix,]
     data <- data[!is.na(data$imba),]
     expectedAt <- (ai$cn2m0+ai$cn2m1)*3/5     ## Decent estimate.
@@ -700,7 +724,7 @@ findCNs <- function(Log2,alf,allRegions,name=thisSubdir(),dmin=0.9,maxCn=10,ceil
     ai$cn0m0 <- NA #unimportant
     
     ## for cn3:
-    ix <- (abs(regions$log2 - int$cn3) < 0.2*(int$cn4-int$cn3) )
+    ix <- (abs(regions$log2 - int[3]) < 0.2*(int[4]-int[3]) )
     data <- regions[ix,]
     data <- data[!is.na(data$imba),]
     
@@ -714,7 +738,7 @@ findCNs <- function(Log2,alf,allRegions,name=thisSubdir(),dmin=0.9,maxCn=10,ceil
         ai$cn3m1 <- ifelse (!is.null(med),med,expectedAt)
         
         # now for cn3m0
-        expectedAt <- ai$cn3m1 + range*dmin # approx of cn3m0
+        expectedAt <- ai$cn3m1 + range*0.9 # approx of cn3m0
         
         ix <- (abs(data$imba-expectedAt) / abs(data$imba-ai$cn3m1)) < 0.5  # take those much closer to exp than to cn3m1
         med <- weightedMedian(data$imba[ix],data$snps[ix]) 
@@ -737,7 +761,7 @@ findCNs <- function(Log2,alf,allRegions,name=thisSubdir(),dmin=0.9,maxCn=10,ceil
     if (is.na(ai$cn1m0)) ai$cn1m0 <- (ai$cn3m1+ai$cn2m0)/2 ## If deletions were missing, place an estimate from cn3 
     
     ## now for cn4
-    ix <- abs(regions$log2 - int$cn4) < 0.2*(int$cn4-int$cn3) 
+    ix <- abs(regions$log2 - int[4]) < 0.2*(int[4]-int[3]) 
     data <- regions[ix,]
     data <- data[!is.na(data$imba),]
     
@@ -769,17 +793,17 @@ findCNs <- function(Log2,alf,allRegions,name=thisSubdir(),dmin=0.9,maxCn=10,ceil
         prevCn <- paste('cn',cn-1,sep='')
         pprevCn <- paste('cn',cn-2,sep='')
         
-        ix <- (abs(regions$log2 - int[thisCn][[1]]) < 0.2*(int[thisCn][[1]]-int[prevCn][[1]]) )
+        ix <- (abs(regions$log2 - int[cn]) < 0.2*(int[cn]-int[cn-1]) )
         data <- regions[ix,]
         data <- data[!is.na(data$imba),]
         data <- data[data$lengthMB>3,] # long regions for safety
         
         ## try to find variants, starting with LOH
         # LOH such as 5(0)
-        m <- 0
+        mi <- 0
         thisVariant=paste(thisCn,'m',0,sep='')
-        c4m0 <- ai[paste(prevCn,'m',m,sep='')][[1]] # relative naming for clarity
-        c3m0 <- ai[paste(pprevCn,'m',m,sep='')][[1]]
+        c4m0 <- ai[paste(prevCn,'m',mi,sep='')][[1]] # relative naming for clarity
+        c3m0 <- ai[paste(pprevCn,'m',mi,sep='')][[1]]
         
         expectedAt <- ceiling-((ceiling-c4m0)*(ceiling-max(c4m0,c3m0))/(ceiling-min(c3m0,c4m0)))
         #ai[thisVariant] <- expectedAt
@@ -792,44 +816,48 @@ findCNs <- function(Log2,alf,allRegions,name=thisSubdir(),dmin=0.9,maxCn=10,ceil
         ## then from balanced to less balanced
         minorVariants=trunc(cn/2):1 
         first <- T
-        for (m in minorVariants) {
-            thisVariant=paste(thisCn,'m',m,sep='')
-            if (m==cn/2) {
+        for (mi in minorVariants) {
+            thisVariant=paste(thisCn,'m',mi,sep='')
+            if (mi==cn/2) {
                 # We have balanced variant, so rather easy.
-                expectedAt <- ai[paste(pprevCn,'m',m-1,sep='')][[1]] # this is a good approx, balanced at cn-2
-                ix <- data$imba<ai[paste(prevCn,'m',m-1,sep='')][[1]] # let all below (cn-1, mcn-1) in
+                expectedAt <- ai[paste(pprevCn,'m',mi-1,sep='')][[1]] # this is a good approx, balanced at cn-2
+                ix <- data$imba<ai[paste(prevCn,'m',mi-1,sep='')][[1]] # let all below (cn-1, mcn-1) in
                 med <- weightedMedian(data$imba[ix],data$snps[ix]) 
                 ai[thisVariant] <- ifelse (!is.null(med),med,expectedAt)
-                if (ai[thisVariant] > ai[paste(pprevCn,'m',m-1,sep='')][[1]]) ai[thisVariant] <- ai[paste(pprevCn,'m',m-1,sep='')][[1]] # don't let it sneak off.'
+                if (ai[thisVariant] > ai[paste(pprevCn,'m',mi-1,sep='')][[1]]) ai[thisVariant] <- ai[paste(pprevCn,'m',mi-1,sep='')][[1]] # don't let it sneak off.'
                 first <- F
             } else if (first) { 
                 # its not balanced but its the most balanced of the unbalanced. something like 5(2)
-                expectedAt <- 0.5*( ai[paste(prevCn,'m',m,sep='')][[1]] + ai[paste(pprevCn,'m',m-1,sep='')][[1]] ) # that means between 4(2) and 3(1)
-                ix <- abs(data$imba-expectedAt) < ( ai[paste(prevCn,'m',m,sep='')][[1]] - ai[paste(pprevCn,'m',m-1,sep='')][[1]] ) /3 # let all "between" 4(2) and 3(1) in
+                expectedAt <- 0.5*( ai[paste(prevCn,'m',mi,sep='')][[1]] + ai[paste(pprevCn,'m',mi-1,sep='')][[1]] ) # that means between 4(2) and 3(1)
+                ix <- abs(data$imba-expectedAt) < ( ai[paste(prevCn,'m',mi,sep='')][[1]] - ai[paste(pprevCn,'m',mi-1,sep='')][[1]] ) /3 # let all "between" 4(2) and 3(1) in
                 med <- weightedMedian(data$imba[ix],data$snps[ix]) 
                 ai[thisVariant] <- ifelse (!is.null(med),med,expectedAt)
                 first <- F
             } else {
                 # not the most balanced unbalanced variant, for example 5(1):
                 expectedAt <- ai[paste(thisCn,'m',minorVariants[1],sep='')][[1]] + 
-                    (minorVariants[1]-m) * (ai[paste(thisCn,'m',0,sep='')][[1]] - ai[paste(thisCn,'m',minorVariants[1],sep='')][[1]]) / trunc(cn/2) # 5(2) + (which)* 5(0)-5(2) /(n)
-                ix <- abs(data$imba-expectedAt) < ( ai[paste(prevCn,'m',m,sep='')][[1]] - ai[paste(pprevCn,'m',m-1,sep='')][[1]] ) /3 # let all "between" 4(1) and 3(0) in
+                    (minorVariants[1]-mi) * (ai[paste(thisCn,'m',0,sep='')][[1]] - 
+                                                 ai[paste(thisCn,'m',minorVariants[1],sep='')][[1]]) / trunc(cn/2) # 5(2) + (which)* 5(0)-5(2) /(n)
+                ix <- abs(data$imba-expectedAt) < ( ai[paste(prevCn,'m',mi,sep='')][[1]] - ai[paste(pprevCn,'m',mi-1,sep='')][[1]] ) /3 # let all "between" 4(1) and 3(0) in
                 med <- weightedMedian(data$imba[ix],data$snps[ix]) 
                 ai[thisVariant] <- ifelse (!is.null(med),med,expectedAt)
             } 
         } # done with minor variants
     } # done with copy numbers
-    
-    return(list('int'=int,'ai'=ai))
+    int=as.list(c(int0,int)); names(int)=paste('cn',0:maxCn,sep='')
+    return(list('int'=int,'ai'=ai,'model'=m))
 }
+
+
+
 ###
-setCNs <- function(allRegions,int,ai,maxCn=12) {
+setCNs <- function(allRegions,int,ai,model,maxCn=12) {
     ##  Assign total and minor copy numbers to all segments.
     regions <- allRegions$regions[,-4]    ## This time, work on all segments available.
     
     Cn <- NULL            ## Total copy number
     mCn <- NULL            ## Minor allele copy number
-    fullCN <- NULL        ## Variant label. ('cnXmY')
+    Cnx <- NULL        ## Variant label. ('cnXmY')
     
     intDist <- NULL        ## distance to certain Log-R
     imbaDist <- NULL    ## distance to certain allelic imbalance
@@ -839,48 +867,58 @@ setCNs <- function(allRegions,int,ai,maxCn=12) {
         # set total copy number
         distance <- Inf
         for (cn in 0:maxCn) {
-            t_int <- int[paste('cn',cn,sep='')][[1]]    ## get Log-R of particular cn from 'int'
+            t_int <- int[[paste('cn',cn,sep='')]]   ## get Log-R of particular cn from 'int'
             t_dis <- abs(regions$log2[i]-t_int)            ## distance to that particular cn
             if (t_dis < distance) {                        ## nearest so far, save.
                 distance <- t_dis -> intDist[i]
                 Cn[i] <- cn
             }
         }
-        
-        # Y makes CN0 sit very low, this is a fix on non-Y Cn0
-        #if ((Cn[i] == 1)&(intDist[i] > (int$cn2-int$cn1))) Cn[i] <- 0 ## currently not needed.
-        
+    }        
+
+    ### Calculate model based Cns
+    Cnx=Cn; for (cn in 0:maxCn) {
+        Cnx[Cn==cn]=cn + (2^regions$log2[Cn==cn]-2^int[[paste('cn',cn,sep='')]])/model$k
+    }; Cnx[Cnx<0]=0
+    Cn=round(Cnx)
+    
+    ## Set minor CN
+    for (i in 1:nrow(regions)) {       
         # set minor CN
         distance <- Inf
         if (Cn[i]<=1) {
             mCn[i] <- 0
-        } else if (!is.na(regions$imba[i])) for (m in 0:trunc(Cn[i]/2)) {
+        } else if (Cn[i]<=maxCn & !is.na(regions$imba[i])) for (m in 0:trunc(Cn[i]/2)) {
             t_ai <- ai[paste('cn',Cn[i],'m',m,sep='')][[1]]
             t_dis <- abs(regions$imba[i]-t_ai)
+            #cat('Line',i,'Cn', Cn[i],'m:',m,'Comparing',t_dis,'with',t_int,'.......')
             if (t_dis < distance) {
                 distance <- t_dis -> imbaDist[i]
                 mCn[i] <- m
             }
         } else mCn[i] <- NA
-        fullCN[i] <- paste('cn',Cn[i],'m',mCn[i],sep='') # Full description
+        #fullCN[i] <- paste('cn',Cn[i],'m',mCn[i],sep='') # Full description
     }
+    ### Do not calculate mCn for high copy numbers
+    mCn[Cn>maxCn] <- NA
     
-    ## label cn1 and cn0 - not currently needed.
-    #mCn[Cn==1] <- 0
-    #fullCN[Cn==1] <- 'cn1m0'
-    #mCn[Cn==0] <- 0
-    #fullCN[Cn==0] <- 'cn0m0'
+    
+    ## Special treatment for the X chromosome if male sample: work in progress
+    #temp=regions[regions$Chromosome=='chrX' & regions$lengthMB>5,]
+    
     
     regions$Cn <- Cn
     regions$mCn <- mCn
-    regions$fullCN <- fullCN
-    
-    data <- regions[,c(-7,-8)]
+    regions$Cn_ <- round(Cnx,2)
+    #regions$fullCN <- fullCN
+
     ## Merge consecutive identical variants
+    data <- regions[,c(-7,-8,-11)]
+    fullCN=paste(data$Cn,data$mCn,sep='m')
     row <- 1
     while (row < nrow(data)) { # while not on the last row
         #print(row)
-        if (((data$Chromosome[row] == data$Chromosome[row+1]) & (data$fullCN[row] == data$fullCN[row+1])) & ( (data$Start[row+1]-data$End[row])<5000 ) ) { 
+        if (((data$Chromosome[row] == data$Chromosome[row+1]) & (fullCN[row] == fullCN[row+1])) & ( (data$Start[row+1]-data$End[row])<5000 ) ) { 
             ## segments are adjacent with same copy number and not separated by 5kb+ (centromere)
             data$End[row] <- data$End[row+1]
             data$probes[row] <- data$probes[row]+data$probes[row+1]
@@ -891,259 +929,33 @@ setCNs <- function(allRegions,int,ai,maxCn=12) {
             row <- row+1 # or leaves it
         }
     }
-    return (list('regions'=regions,'merged'=data))
+    
+    ### beräkna tumörcellshalt!!
+    # Mha modellparameter
+    ## empirical delta for whole copy: 0.55
+    model$k2=model$k*model$meanCn
+    model$tumorDNA_fromLogR=(model$k*model$meanCn)/0.55
+    model$tumorCell_fromLogR=1/ (1+model$meanCn/2* (1/model$tumorDNA_fromLogR -1))
+    
+    # Mha SNPs
+    cn_near=c(floor(model$meanCn),ceiling(model$meanCn))
+    ai_near=c(ai[[paste('cn',cn_near[1],'m0',sep='')]],ai[[paste('cn',cn_near[2],'m0',sep='')]])
+    base_ai = ai_near[1] + (model$meanCn-trunc(model$meanCn))*diff(ai_near)
+    
+    #---The reference data (H1395):
+    ref_ai=c(.8,.5,.33,.2,.1)
+    ref_TumorCell=c(1,.7,.5,.3,0)
+    ref_meanCn=2.5
+    ref_tumorDNA=ref_TumorCell*ref_meanCn/(ref_TumorCell*ref_meanCn + (1-ref_TumorCell)*2)
+    m2=lm(ref_tumorDNA ~ poly(ref_ai, 2, raw=TRUE))
+    #---
+    
+    model$tumorDNA_fromAlf <- m2[[1]][[1]] + base_ai*m2[[1]][[2]] + base_ai^2*m2[[1]][[3]]
+    model$tumorCell_fromAlf=1/ (1+model$meanCn/2* (1/model$tumorDNA_fromAlf -1))
+    
+    return (list('regions'=regions,'merged'=data,'model'=model))
 }
 
-
-
-## The following functions produce scatter plots.
-#Deprecated
-# karyotype_old <- function(chr,start,end,int,ai,ideogram=NULL,name='',xlim=c(-1.02,1.02),ylim=0:1)  {   
-#     png(paste(name,'.karyotype.png',sep=''),width=1300,height=1300)
-
-#     ideogram=deogram()
-#     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
-#     colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
-
-#     layout(matrix(1:25,nrow=5,byrow=T), widths=1,heights=1)
-
-#     aix=ai!=0
-#     chr=chr[aix]
-#     start=start[aix]
-#     end=end[aix]
-#     int=int[aix]
-#     ai=ai[aix]
-#     pos <- (start+end)/2
-#     length=end-start
-
-#     size=rep(1,length(chr))
-#     size[length>5000000]=2
-#     size[length>10000000]=3
-#     size[length>20000000]=4
-
-
-#     for (c in 1:24) {
-
-#         this <- ideogram[ideogram$c==c,]
-#         ix <- chr==this$chr
-
-#         col <- rep('#B0B0B020',length(chr))
-
-#         col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
-#         col[ix & (pos > this$mid)] <- paste(colors_q(sum(ix & (pos > this$mid))), '70', sep='')
-
-#         plot(c(int[!ix],int[ix]),c(ai[!ix],ai[ix]),
-#         pch=16,
-#         cex=c(size[!ix],size[ix]),
-#         cex.lab=2,
-#         mar=c(0.1,0.1,0.1,0.1),
-# 		main = "",
-# 		xlab = this$chr,
-# 		ylab = "",
-# 		col = c(col[!ix],col[ix]),
-# 		xlim = xlim,
-# 		ylim = ylim)
-# 		par(new=F)  
-#     }
-#     dev.off()
-# }
-
-#Deprecated
-# karyotype_chroms_old <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-1.02,1.82),ylim=0:1)  {   
-
-#     ideogram=deogram()
-#     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
-#     colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
-
-#     ai[is.na(ai)]=0
-#     aix=ai!=0
-#     chr=chr[aix]
-#     start=start[aix]
-#     end=end[aix]
-#     int=int[aix]
-#     ai=ai[aix]
-#     pos <- (start+end)/2
-#     length=end-start
-
-#     size=rep(1,length(chr))
-#     size[length>2000000]=2
-#     size[length>5000000]=3
-#     size[length>10000000]=4
-
-#     for (c in 1:23) {
-#         this <- ideogram[ideogram$c==c,]
-
-#         png(paste(name,'_karyotype.',this$chr,'.png',sep=''),width=1000,height=1300)
-#         layout(matrix(1:3,nrow=3,byrow=T), widths=10,heights=c(10,5,5))
-
-#         ix <- chr==this$chr
-#         col <- rep('#B0B0B030',length(chr))       
-#         col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
-#         col[ix & (pos > this$mid)] <- paste(colors_q(sum(ix & (pos > this$mid))), '70', sep='') 
-
-#         plot(c(int[!ix],int[ix]),c(ai[!ix],ai[ix]),
-#             pch=16,
-#             cex=c(size[!ix],size[ix]),
-#             cex.lab=2,
-#             #mar=c(0.1,0.1,0.1,0.1),
-# 		    main = "",
-# 		    xlab = "Total intensity -->",
-# 		    ylab = "Allelic imbalance -->",
-# 		    col = c(col[!ix],col[ix]),
-# 		    xlim = xlim,
-# 		    ylim = ylim
-#             )
-
-#         par(new=F)
-#         mix <- mchr==this$chr
-#         #col <- rep('#D0D0D0D0',sum(mix))       
-#         #col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
-#         #col[ix & (pos > this$mid)] <- paste(colors_q(sum(ix & (pos > this$mid))), '70', sep='') 
-#         col=rep('#000000',sum(ix))
-#         col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
-#         col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
-
-#         plot(mpos[mix],mval[mix],
-#             pch=16,
-#             cex=1,
-#             cex.lab=2,
-#             #mar=c(0.1,0.1,0.1,0.1),
-#     	    main = "",
-# 		    xlab = "Total intensity",
-# 		    ylab = "",
-# 		    col = '#00000030',
-# 		    xlim = c(0,this$length),
-# 		    ylim = c(-1,1)
-#             )
-#         segments(x0=start[ix],x1=end[ix],
-#             y0=int[ix],y1=int[ix],                
-#             col=col,
-#             lwd=4,
-#             )
-#         par(new=F)       
-#         six <- schr==this$chr
-#         plot(spos[six],sval[six],
-#             pch=16,
-#             cex=1,
-#             cex.lab=2,
-#             #mar=c(0.1,0.1,0.1,0.1),
-#             main = "",
-# 		    xlab = "Allelic imbalance",
-# 		    ylab = "",
-# 		    col = '#00000030',
-# 		    xlim = c(0,this$length),
-# 		    ylim = c(0,1)
-#             )
-#         dev.off()
-#     }
-# }
-
-
-#     #Deprecated
-# karyotype_chromsCN_old <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-1.02,1.82),ylim=0:1, maxCn=8)  {   
-
-#     ideogram=deogram()
-#     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
-#     colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
-
-#     ai[is.na(ai)]=0
-#     aix=ai!=0
-#     chr=chr[aix]
-#     start=start[aix]
-#     end=end[aix]
-#     int=int[aix]
-#     ai=ai[aix]
-#     Cn=Cn[aix]
-#     mCn=mCn[aix]
-#     pos <- (start+end)/2
-#     length=end-start
-
-#     size=rep(1,length(chr))
-#     size[length>2000000]=2
-#     size[length>5000000]=3
-#     size[length>10000000]=4
-
-#     for (c in 1:23) {
-#         this <- ideogram[ideogram$c==c,]
-
-#         png(paste(name,'_karyotypeCN.',this$chr,'.png',sep=''),width=1000,height=1300)
-#         layout(matrix(1:4,nrow=4,byrow=T), widths=10,heights=c(10,5,5,5))
-
-#         ix <- chr==this$chr
-#         col <- rep('#B0B0B020',length(chr))       
-#         col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
-#         col[ix & (pos > this$mid)] <- paste(colors_q(sum(ix & (pos > this$mid))), '70', sep='') 
-
-#         plot(c(int[!ix],int[ix]),c(ai[!ix],ai[ix]),
-#             pch=16,
-#             cex=c(size[!ix],size[ix]),
-#             cex.lab=2,
-#             #mar=c(0.1,0.1,0.1,0.1),
-#     	    main = "",
-# 		    xlab = "Total intensity -->",
-# 		    ylab = "Allelic imbalance -->",
-# 		    col = c(col[!ix],col[ix]),
-# 		    xlim = xlim,
-# 		    ylim = ylim
-#             )
-# 		col=rep('#000000',sum(ix))
-#         col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
-#         col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
-#         par(new=F)
-#         plot(1,1,type='n',
-#             xlab='Total and minor copy number',
-#             ylab='',
-#             cex.lab=2,
-#             xlim = c(0,this$length),
-#             ylim = c(-0.1,8.1)
-#         )
-#         segments(x0=start[ix],x1=end[ix],
-#             y0=Cn[ix],y1=Cn[ix],                
-#             col=col,
-#             lwd=5,
-#             )
-#         segments(x0=start[ix],x1=end[ix],
-#             y0=mCn[ix],y1=mCn[ix],                
-#             col='#BBBBBB',
-#             lwd=5,
-#             )
-
-#         par(new=F)
-#         mix <- as.character(mchr)==this$chr        
-#         plot(mpos[mix],mval[mix],
-#             pch=16,
-#             cex=1,
-#             cex.lab=2,
-#             #mar=c(0.1,0.1,0.1,0.1),
-#     	    main = "",
-# 		    xlab = "Total intensity",
-# 		    ylab = "",
-# 		    col = '#00000010',
-# 		    xlim = c(0,this$length),
-# 		    ylim = c(-1,1)
-#             )
-#         segments(x0=start[ix],x1=end[ix],
-#             y0=int[ix],y1=int[ix],                
-#             col=col,
-#             lwd=4,
-#             )
-#         par(new=F)       
-#         six <- as.character(schr)==this$chr
-#         plot(spos[six],sval[six],
-#             pch=16,
-#             cex=1,
-#             cex.lab=2,
-#             #mar=c(0.1,0.1,0.1,0.1),
-#             main = "",
-# 		    xlab = "Allelic imbalance",
-# 		    ylab = "",
-# 		    col = '#00000010',
-# 		    xlim = c(0,this$length),
-# 		    ylim = c(0,1)
-#             )
-#         dev.off()
-#     }
-# }
 
 karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='') { #xlim=c(-1.02,1.02),ylim=0:1) {
     ## TAPS scatter plot of a full sample, used for visual quality control. 
@@ -1451,115 +1263,416 @@ pileup_copies <- function(regions, chroms=NULL) {
     }
 }
 
-
-
-
-
-
-
-karyotype_met <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,Mchr,Mpos,Mval,name='',xlim=c(-1.02,1.82),ylim=0:1)  {
-    
-    ideogram=getIdeogram()
-    colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
-    colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
-    
-    ai[is.na(ai)]=0
-    aix=ai!=0
-    chr=chr[aix]
-    start=start[aix]
-    end=end[aix]
-    int=int[aix]
-    ai=ai[aix]
-    #    Cn=Cn[aix]
-    #   mCn=mCn[aix]
-    pos <- (start+end)/2
-    length=end-start
-    
-    size=rep(1,length(chr))
-    size[length>2000000]=2
-    size[length>5000000]=3
-    size[length>10000000]=4
-    
-    for (c in 1:23) {
-        this <- ideogram[ideogram$c==c,]
-        
-        png(paste(name,'_karyotype_MET.',this$chr,'.png',sep=''),width=1000,height=1300)
-        layout(matrix(1:4,nrow=4,byrow=T), widths=10,heights=c(10,5,5,5))
-        
-        ix <- chr==this$chr
-        col <- rep('#B0B0B030',length(chr))       
-        col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
-        col[ix & (pos > this$mid)] <- paste(colors_q(sum(ix & (pos > this$mid))), '70', sep='') 
-        
-        plot(c(int[!ix],int[ix]),c(ai[!ix],ai[ix]),
-             pch=16,
-             cex=c(size[!ix],size[ix]),
-             cex.lab=2,
-             #mar=c(0.1,0.1,0.1,0.1),
-             main = "",
-             xlab = "Total intensity -->",
-             ylab = "Allelic imbalance -->",
-             col = c(col[!ix],col[ix]),
-             xlim = xlim,
-             ylim = ylim
-        )
-        
-        par(new=F)
-        mix <- mchr==this$chr
-        #col <- rep('#D0D0D0D0',sum(mix))       
-        #col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
-        #col[ix & (pos > this$mid)] <- paste(colors_q(sum(ix & (pos > this$mid))), '70', sep='') 
-        col=rep('#000000',sum(ix))
-        col[pos[ix] < this$mid] <- colors_p(sum(pos[ix] < this$mid))
-        col[pos[ix] > this$mid] <- colors_q(sum(pos[ix] > this$mid))
-        
-        plot(mpos[mix],mval[mix],
-             pch=16,
-             cex=1,
-             cex.lab=2,
-             #mar=c(0.1,0.1,0.1,0.1),
-             main = "",
-             xlab = "Total intensity",
-             ylab = "",
-             col = '#00000030',
-             xlim = c(0,this$length),
-             ylim = c(-1,1)
-        )
-        segments(x0=start[ix],x1=end[ix],
-                 y0=int[ix],y1=int[ix],                
-                 col=col,
-                 lwd=4,
-        )
-        par(new=F)       
-        six <- schr==this$chr
-        plot(spos[six],sval[six],
-             pch=16,
-             cex=1,
-             cex.lab=2,
-             #mar=c(0.1,0.1,0.1,0.1),
-             main = "",
-             xlab = "Allelic imbalance",
-             ylab = "",
-             col = '#00000030',
-             xlim = c(0,this$length),
-             ylim = c(0,1)
-        )
-        par(new=F)       
-        Mix <- Mchr==this$chr
-        plot(Mpos[Mix],Mval[Mix],
-             pch=16,
-             cex=1,
-             cex.lab=2,
-             #mar=c(0.1,0.1,0.1,0.1),
-             main = "",
-             xlab = "Methylation",
-             ylab = "",
-             col = '#00000030',
-             xlim = c(0,this$length),
-             ylim = c(0,1)
-        )
-        dev.off()
+addGenes <- function(data,genes) {
+    if (nrow(data)==0) return(data)
+    data$genes=''
+    for (i in 1:nrow(data)) {
+        ix=which(genes$chrom==as.character(data$Chromosome[i]) & genes$gtxStart<data$End[i] & genes$gtxEnd>data$Start[i])
+        if (length(ix)>0) data$genes[i]=paste(sort(unique(genes$name2[ix])),collapse=', ')
     }
+    #browser()
+    return(data)
+}
+
+### Markus 2013.
+### Function for summarizing alteration frquencies in X samples
+TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
+    
+    sampleData <- read.xlsx('SampleData.xlsx',1)
+    
+    olddir <- getwd()
+    if (!is.na(outdir)) {
+        try(dir.create(outdir), silent=T)
+        setwd(outdir)
+    }
+    
+    subs=as.character(sampleData$Sample)
+    
+    if (is.null(subs)) {
+        subs=thisSubdir()
+        setwd('..')
+    }
+    
+    if (samples[1]=='all') samples=rep(T,length(subs))
+    if (is.logical(samples)) samples=which(samples)
+    subs=subs[samples]
+    nSamples=length(subs)
+    
+    ## Load and parse all samples
+    samples <- meanCns <- NULL
+    
+    for (i in 1:nSamples) {
+        table <- load.txt(paste(olddir,'/',subs[i],'/',subs[i],'_segmentCN.txt',sep=''))
+        table$n <- i
+        table$name <- as.character(subs[i])    
+        ix <- as.numeric(deChrom_ucsc(table$Chromosome)) <= 22
+        table$meanCn <- meanCns[i] <- round(weightedMean(table$Cn_[ix], table$lengthMB[ix]),2)    
+        samples <- rbind(samples,table) 
+    }
+    
+    samples=samples[samples$Chromosome!='chrY',]
+    
+    if (hg19) genes <- knownGene else genes <- knownGene_hg18
+    genes$name2=genes$gAlias
+    genes$chrom=genes$chr
+    
+    regs=samples
+    n=length(unique(regs$name))
+    
+    gaincolor='#007602'
+    losscolor='#FF0000'
+    lohcolor='#0015FF'
+    relhighcolor='#00CE03'
+    lowcolor='#FF1FE1'
+    lowlohcolor='#0084FF'
+    highgaincolor='#003300'
+    homlosscolor='#660066'
+    focalgaincolor='#333300'
+    focallosscolor='#9933FF'
+    
+    ## Gain:
+    sum_regionSet(chroms, chromData, genes,regs[regs$Cn>2,],n,comparison='Absolute Gain (>2 copies)',color=gaincolor)
+    ## Loss:
+    sum_regionSet(chroms, chromData, genes,regs[regs$Cn<2,],n,comparison='Absolute Loss (<2 copies)',color=losscolor)
+    ## LOH
+    aix=!is.na(regs$mCn)
+    sum_regionSet(chroms, chromData, genes,regs[aix,][regs[aix,]$mCn==0,],n,comparison='LOH (minor=0)',color=lohcolor) 
+    ## Relative Gain (more than 25% above the average)
+    sum_regionSet(chroms, chromData, genes,regs[regs$Cn>regs$meanCn*1.25,],n,comparison='Relative Gain (>1.25*average)',color=relhighcolor)
+    ## Relative Loss (up to 3/4 of average)
+    sum_regionSet(chroms, chromData, genes,regs[regs$Cn<0.75*regs$meanCn,],n,comparison='Relative Loss (<0.75*average)',color=lowcolor)
+    ## Low and LOH
+    sum_regionSet(chroms, chromData, genes,regs[aix,][regs[aix,]$mCn==0 & regs[aix,]$Cn<0.75*regs$meanCn[aix],],n,comparison='Low&LOH',color=lowlohcolor)
+    ## High Gain (more than 3 times the average)
+    sum_regionSet(chroms, chromData, genes,regs[regs$Cn>regs$meanCn*3,],n,comparison='High Gain (>3*average)',color=highgaincolor)
+    ## Homozygous Loss
+    sum_regionSet(chroms, chromData, genes,regs[regs$Cn==0,],n,comparison='Homozygous Loss (0 copies)',color=homlosscolor)
+    ## Focal Gain
+    sum_regionSet(chroms, chromData, genes,regs[regs$Cn>regs$meanCn*2 & regs$lengthMB<1,],n,comparison='Focal Gain (<1Mb,>2*average)',color=focalgaincolor)
+    ## Focal Loss
+    sum_regionSet(chroms, chromData, genes,regs[regs$Cn<regs$meanCn*.67 & regs$lengthMB<1,],n,comparison='Focal Loss (<1Mb,<0.67*average)',color=focallosscolor)
+    setwd(olddir)
+}
+
+### Generalized comparing function used by the above function 
+sum_regionSet <- function(chroms, chromData, genes, 
+                          regs, n, 
+                          comparison='', 
+                          color='#000000') {    
+    
+    p_cutoff <- 0.05
+    freq_cutoff <- 20
+    
+    # Generate frequency plots            
+    pile <- pileup(regs); pile$Percent <- 100*pile$Count / n
+    save.txt(addGenes(pile,genes),file=paste(comparison,'frequencies','txt',sep='.'))
+    
+    ### Total frequency plot    
+    #quartz(file=paste(comparison,'freq_dif',name1,name2,'png',sep='.'),width=15,height=4.5,dpi=300,type='png')
+    png(file=paste(comparison,'png',sep='.'),width=3000,height=800)
+    ylim <- c( -15, 110)
+    plot(1,1,type='n',
+         bty='n', ann=T, mar=c(0,0,0,0), oma=c(0,0,0,0),
+         main=paste(comparison,'frequency'), cex.main=2,
+         xlab=NA,#'',#Genomic position (??????=significance)',
+         ylab=NA,#'Alteration frequency difference (% units)', cex.lab=2,
+         xlim = c(0,sum(chroms$length)),
+         ylim = ylim,
+         yaxt="n",
+         xaxt="n"
+         )
+    #mtext(text="Allelic imbalance",side=2,line=4,las=3,cex=2)
+    #mtext(text="Coverage, all segments",side=1,line=4,cex=2,las=1)
+    
+    data <- pile
+    data$e <- 0 -> data$s
+    for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
+    data$s <- data$s+data$Start
+    data$e <- data$e+data$End
+    rect( 
+        xleft=data$s, xright=data$e,
+        ybottom=0,ytop=data$Percent,
+        col=color,   
+        border=NA,
+    )
+    
+    ## The chrom labels
+    text(
+        x=chroms$before+chroms$length/2,
+        y= -15,
+        cex=2,
+        label=substr(chroms$chr,4,6)
+    )
+    
+    ## The chromosomes
+    rect(xleft=chromData$genomeStart,xright=chromData$genomeEnd,
+         ybottom= -5-chromData$thickness,ytop= -5+chromData$thickness,
+         col=paste(chromData$col,'80',sep=''),
+         lty=0
+    )
+    
+    ## The vertical lines
+    segments(
+        x0=c(chroms$before,sum(chroms$length)),x1=c(chroms$before,sum(chroms$length)),
+        y0= -15,y1=100,                
+        col='#000000',
+        lwd=1
+    )
+    
+    # Horizontal lines
+    segments(
+        x0=0,x1=sum(chroms$length),
+        y0=seq(0,80,10),y1=seq(0,80,10),                
+        col='#00000070',
+        lwd=1,lty=3
+    )
+    
+    ## Y axis ticks
+    axis(2,at=seq(0,100,20), 
+         labels=abs(seq(0,100,20)), pos=0,
+         cex.axis=2,tck=-0.01, las=2)
+    axis(4,at=seq(0,100,20), 
+         labels=abs(seq(0,100,20)), pos=sum(chroms$length),
+         cex.axis=2,tck=-0.01, las=2)
+    dev.off()  
+}
+
+########### Group comparisons
+TAPS_compare <- function(grp1, grp2, name1='1', name2='2', outdir='frequencies_comp', hg19=T) {
+
+
+    sampleData=read.xlsx('SampleData.xlsx',1)
+    
+    subs=as.character(sampleData$Sample)
+    
+#     if (is.null(subs)) {
+#         subs=thisSubdir()
+#         subs=subs[subs!='frequencies' & subs!='frequencies_comp']
+#         setwd('..')
+#     }
+    
+    olddir <- getwd()
+    if (!is.na(outdir)) {
+        try(dir.create(outdir), silent=T)
+        setwd(outdir)
+    }
+    
+
+    
+    if (is.logical(grp1)) grp1=which(grp1)
+    if (is.logical(grp2)) grp2=which(grp2)
+    if (is.numeric(grp1)) grp1=subs[grp1]
+    if (is.numeric(grp2)) grp2=subs[grp2]
+    grps=unique(c(grp1,grp2))
+    
+    ## Load and parse all samples
+    samples <- meanCns <- NULL
+    nSamples=length(grps)
+    
+    for (i in 1:nSamples) {
+        table <- load.txt(paste(olddir,'/',subs[i],'/',subs[i],'_segmentCN.txt',sep=''))
+        table$n <- i
+        table$name <- as.character(subs[i])    
+        ix <- as.numeric(deChrom_ucsc(table$Chromosome)) <= 22
+        table$meanCn <- meanCns[i] <- round(weightedMean(table$Cn_[ix], table$lengthMB[ix]),2)    
+        samples <- rbind(samples,table) 
+    }
+    
+    samples=samples[samples$Chromosome!='chrY',]
+    
+    if (hg19) genes <- knownGene else genes <- knownGene_hg18
+    genes$name2=genes$gAlias
+    genes$chrom=genes$chr
+    
+    regs1=samples[samples$name %in% grp1,]
+    regs2=samples[samples$name %in% grp2,]
+    n1=length(grp1)
+    n2=length(grp2)
+    
+    gaincolor='#007602'
+    losscolor='#FF0000'
+    lohcolor='#0015FF'
+    relhighcolor='#00CE03'
+    lowcolor='#FF1FE1'
+    lowlohcolor='#0084FF'
+    highgaincolor='#003300'
+    homlosscolor='#660066'
+    focalgaincolor='#333300'
+    focallosscolor='#9933FF'
+    
+    ## Gain:
+    compare_regionSet(chroms, chromData, genes,regs1[regs1$Cn>2,],regs2[regs2$Cn>2,],n1,n2,comparison='Absolute Gain (>2 copies)',name1,name2,color=gaincolor)
+    ## Loss:
+    compare_regionSet(chroms, chromData, genes,regs1[regs1$Cn<2,],regs2[regs2$Cn<2,],n1,n2,comparison='Absolute Loss (<2 copies)',name1,name2,color=losscolor)
+    ## LOH
+    aix1=!is.na(regs1$mCn); aix2=!is.na(regs2$mCn)
+    compare_regionSet(chroms, chromData, genes,regs1[aix1,][regs1[aix1,]$mCn==0,],regs2[aix2,][regs2[aix2,]$mCn==0,],n1,n2,comparison='LOH (minor=0)',name1,name2,color=lohcolor) 
+    ## Relative Gain (more than 25% above the average)
+    compare_regionSet(chroms, chromData, genes,regs1[regs1$Cn>regs1$meanCn*1.25,],regs2[regs2$Cn>regs2$meanCn*1.25,],n1,n2,comparison='Relative Gain (>1.25*average)',name1,name2,color=relhighcolor)
+    ## Relative Loss (up to 3/4 of average)
+    compare_regionSet(chroms, chromData, genes,regs1[regs1$Cn<0.75*regs1$meanCn,],regs2[regs2$Cn<0.75*regs2$meanCn,],n1,n2,comparison='Relative Loss (<0.75*average)',name1,name2,color=lowcolor)
+    ## Low and LOH
+    compare_regionSet(chroms, chromData, genes,regs1[aix1,][regs1[aix1,]$mCn==0 & regs1[aix1,]$Cn<0.75*regs1$meanCn[aix1],],regs2[aix2,][regs2[aix2,]$mCn==0 & regs2[aix2,]$Cn<0.75*regs2$meanCn[aix2],],n1,n2,comparison='Low&LOH',name1,name2,color=lowlohcolor)
+    ## High Gain (more than 3 copies above the average)
+    compare_regionSet(chroms, chromData, genes,regs1[regs1$Cn>regs1$meanCn*3,],regs2[regs2$Cn>regs2$meanCn*3,],n1,n2,comparison='High Gain (>3*average)',name1,name2,color=highgaincolor)
+    ## Homozygous Loss
+    compare_regionSet(chroms, chromData, genes,regs1[regs1$Cn==0,],regs2[regs2$Cn==0,],n1,n2,comparison='Homozygous Loss (0 copies)',name1,name2,color=homlosscolor)
+    ## Focal Gain
+    compare_regionSet(chroms, chromData, genes,regs1[regs1$Cn>regs1$meanCn*2 & regs1$lengthMB<1,],regs2[regs2$Cn>regs2$meanCn*2 & regs2$lengthMB<1,],n1,n2,comparison='Focal Gain (<1Mb,>2*average)',name1,name2,color=focalgaincolor)
+    ## Focal Loss
+    compare_regionSet(chroms, chromData, genes,regs1[regs1$Cn<regs1$meanCn*.67 & regs1$lengthMB<1,],regs2[regs2$Cn<regs2$meanCn*.67 & regs2$lengthMB<1,],n1,n2,comparison='Focal Loss (<1Mb,<0.67*average)',name1,name2,color=focallosscolor)
+    setwd(olddir)
+}
+
+### Generalized comparing function: 
+compare_regionSet <- function(chroms, chromData, genes, 
+                              regs1, regs2, 
+                              n1, n2, 
+                              comparison='', 
+                              name1='1', name2='2', 
+                              color='#000000') {    
+    
+    p_cutoff <- 0.05
+    freq_cutoff <- 0
+    
+    # Generate frequency plots            
+    pile1 <- pileup(regs1); pile1$Percent <- 100*pile1$Count / n1
+    pile2 <- pileup(regs2); pile2$Percent <- 100*pile2$Count / n2
+    dif <- pvals(pileup_dif(regs1,regs2),n1,n2)
+    
+    save.txt(addGenes(dif,genes),file=paste(comparison,name1,name2,'txt',sep='.'))
+    save.txt(addGenes(dif[dif$p.value<p_cutoff & abs(dif$percent)>freq_cutoff,],genes),file=paste('significant',comparison,name1,name2,'txt',sep='.'))
+    
+    
+    ### Total and Differential frequency plot    
+    #quartz(file=paste(comparison,'freq_dif',name1,name2,'png',sep='.'),width=15,height=4.5,dpi=300,type='png')
+    png(file=paste(comparison,'allFreqs',name1,name2,'png',sep='.'),width=3000,height=800)
+    ylim <- c(-100, 110)
+    plot(1,1,type='n',
+         bty='n', ann=T, mar=c(0,0,0,0), oma=c(0,0,0,0),
+         main=paste(comparison,' frequency difference, ', name1, ' (', n1, ') vs ', name2, ' (', n2, ')', sep=''), cex.main=2,
+         xlab=NA,#'',#Genomic position (??????=significance)',
+         ylab=NA,#'Alteration frequency difference (% units)', cex.lab=2,
+         xlim = c(0,sum(chroms$length)),
+         ylim = ylim,
+         yaxt="n",
+         xaxt="n"
+         )
+    #mtext(text="Allelic imbalance",side=2,line=4,las=3,cex=2)
+    #mtext(text="Coverage, all segments",side=1,line=4,cex=2,las=1)
+    
+    ## Group 1
+    data <- pile1
+    data$e <- 0 -> data$s
+    for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
+    data$s <- data$s+data$Start
+    data$e <- data$e+data$End
+    rect( 
+        xleft=data$s, xright=data$e,
+        ybottom=0,ytop=data$Percent,
+        col=color,   
+        border=NA,
+    )
+    
+    ## Group 2
+    data <- pile2
+    data$e <- 0 -> data$s
+    for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
+    data$s <- data$s+data$Start
+    data$e <- data$e+data$End
+    rect( 
+        xleft=data$s, xright=data$e,
+        ybottom=0,ytop= -data$Percent,
+        col=color,   
+        border=NA,
+    )
+    
+    ### The difference
+    data <- dif
+    data$e <- 0 -> data$s
+    for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
+    data$s <- data$s+data$Start
+    data$e <- data$e+data$End
+    data <- data[order(data$percent,decreasing=T),]
+    
+    difcolor <- colorRampPalette(c("#FFFFFF",color),space="rgb")(4)[2]
+    
+    rect( 
+        xleft=data$s, xright=data$e,
+        ybottom=0,ytop=data$percent,
+        #ybottom=data$conf_low,ytop=data$conf_high,
+        col=difcolor,   
+        border=NA
+    )
+    
+    ## The significant
+    mhcolor=colorRampPalette(c("#FFFFFF",color),space="rgb")(5)[3]
+    data=data[data$p.value<p_cutoff & abs(data$percent)>freq_cutoff,]
+    if (nrow(data)>0) {
+        rect( 
+            xleft=data$s, xright=data$e,
+            ybottom= -100,ytop=-95,
+            col='#000000',   
+            border=NA
+        )
+    }
+    ## The OR
+    #for (i in 1:23) {
+    #    temp=data[data$Chr==as.character(chroms$chr[i]),]
+    #    if (nrow(temp)>5) {
+    #        temp$odds.ratio[temp$odds.ratio<1 & temp$odds.ratio>0]=1/temp$odds.ratio[temp$odds.ratio<1 & temp$odds.ratio>0]
+    #        temp=temp[order(temp$odds.ratio,decreasing=T),][1,]
+    #        text(x=chroms$before[i]+mean(temp$Start,temp$End), y=-105, cex=1.3, label=round(temp$odds.ratio,1))                
+    #    }
+    #}
+    axis(2,at=c(-97),#,-105), 
+         labels=c('sign.'),#, 'BestOR'), 
+         pos=0,
+         cex.axis=1.5,tck=0,las=2)
+    
+    ## The chrom labels
+    text(
+        x=chroms$before+chroms$length/2,
+        y= 105,
+        cex=2,
+        label=substr(chroms$chr,4,6)
+    )
+    
+    ## The chromosomes
+    rect(xleft=chromData$genomeStart,xright=chromData$genomeEnd,
+         ybottom=95-chromData$thickness,ytop=95+chromData$thickness,
+         col=paste(chromData$col,'80',sep=''),
+         lty=0
+    )
+    
+    ## The vertical lines
+    segments(
+        x0=c(chroms$before,sum(chroms$length)),x1=c(chroms$before,sum(chroms$length)),
+        y0=-100,y1=100,                
+        col='#000000',
+        lwd=1
+    )
+    
+    # Horizontal lines
+    segments(
+        x0=0,x1=sum(chroms$length),
+        y0=seq(-80,80,10),y1=seq(-80,80,10),                
+        col='#00000070',
+        lwd=1,lty=3
+    )
+    
+    ## Y axis ticks
+    axis(2,at=seq(-80,80,20), 
+         labels=abs(seq(-80,80,20)), pos=0,
+         cex.axis=2,tck=-0.01, las=2)
+    axis(4,at=seq(-80,80,20), 
+         labels=abs(seq(-80,80,20)), pos=sum(chroms$length),
+         cex.axis=2,tck=-0.01, las=2)
+    
+    ## Group names
+    mtext(c(paste(name1,'(%)'), '(dif)', paste(name2,'(%)')),2,at=c(65,0,-65),cex=2, col=c(color,mhcolor,color))
+    
+    dev.off()      
 }
 
 
@@ -1652,6 +1765,7 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
         this <- ideogram[ideogram$c==c,]
         #Extract that chromosomes information
         ix <- chr==as.character(this$chr)
+        x <- chr=='chrX'
         #Add color depending on the length of this chromosome
         col <- rep('#B0B0B030',length(chr))       
         col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
@@ -1667,13 +1781,13 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
         par(xpd=NA)
         
         #Plot whole genome with chromosome in question colored
-        plot(c(int[!ix],int[ix]),c(ai[!ix],ai[ix]),
-             pch=c(pch[!ix],pch[ix]),
-             cex=c(size[!ix],size[ix]),
+        plot(c(int[!(ix|x)],int[ix]),c(ai[!(ix|x)],ai[ix]),
+             pch=c(pch[!(ix|x)],pch[ix]),
+             cex=c(size[!(ix|x)],size[ix]),
              main = "",
              xlab = '',
              ylab = "",
-             col = c(col[!ix],col[ix]),
+             col = c(col[!(ix|x)],col[ix]),
              xlim=xlim,ylim=c(0,1),
              axes=F)
         
@@ -2284,7 +2398,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
     mCn=mCn[aix]
     pos <- (start+end)/2
     length=end-start
-    labels=paste(Cn,mCn,sep='m')
+    labels=paste(Cn[!is.na(mCn)],mCn[!is.na(mCn)],sep='m')
     
     #Set sizes for circles in whole genome plot
     size=rep(1,length(chr))
@@ -2449,17 +2563,19 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
              xlim = c(0,this$length),
              ylim = c(-0.1,8.1))
         
-        #Add total copnumber segments
-        segments(x0=start[ix],x1=end[ix],
-                 y0=Cn[ix],y1=Cn[ix],                
-                 col=col,
-                 lwd=5)
-        
+
         #Add minor copynumber segments
         segments(x0=start[ix],x1=end[ix],
                  y0=mCn[ix],y1=mCn[ix],                
                  col='#BBBBBB',
                  lwd=5)
+        
+        #Add total copynumber segments
+        segments(x0=start[ix],x1=end[ix],
+                 y0=Cn[ix],y1=Cn[ix],                
+                 col=col,
+                 lwd=5)
+
         
         #Add Y axis
         axis(side=2,tck=0.926,col.ticks='#808080',at=seq(0,8,by=1),cex.axis=0.6,pos=0,las=1)

@@ -7,5 +7,7 @@
 	packageStartupMessage("If this is your first time running TAPS you should visit the")
 	packageStartupMessage("homepage at (http://patchwork.r-forge.r-project.org/) or see ?TAPS.")
 	packageStartupMessage("\n")
+	packageStartupMessage("TAPS can now be used to summarize aberration frequencies and compare sample groups. Try ?TAPS_freq and ?TAPS_compare.")
+	packageStartupMessage("\n")
 	packageStartupMessage("Remember to keep TAPS up to date: update.packages(repos=\"http://R-Forge.R-project.org\")")
 }
