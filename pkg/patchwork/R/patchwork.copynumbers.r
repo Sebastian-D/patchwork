@@ -7,6 +7,9 @@ patchwork.copynumbers = function(CNfile,cn2,delta,het,hom,maxCn=8,ceiling=1,forc
 	data(ideogram,package="patchworkData")
 	load(CNfile)
 
+    #save parameters as strings
+    parameters=paste("Parameters given: cn2:",cn2," delta:",delta," het:",het," hom:",hom)
+
     name = strsplit(tolower(CNfile),"_copynumbers.rdata")
 
     name = strsplit(name[[1]],"/")
@@ -274,9 +277,9 @@ patchwork.copynumbers = function(CNfile,cn2,delta,het,hom,maxCn=8,ceiling=1,forc
     regions$Cn <- Cn
     regions$mCn <- mCn
     regions$fullCN <- fullCN
-	
-    temp <- temp[!is.na(temp$Cn),]
+
     temp <- regions[is.autosome(regions$chr),]
+    temp <- temp[!is.na(temp$Cn),]
 	
  
     meanCn <- weightedMean(temp$Cn,temp$np)
@@ -323,14 +326,23 @@ patchwork.copynumbers = function(CNfile,cn2,delta,het,hom,maxCn=8,ceiling=1,forc
     regions$tumor_percent <- tumor_percent
     write.csv(regions,file=paste(name,'_Copynumbers.csv',sep=""))
 
+    #make t just for intuitive work between patchwork and taps
+    t=list(int=int,ai=ai)
+
+    save(regions,kbsegs,alf,t,file="Development.Rdata")
+
 
 	karyotype_check(regions$chr,regions$start,regions$end,regions$median,regions$ai,
-					regions$Cn,regions$mCn,list(int=int,ai=ai),name=name,
+					regions$Cn,regions$mCn,t,name=name,
 					xlim=c(0,2.4),ylim=c(0.1,1))
 					
-	karyotype_chromsCN(regions$chr,regions$start,regions$end,regions$median,regions$ai,
-						regions$Cn,regions$mCn,kbsegs$chr,
-						kbsegs$pos,kbsegs$ratio,alf$achr,alf$apos,
-						(1-alf$amin/alf$amax),name=name,xlim=c(0,2.4),
-						ylim=c(0.1,1))
+	# karyotype_chromsCN(regions$chr,regions$start,regions$end,regions$median,regions$ai,
+	# 					regions$Cn,regions$mCn,kbsegs$chr,
+	# 					kbsegs$pos,kbsegs$ratio,alf$achr,alf$apos,
+	# 					(1-alf$amin/alf$amax),name=name,xlim=c(0,2.4),
+	# 					ylim=c(0.1,1))
+    karyotype_chromsCN(regions$chr,regions$start,regions$end,regions$median,regions$ai,regions$Cn,regions$mCn,
+        kbsegs$chr,kbsegs$pos,kbsegs$ratio,
+        alf$achr,alf$apos,(1-alf$amin/alf$amax),t,
+        name=name,parameters)
 	}

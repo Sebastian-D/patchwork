@@ -20,4 +20,5 @@ export(karyotype_check,
 		is.autosome,
 		deChrom_ucsc,
 		chrom_ucsc,
-		assignAI)
+		assignAI,
+		patchwork.region)

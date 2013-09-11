@@ -13,7 +13,7 @@ See details for a walkthrough of the plot.
 }
 
 \usage{
-karyotype_chromsCN(chr,start,end,int,ai,Cn,mCn,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-1.02,1.82),ylim=0:1,maxCn=8)
+karyotype_chromsCN(chr,start,end,int,ai,Cn,mCn,mchr,mpos,mval,schr,spos,sval,t,name='',parameters,xlim=c(0,2.5),ylim=0:1,maxCn=8)
 }
 
 \arguments{
@@ -27,7 +27,7 @@ karyotype_chromsCN(chr,start,end,int,ai,Cn,mCn,mchr,mpos,mval,schr,spos,sval,nam
   	End position of segment.	
 	}
 	\item{int}{					%segs$mean
-  	Mean.
+  	Normalized coverage.
 	}
 	\item{ai}{					%segs$ai
   	Allelic imbalance.
@@ -56,11 +56,17 @@ karyotype_chromsCN(chr,start,end,int,ai,Cn,mCn,mchr,mpos,mval,schr,spos,sval,nam
 	\item{sval}{
 	Inverse ratio between allele maximum and allele minimum.
 	}
+	\item{t}{
+	A list of approximate copynumber and allelic imbalance positions.
+	}
 	\item{name}{
   	Name of sample. patchwork.plot sends it as name of the bamfile.
 	}
+	\item{parameters}{
+	The parameters sent to patchwork.copynumbers() to be plotted.
+	}
   	\item{xlim}{
-  	Default is c(-1.02,1.82). Limit of x axis.
+  	Default is c(0,2.5). Limit of x axis.
 	}
   	\item{ylim}{
   	Default is 0:1. Limit of y axis.
@@ -73,7 +79,7 @@ karyotype_chromsCN(chr,start,end,int,ai,Cn,mCn,mchr,mpos,mval,schr,spos,sval,nam
 \details{
 Walkthrough of the plot:
 
-\bold{TOP} \cr
+\bold{LEFT} \cr
 Vertical axis: Allelic Imbalance \cr
 Horizontal axis: Total Intensity \cr
 
@@ -83,19 +89,23 @@ and as such display the varying allele counts and copy numbers.
 Longer/larger segments have bigger circles. Darker circles show more content as they are
 ontop of eachother.
 
-\bold{TOP MIDDLE} \cr
+\bold{TOP RIGHT} \cr
 Vertical axis: Copynumber \cr
 Horizontal axis: Chromosomal coordinate \cr
 
 Displays the total and minor copynumbers for different segments of the chromosome in question.
 
-\bold{LOWER MIDDLE} \cr
+\bold{UPPER MIDDLE RIGHT} \cr
 Vertical axis: Total Intensity \cr
 Horizontal axis: Chromosomal coordinate \cr
 
 The chromosome in questions total intensity plotted against the position on the chromosome.
 
-\bold{BOTTOM} \cr
+\bold{LOWER MIDDLE RIGHT} \cr
+
+Cytoband information.
+
+\bold{BOTTOM RIGHT} \cr
 Vertical axis: Allelic Imbalance \cr
 Horizontal axis: Chromosomal coordinate \cr
 

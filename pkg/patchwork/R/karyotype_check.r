@@ -1,6 +1,6 @@
 karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,name='',xlim=c(-1.02,1.02),ylim=0:1)
 	{
-	## TAPS scatter plot of a full sample, used for visual quality control. 
+	## Patchwork scatter plot of a full sample, used for visual quality control. 
     png(paste(name,'_karyotype_check.png',sep=''),width=1300,height=1300)
  
 

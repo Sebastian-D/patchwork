@@ -11,7 +11,7 @@ See details for a walkthrough of the plot.
 }
 
 \usage{
-karyotype_chroms(chr,start,end,int,ai,mchr,mpos,mval,schr,spos,sval,name,xlim,ylim)
+karyotype_chroms(chr,start,end,int,ai,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(0,2.5),ylim=0:1,MAPD=" ",MHOF=" ")
 }
 
 \arguments{
@@ -25,7 +25,7 @@ karyotype_chroms(chr,start,end,int,ai,mchr,mpos,mval,schr,spos,sval,name,xlim,yl
   	End position of segment.	
 	}
 	\item{int}{					%segs$mean
-  	Median.
+  	Normalized coverage.
 	}
 	\item{ai}{					%segs$ai
   	Allelic imbalance.
@@ -52,10 +52,16 @@ karyotype_chroms(chr,start,end,int,ai,mchr,mpos,mval,schr,spos,sval,name,xlim,yl
   	Name of sample. patchwork.plot sends it as name of the bamfile.
 	}
   	\item{xlim}{
-  	Default is c(0,2.4). Limit of x axis.
+  	Default is c(0,2.5). Limit of x axis.
 	}
   	\item{ylim}{
-  	Default is c(0.3,1). Limit of y axis.
+  	Default is 0:1. Limit of y axis.
+	}
+  	\item{MAPD}{
+  	Placeholder for later sample measures.
+	}
+  	\item{MHOF}{
+  	Placeholder for later sample measures.
 	}
 }
 
@@ -64,23 +70,27 @@ Walkthrough of the plot:
 
 \bold{TOP} \cr
 Vertical axis: Allelic Imbalance \cr
-Horizontal axis: Total Intensity \cr
+Horizontal axis: Normalized coverage \cr
 
 The chromosome plotted against the complete genome background. The separation between
-clusters within the plot are due to the fluctuating intensity and allelic imbalance
+clusters within the plot are due to the fluctuating coverage and allelic imbalance
 and as such display the varying allele counts and copy numbers.
 Longer/larger segments have bigger circles. Darker circles show more content as they are
 ontop of eachother.
 
 \bold{MIDDLE} \cr
-Vertical axis: Total Intensity \cr
-Horizontal axis: Chromosomal coordinate \cr
+Vertical axis: Normalized coverage \cr
+Horizontal axis: Position (Mb) \cr
 
-The chromosome in questions total intensity plotted against the position on the chromosome.
+The chromosome in questions normalized coverage plotted against the position on the chromosome.
+
+\bold{CYTOBAND} \cr
+
+Cytoband information for selected chromosome.
 
 \bold{BOTTOM} \cr
-Vertical axis: Allelic Imbalance \cr
-Horizontal axis: Chromosomal coordinate \cr
+Vertical axis: Allelic imbalance \cr
+Horizontal axis: Position (Mb) \cr
 
 The chromosome in questions allelic imbalance plotted against the position on the chromosome.
 }
