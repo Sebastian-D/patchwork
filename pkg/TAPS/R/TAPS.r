@@ -6,7 +6,17 @@
 
 ## TAPS source code reimplemented 2013 Markus (Rasmussen) Mayrhofer, Sebastian DiLorenzo
 
-TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
+#########    ###    ########   ######     ########  ##        #######  ######## 
+#   ##      ## ##   ##     ## ##    ##    ##     ## ##       ##     ##    ##    
+#   ##     ##   ##  ##     ## ##          ##     ## ##       ##     ##    ##    
+#   ##    ##     ## ########   ######     ########  ##       ##     ##    ##    
+#   ##    ######### ##              ##    ##        ##       ##     ##    ##    
+#   ##    ##     ## ##        ##    ##    ##        ##       ##     ##    ##    
+#   ##    ##     ## ##         ######     ##        ########  #######     ##  
+
+
+TAPS_plot <- function(#samples='all',
+                     directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
                       bin=400) {
     #Automatically check, and if needed install, packages stats and fields
     
@@ -39,16 +49,22 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
     if (is.null(subs)) {                                         ## check samples = subdirectories or a single sample = current directory
         subs=thisSubdir()
         setwd('..')
+        subsToSampleData <- getSubdirs()
     }
     
-    # create SampleData file if there is none.   
+   # create SampleData file if there is none.   
     if (length(grep('SampleData.xlsx',dir()))==0) {
-        sampleData <- data.frame(Sample=subs,cn1= -0.5, cn2=0, cn3=NA, loh=0.7, MAPD=NA, MHOF=NA)
+        sampleData <- data.frame(Sample=subsToSampleData,cn1= -0.5, cn2=0, cn3=NA, loh=0.7, MAPD=NA, MHOF=NA)
         write.xlsx(sampleData,'SampleData.xlsx',row.names=F)
     } else {
         sampleData=read.xlsx('SampleData.xlsx',1)
     }
-        
+
+    #if (samples[1]=='all') samples=rep(T,length(subs))
+    #if (is.logical(samples)) samples=which(samples)
+    #subs=subs[samples]
+
+         
     
     for (i in 1:length(subs)) {
         setwd(subs[i])
@@ -166,16 +182,27 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
         #Clear warnings generated previously so hopefully I can see what is actually causing the program to fail.
         #assign("last.warning", NULL, envir = baseenv())
         
+        #Test if hg18 or hg19 should be used. length of (hg18 chr19) > (hg19 chr19)
+        hgtest=regs[regs$chr=="chr19",]
+        if(hgtest$end[length(hgtest$chr)] > 60000000)
+            {
+            hg18=T
+            }
+        else
+            {
+            hg18=F
+            }
+
         cat('..plotting.\n')
         
-        OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,ideogram=NULL,
+        OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                      as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
                      name=name,MAPD=MAPD,MHOF=MHOF)                
         
         ## Chromosome-wise plots for manual analysis
         regions=allRegions$regions
         
-        karyotype_chroms(regs$chr,regs$start,regs$end,regs$logs,regs$scores,ideogram=NULL,
+        karyotype_chroms(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                          as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,
                          alf$Value,name=name,MAPD=MAPD,MHOF=MHOF)
         
@@ -185,6 +212,14 @@ TAPS_plot <- function(directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
     write.xlsx(sampleData,'SampleData.xlsx',row.names=F)
 }
 ###
+
+#########    ###    ########   ######      ######     ###    ##       ##       
+#   ##      ## ##   ##     ## ##    ##    ##    ##   ## ##   ##       ##       
+#   ##     ##   ##  ##     ## ##          ##        ##   ##  ##       ##       
+#   ##    ##     ## ########   ######     ##       ##     ## ##       ##       
+#   ##    ######### ##              ##    ##       ######### ##       ##       
+#   ##    ##     ## ##        ##    ##    ##    ## ##     ## ##       ##       
+#   ##    ##     ## ##         ######      ######  ##     ## ######## ######## 
 
 ###
 TAPS_call <- function(samples='all',directory=getwd()) {
@@ -272,13 +307,25 @@ TAPS_call <- function(samples='all',directory=getwd()) {
 
             save(t,regions,file="regions_t.Rdata")
 
+
+            #Test if hg18 or hg19 should be used. length of (hg18 chr19) > (hg19 chr19)
+            hgtest=regions[regions$Chromosome=="chr19",]
+            if(hgtest$End[length(hgtest$Chromosome)] > 60000000)
+                {
+                hg18=T
+                }
+            else 
+                {
+                hg18=F
+                }
+
             #save parameters as strings
             parameters=paste("Parameters given: cn2:",sampleInfo$cn2," delta:",sampleInfo$delta," loh:",sampleInfo$loh)
             
-            karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,ideogram=NULL,name=name)
+            karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,name=name)
             
             karyotype_chromsCN(regions$Chromosome,regions$Start,regions$End,regions$log2,
-                               regions$imba,regions$Cn,regions$mCn,ideogram=NULL,
+                               regions$imba,regions$Cn,regions$mCn,hg18=hg18,
                                as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),
                                alf$Start,alf$Value,t,name=name,xlim=c(-1,1),ylim=c(0,1),parameters=parameters)
             
@@ -966,12 +1013,12 @@ setCNs <- function(allRegions,int,ai,model,maxCn=12) {
 }
 
 
-karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='') { #xlim=c(-1.02,1.02),ylim=0:1) {
+karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,name='') { #xlim=c(-1.02,1.02),ylim=0:1) {
     ## TAPS scatter plot of a full sample, used for visual quality control. 
     
     png(paste(name,'.karyotype_check.png',sep=''),width=1300,height=1300)
     
-    ideogram=getIdeogram()
+    #ideogram=getIdeogram()
     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
     colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
     
@@ -1032,28 +1079,28 @@ karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,ideogram=NULL,name='')
     
 }
 
-getIdeogram <- function() {
-    c=1:24
-    chr=as.character(c)
-    chr[23:24]=c('X','Y')
-    chr=paste('chr',chr,sep='')
-    length=c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 
-             146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 
-             102531392,  90354753,  81195210,  78077248,  59128983,  63025520,  48129895,  
-             51304566, 155270560,  59373566)
-    start=c(121500000,  90500000,  87900000,  48200000,  46100000,  58700000,  58000000,  
-            43100000,  47300000,  38000000,  51600000,  33300000,  16300000,  16100000,  
-            15800000,  34600000,  22200000,  15400000,  24400000,  25600000,  10900000,  
-            12200000,  58100000,  11600000)
-    mid=c(1.25e+08, 9.33e+07, 9.10e+07, 5.04e+07, 4.84e+07, 6.10e+07, 5.99e+07, 4.56e+07, 
-          4.90e+07, 4.02e+07, 5.37e+07, 3.58e+07, 1.79e+07, 1.76e+07, 1.90e+07, 3.66e+07, 
-          2.40e+07, 1.72e+07, 2.65e+07, 2.75e+07, 1.32e+07, 1.47e+07, 6.06e+07, 1.25e+07)
-    end=c(128900000,  96800000,  93900000,  52700000,  50700000,  63300000,  61700000,  
-          48100000,  50700000,  42300000,  55700000,  38200000,  19500000,  19100000,  
-          20700000,  38600000,  25800000,  19000000,  28600000,  29400000,  14300000,  
-          17900000,  63000000,  13400000)
-    return(data.frame(c,chr,length,start,mid,end))
-}
+# getIdeogram <- function() {
+#     c=1:24
+#     chr=as.character(c)
+#     chr[23:24]=c('X','Y')
+#     chr=paste('chr',chr,sep='')
+#     length=c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 
+#              146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 
+#              102531392,  90354753,  81195210,  78077248,  59128983,  63025520,  48129895,  
+#              51304566, 155270560,  59373566)
+#     start=c(121500000,  90500000,  87900000,  48200000,  46100000,  58700000,  58000000,  
+#             43100000,  47300000,  38000000,  51600000,  33300000,  16300000,  16100000,  
+#             15800000,  34600000,  22200000,  15400000,  24400000,  25600000,  10900000,  
+#             12200000,  58100000,  11600000)
+#     mid=c(1.25e+08, 9.33e+07, 9.10e+07, 5.04e+07, 4.84e+07, 6.10e+07, 5.99e+07, 4.56e+07, 
+#           4.90e+07, 4.02e+07, 5.37e+07, 3.58e+07, 1.79e+07, 1.76e+07, 1.90e+07, 3.66e+07, 
+#           2.40e+07, 1.72e+07, 2.65e+07, 2.75e+07, 1.32e+07, 1.47e+07, 6.06e+07, 1.25e+07)
+#     end=c(128900000,  96800000,  93900000,  52700000,  50700000,  63300000,  61700000,  
+#           48100000,  50700000,  42300000,  55700000,  38200000,  19500000,  19100000,  
+#           20700000,  38600000,  25800000,  19000000,  28600000,  29400000,  14300000,  
+#           17900000,  63000000,  13400000)
+#     return(data.frame(c,chr,length,start,mid,end))
+# }
 
 
 
@@ -1386,7 +1433,7 @@ sum_regionSet <- function(chroms, chromData, genes,
          main=paste(comparison,'frequency'), cex.main=2,
          xlab=NA,#'',#Genomic position (??????=significance)',
          ylab=NA,#'Alteration frequency difference (% units)', cex.lab=2,
-         xlim = c(0,sum(chroms$length)),
+         xlim = c(0,sum(as.numeric(chroms$length))),
          ylim = ylim,
          yaxt="n",
          xaxt="n"
@@ -1423,7 +1470,7 @@ sum_regionSet <- function(chroms, chromData, genes,
     
     ## The vertical lines
     segments(
-        x0=c(chroms$before,sum(chroms$length)),x1=c(chroms$before,sum(chroms$length)),
+        x0=c(chroms$before,sum(as.numeric(chroms$length))),x1=c(chroms$before,sum(as.numeric(chroms$length))),
         y0= -15,y1=100,                
         col='#000000',
         lwd=1
@@ -1431,7 +1478,7 @@ sum_regionSet <- function(chroms, chromData, genes,
     
     # Horizontal lines
     segments(
-        x0=0,x1=sum(chroms$length),
+        x0=0,x1=sum(as.numeric(chroms$length)),
         y0=seq(0,80,10),y1=seq(0,80,10),                
         col='#00000070',
         lwd=1,lty=3
@@ -1442,7 +1489,7 @@ sum_regionSet <- function(chroms, chromData, genes,
          labels=abs(seq(0,100,20)), pos=0,
          cex.axis=2,tck=-0.01, las=2)
     axis(4,at=seq(0,100,20), 
-         labels=abs(seq(0,100,20)), pos=sum(chroms$length),
+         labels=abs(seq(0,100,20)), pos=sum(as.numeric(chroms$length)),
          cex.axis=2,tck=-0.01, las=2)
     dev.off()  
 }
@@ -1564,7 +1611,7 @@ compare_regionSet <- function(chroms, chromData, genes,
          main=paste(comparison,' frequency difference, ', name1, ' (', n1, ') vs ', name2, ' (', n2, ')', sep=''), cex.main=2,
          xlab=NA,#'',#Genomic position (??????=significance)',
          ylab=NA,#'Alteration frequency difference (% units)', cex.lab=2,
-         xlim = c(0,sum(chroms$length)),
+         xlim = c(0,sum(as.numeric(chroms$length))),
          ylim = ylim,
          yaxt="n",
          xaxt="n"
@@ -1696,20 +1743,25 @@ compare_regionSet <- function(chroms, chromData, genes,
 # Added TAPS plot functionality
 #------------------------------------------------------------
 
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
+# #######  ##     ## ######## ########  ##     ## #### ######## ##      ## ########  ##        #######  ######## 
+###     ## ##     ## ##       ##     ## ##     ##  ##  ##       ##  ##  ## ##     ## ##       ##     ##    ##    
+###     ## ##     ## ##       ##     ## ##     ##  ##  ##       ##  ##  ## ##     ## ##       ##     ##    ##    
+###     ## ##     ## ######   ########  ##     ##  ##  ######   ##  ##  ## ########  ##       ##     ##    ##    
+###     ##  ##   ##  ##       ##   ##    ##   ##   ##  ##       ##  ##  ## ##        ##       ##     ##    ##    
+###     ##   ## ##   ##       ##    ##    ## ##    ##  ##       ##  ##  ## ##        ##       ##     ##    ##    
+# #######     ###    ######## ##     ##    ###    #### ########  ###  ###  ##        ########  #######     ##                                                            
 
-
-OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-1,1.5),ylim=c(0,1),MAPD,MHOF)
+OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-1,1.5),ylim=c(0,1),MAPD,MHOF)
 {
-    ideogram=getIdeogram()
+
+    if(hg18==T)
+        {
+        chroms=chroms_hg18
+        chromData=chromData_hg18
+        chroms$length=as.numeric(chroms$length)
+        }
+
+    #ideogram=getIdeogram()
     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
     colors_q <- colorRampPalette(c("#CC0099","#CC0000"),space="rgb")
     
@@ -1770,10 +1822,10 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
     
     #nchr=24; if (sum(chr=='chrY')==0) nchr=23
     #Loop over and plot the 24 chromosomes
-    for (c in 1:24) 
+    for (c in 1:23) 
     {
         #Pick a chromosome
-        this <- ideogram[ideogram$c==c,]
+        this <- chroms[chroms$c==c,]
         #Extract that chromosomes information
         ix <- chr==as.character(this$chr)
         x <- chr=='chrX'
@@ -1864,10 +1916,10 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
     
     #Calculate previous distance of whole genome so the next chromsome is added
     #at the correct coordinate
-    pre=rep(NA,24)
-    for (c in 1:24)
+    pre=rep(NA,23)
+    for (c in 1:23)
     {
-        this <- ideogram[ideogram$c==c,]
+        this <- chroms[chroms$c==c,]
         ix <- chr==as.character(this$chr)
         mix <- mchr==as.character(this$chr) #& mval>=(-2)
         six <- schr==as.character(this$chr)
@@ -1887,7 +1939,7 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
         
         if(c>1)
         {
-            prelength=prelength+ideogram$length[ideogram$c==(c-1)]
+            prelength=prelength+chroms$length[chroms$c==(c-1)]
         }
         else
         {
@@ -1899,7 +1951,7 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
         #Start and end used for colored segment placement (Adding whole preceding genome to each position)
         start[ix] = start[ix] + prelength
         end[ix] = end[ix] + prelength
-        #pre used to position chromsome markers. Seen bottom of plot.
+        #pre used to position chromosome markers. Seen bottom of plot.
         pre[c] = prelength+(this$length/2)
         #spos used later for allelic imbalance plot. Same principle as mpos.
         spos[six] = spos[six] + prelength
@@ -1942,9 +1994,9 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
         lwd=1)
     
     #Add colored segment information for each chromosome, red to blue gradient.
-    for(c in 1:24)
+    for(c in 1:23)
     {
-        this <- ideogram[ideogram$c==c,]
+        this <- chroms[chroms$c==c,]
         ix <- chr==as.character(this$chr)
         col <- rep('#B0B0B030',length(chr))       
         col[ix & (pos < this$mid)] <- paste(colors_p(sum(ix & (pos < this$mid))), '70', sep='')  
@@ -2036,7 +2088,7 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
     
     #Add axis to the left,right and below of AI. The below axis is the chromosome numbers 1-24.
     axis(side=2,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
-    axis(side=1,at=pre,pos=0,labels=c(seq(from="1",to="22"),"X","Y"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
+    axis(side=1,at=pre,pos=0,labels=c(seq(from="1",to="22"),"X"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
     axis(side=4,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=max(mpos),las=1) #
     mtext("Allele frequency",side=2,line=0)
     mtext("Chromosomes",side=1,line=1.5,adj=0.4)
@@ -2058,22 +2110,33 @@ OverviewPlot <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,
 }
 
 
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
+###    ##    ###    ########  ##    ##  #######  ######## ##    ## ########  ######## 
+###   ##    ## ##   ##     ##  ##  ##  ##     ##    ##     ##  ##  ##     ## ##       
+###  ##    ##   ##  ##     ##   ####   ##     ##    ##      ####   ##     ## ##       
+######    ##     ## ########     ##    ##     ##    ##       ##    ########  ######   
+###  ##   ######### ##   ##      ##    ##     ##    ##       ##    ##        ##       
+###   ##  ##     ## ##    ##     ##    ##     ##    ##       ##    ##        ##       
+###    ## ##     ## ##     ##    ##     #######     ##       ##    ##        ######## 
+
+
+# ######  ##     ## ########   #######  ##     ##  ######  
+###    ## ##     ## ##     ## ##     ## ###   ### ##    ## 
+###       ##     ## ##     ## ##     ## #### #### ##       
+###       ######### ########  ##     ## ## ### ##  ######  
+###       ##     ## ##   ##   ##     ## ##     ##       ## 
+###    ## ##     ## ##    ##  ##     ## ##     ## ##    ## 
+# ######  ##     ## ##     ##  #######  ##     ##  ######  
 
 #Function for generating individual plots for TAPS_call. Gives whole genome, log-ratio, cytoband and allele frequency.
-karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-2,2),ylim=0:1,MAPD,MHOF)  
+karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-2,2),ylim=0:1,MAPD,MHOF)  
 {   
-    
+    if(hg18==T)
+    {
+    chroms=chroms_hg18
+    chromData=chromData_hg18
+    }
     #Get ideogram  
-    ideogram=getIdeogram()
+    #ideogram=getIdeogram()
     
     #Set color gradient for p and q arm of chromosome
     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
@@ -2101,7 +2164,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
     {
         
         #Select the chromosome
-        this <- ideogram[ideogram$c==c,]
+        this <- chroms[chroms$c==c,]
         
         #Initialize jpeg
         jpeg(paste(name,'_karyotype.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
@@ -2148,7 +2211,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         
         #Go to screen 4
         screen(4)
-        
+
         #Set marginals, outer marginals and mgp(which is for xlab,ylab,ticks and axis)
         par(mar = c(0, 0, 0, 0))
         par(oma = c(0,0,0,0))
@@ -2358,7 +2421,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
         axis(side=2,tck=0.926,col.ticks='#80808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
         axis(side=4,tck=0,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=this$length,las=1)
         axis(side=1,tck=0.925,col='#80808000',col.ticks='#80808040',at=seq(5e6,this$length,by=5e6),
-             labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
+             labels=paste(seq(5,floor(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
         #axis(side=1,tck=0.926,col='#80808040',at=seq(5e6,this$length,by=5e6),
         #     labels=FALSE,cex.axis=0.6,pos=ymin)
 #         axis(side=1,tck=0,pos=0,at=c(0,max(mpos)),
@@ -2376,22 +2439,32 @@ karyotype_chroms <- function(chr,start,end,int,ai,ideogram=NULL,mchr,mpos,mval,s
     }
 }
 
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
+###    ##    ###    ########  ##    ##  #######  ######## ##    ## ########  ######## 
+###   ##    ## ##   ##     ##  ##  ##  ##     ##    ##     ##  ##  ##     ## ##       
+###  ##    ##   ##  ##     ##   ####   ##     ##    ##      ####   ##     ## ##       
+######    ##     ## ########     ##    ##     ##    ##       ##    ########  ######   
+###  ##   ######### ##   ##      ##    ##     ##    ##       ##    ##        ##       
+###   ##  ##     ## ##    ##     ##    ##     ##    ##       ##    ##        ##       
+###    ## ##     ## ##     ##    ##     #######     ##       ##    ##        ######## 
 
 
-karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mpos,mval,schr,spos,sval,t,name='',xlim=c(-1.02,1.82),ylim=0:1, maxCn=8,parameters)  
+# ######  ##     ## ########   #######  ##     ##  ######      ######  ##    ## 
+###    ## ##     ## ##     ## ##     ## ###   ### ##    ##    ##    ## ###   ## 
+###       ##     ## ##     ## ##     ## #### #### ##          ##       ####  ## 
+###       ######### ########  ##     ## ## ### ##  ######     ##       ## ## ## 
+###       ##     ## ##   ##   ##     ## ##     ##       ##    ##       ##  #### 
+###    ## ##     ## ##    ##  ##     ## ##     ## ##    ##    ##    ## ##   ### 
+# ######  ##     ## ##     ##  #######  ##     ##  ######      ######  ##    ## 
+
+karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,schr,spos,sval,t,name='',xlim=c(-1.02,1.82),ylim=0:1, maxCn=8,parameters)  
 {   
-    
+    if(hg18==T)
+        {
+        chroms=chroms_hg18
+        chromData=chromData_hg18
+        }
     #Get ideogram
-    ideogram=getIdeogram()
+    #ideogram=getIdeogram()
     
     #Set color gradient for p and q arm of chromosome
     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
@@ -2433,7 +2506,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
     for (c in 1:23) 
     {
         #Select the chromosome
-        this <- ideogram[ideogram$c==c,]
+        this <- chroms[chroms$c==c,]
         
         #Initialize jpeg
         jpeg(paste(name,'_karyotypeCN.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
@@ -2731,7 +2804,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
         axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
         axis(side=4,labels=F,tck=0,pos=this$length)
         axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
-             labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
+             labels=paste(seq(5,floor(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
         
         #Add X and Y label
         mtext("Allele frequency",side=2,line=0.3)
@@ -2746,15 +2819,13 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,ideogram=NULL,mchr,mp
     }
 }
 
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------------------------------------------------#
+#########    ###    ########   ######     ########  ########  ######   ####  #######  ##    ## 
+#   ##      ## ##   ##     ## ##    ##    ##     ## ##       ##    ##   ##  ##     ## ###   ## 
+#   ##     ##   ##  ##     ## ##          ##     ## ##       ##         ##  ##     ## ####  ## 
+#   ##    ##     ## ########   ######     ########  ######   ##   ####  ##  ##     ## ## ## ## 
+#   ##    ######### ##              ##    ##   ##   ##       ##    ##   ##  ##     ## ##  #### 
+#   ##    ##     ## ##        ##    ##    ##    ##  ##       ##    ##   ##  ##     ## ##   ### 
+#   ##    ##     ## ##         ######     ##     ## ########  ######   ####  #######  ##    ## 
 
 #------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------
@@ -2842,7 +2913,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     end = regs$end
     int = regs$logs
     ai = regs$scores
-    ideogram=NULL
+    #ideogram=NULL
     mchr = as.character(Log2$Chromosome)
     mpos =  Log2$Start
     mval =Log2$Value
@@ -2857,6 +2928,8 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     if(hg18==T)
     {
         kg = knownGene_hg18
+        chroms = chroms_hg18
+        chromData = chromData_hg18
     }
     else
     {
@@ -2869,7 +2942,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     #
     
     #Get ideogram  
-    ideogram=getIdeogram()
+    #ideogram=getIdeogram()
     
     #Set color gradient for p and q arm of chromosome
     colors_p <- colorRampPalette(c("#6600FF","#9900CC"),space="rgb")
@@ -2893,7 +2966,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     size[length>10000000]=4
     
     #Select the chromosome
-    this <- ideogram[ideogram$c==c,]
+    this <- chroms[chroms$c==c,]
     
     #Extract regions start an stop
     #region inputted in form start:stop
@@ -3132,7 +3205,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,hadj=1.3,las=1)
     axis(side=4,labels=F,tck=0,pos=this$length)
     axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
-         labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
+         labels=paste(seq(5,floor(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
     
     #Add a rectangle showing which region has been chosen
     rect(xleft=Rstart,xright=Rend,ybottom=0,ytop=1,col='#E8000040',lty=0)
@@ -3332,7 +3405,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     axis(side=2,tck=0.926,col.ticks='#808080',at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=Rstart,las=1)
     axis(side=4,labels=F,tck=0,pos=Rend)
     #axis(side=1,tck=0.925,col.ticks='#808080',at=seq(5e6,this$length,by=5e6),
-    #      labels=paste(seq(5,round(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
+    #      labels=paste(seq(5,floor(this$length/1e6),5),'',sep=''),cex.axis=0.6,pos=0)
     axis(side=1,cex.axis=0.6)
     
     #Add X and Y label

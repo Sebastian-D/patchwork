@@ -18,11 +18,15 @@ This package contains all functions used to run (and used by) Tumor Aberration P
 Updates: Check http://patchwork.r-forge.r-project.org/ as we intend to extend some functionality.
 }
 
+
 \usage{
 TAPS_plot(directory=NULL,bin=400)
 }
 
 \arguments{
+	%\item{samples}{
+	%Default is 'all'. Alternatively, supply a (boolean, integer or sample name) vector of included samples.
+	%}
 	\item{directory}{
 	Default is getwd(). Specifying to a specific samples directory will run TAPS_plot on that directory.
 	Specifying a directory containing one or more subdirectories that are samples (and not any other subdirectories

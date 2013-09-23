@@ -2,9 +2,25 @@ patchwork.plot <- function(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL
 							Reference=NULL,Alpha=0.0001,SD=1)
 	{
 
+	#Check that correct arguments are given
+	if(is.null(Tumor.bam))
+		{
+		stop("Usage: patchwork.plot(Tumor.bam,Tumor.pileup,Tumor.vcf=NULL,Normal.bam=NULL,Normal.pileup=NULL,Normal.vcf=NULL,Reference=NULL,Alpha=0.0001,SD=1) \n")
+		}
+		
 	if(is.null(Normal.bam) & is.null(Reference))
 		{
-		stop("You must give either a normal bam or a reference file for patchwork to run properly! \n")
+		stop("You must supply either a normal bam or a reference file for patchwork to run properly! \n")
+		}
+
+	if(!is.null(Normal.bam) & is.null(Normal.pileup))
+		{
+		stop("To use a normal sample you must supply the normal samples pileup (and if later version of samtools its VCF). See http://patchwork.r-forge.r-project.org/ -> Patchwork -> Requirements \n")
+		}
+
+	if(!is.null(Tumor.bam) & is.null(Tumor.pileup))
+		{
+		stop("You must supply a pileup of the tumor sample (and if later version of samtools its VCF). See http://patchwork.r-forge.r-project.org/ -> Patchwork -> Requirements ")
 		}
 
 	#Extract the name from tumor.bam
