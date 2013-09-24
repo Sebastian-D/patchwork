@@ -1601,6 +1601,9 @@ compare_regionSet <- function(chroms, chromData, genes,
     p_cutoff <- 0.05
     freq_cutoff <- 0
     
+    difcolor <- color
+    color <- colorRampPalette(c("#FFFFFF",color),space="rgb")(4)[2]
+    
     # Generate frequency plots            
     pile1 <- pileup(regs1); pile1$Percent <- 100*pile1$Count / n1
     pile2 <- pileup(regs2); pile2$Percent <- 100*pile2$Count / n2
@@ -1661,7 +1664,7 @@ compare_regionSet <- function(chroms, chromData, genes,
     data$e <- data$e+data$End
     data <- data[order(data$percent,decreasing=T),]
     
-    difcolor <- colorRampPalette(c("#FFFFFF",color),space="rgb")(4)[2]
+    #difcolor <- colorRampPalette(c("#FFFFFF",color),space="rgb")(4)[2]
     
     rect( 
         xleft=data$s, xright=data$e,
