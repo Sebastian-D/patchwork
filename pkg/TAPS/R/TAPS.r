@@ -46,6 +46,7 @@ TAPS_plot <- function(#samples='all',
     setwd(directory)
     subs <- getSubdirs()
     subs=subs[subs!='frequencies' & subs!='frequencies_comp']
+    subsToSampleData=NULL
     if (is.null(subs)) {                                         ## check samples = subdirectories or a single sample = current directory
         subs=thisSubdir()
         setwd('..')
@@ -54,7 +55,14 @@ TAPS_plot <- function(#samples='all',
     
    # create SampleData file if there is none.   
     if (length(grep('SampleData.xlsx',dir()))==0) {
-        sampleData <- data.frame(Sample=subsToSampleData,cn1= -0.5, cn2=0, cn3=NA, loh=0.7, MAPD=NA, MHOF=NA)
+        if(!is.null(subsToSampleData))
+            {
+            sampleData <- data.frame(Sample=subsToSampleData,cn1= -0.5, cn2=0, cn3=NA, loh=0.7, MAPD=NA, MHOF=NA)
+            }
+        else
+            {
+            sampleData <- data.frame(Sample=subs,cn1= -0.5, cn2=0, cn3=NA, loh=0.7, MAPD=NA, MHOF=NA)
+            }
         write.xlsx(sampleData,'SampleData.xlsx',row.names=F)
     } else {
         sampleData=read.xlsx('SampleData.xlsx',1)
