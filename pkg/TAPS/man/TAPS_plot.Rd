@@ -7,7 +7,7 @@
 
 
 \title{
-Tumor Abberation Prediction Suite
+Tumor Aberration Prediction Suite
 }
 
 \description{
