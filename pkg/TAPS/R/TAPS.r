@@ -16,7 +16,7 @@
 
 
 TAPS_plot <- function(#samples='all',
-                     directory=NULL,#xlim=c(-1,2),ylim=c(0,1),
+                     directory=NULL,autoEstimate=FALSE,
                       bin=400) {
     #Automatically check, and if needed install, packages stats and fields
     
@@ -57,11 +57,11 @@ TAPS_plot <- function(#samples='all',
     if (length(grep('SampleData.xlsx',dir()))==0) {
         if(!is.null(subsToSampleData))
             {
-            sampleData <- data.frame(Sample=subsToSampleData,cn1= -0.5, cn2=0, cn3=NA, loh=0.7, MAPD=NA, MHOF=NA)
+            sampleData <- data.frame(Sample=subsToSampleData,cn1= NA, cn2=NA, cn3=NA, loh=NA, MAPD=NA, MHOF=NA)
             }
         else
             {
-            sampleData <- data.frame(Sample=subs,cn1= -0.5, cn2=0, cn3=NA, loh=0.7, MAPD=NA, MHOF=NA)
+            sampleData <- data.frame(Sample=subs,cn1= NA, cn2=NA, cn3=NA, loh=NA, MAPD=NA, MHOF=NA)
             }
         write.xlsx(sampleData,'SampleData.xlsx',row.names=F)
     } else {
@@ -213,6 +213,23 @@ TAPS_plot <- function(#samples='all',
         karyotype_chroms(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                          as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,
                          alf$Value,name=name,MAPD=MAPD,MHOF=MHOF)
+        
+        ## Finally add estimates if needed:
+        e=NULL
+        if (is.logical(autoEstimate)) {
+            if (length(autoEstimate)>1) {
+                if (autoEstimate[i]) e=getEstimates(regs$logs,regs$scores)
+            } else if (autoEstimate[1]) e=getEstimates(regs$logs,regs$scores)
+        } else if (is.numeric(autoEstimate)) { 
+            if (i %in% autoEstimate) e=getEstimates(regs$logs,regs$scores)
+        } else if (is.character(autoEstimate)) if (name %in% autoEstimate)
+            e=getEstimates(regs$logs,regs$scores)
+        if (!is.null(e)) {
+            sampleData$cn1=e[1]
+            sampleData$cn2=e[2]
+            sampleData$cn3=e[3]
+            sampleData$loh=e[4]
+        }
         
         cat('..done\n')
         setwd('..')
@@ -1597,7 +1614,7 @@ compare_regionSet <- function(chroms, chromData, genes,
                               comparison='', 
                               name1='1', name2='2', 
                               color='#000000') {    
-    
+
     p_cutoff <- 0.05
     freq_cutoff <- 0
     
@@ -2099,7 +2116,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     
     #Add axis to the left,right and below of AI. The below axis is the chromosome numbers 1-24.
     axis(side=2,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
-    axis(side=1,at=pre,pos=0,labels=c(seq(from="1",to="22"),"X"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
+    axis(side=1,at=pre,pos=0,labels=c(seq(from=1,to=22),"X"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
     axis(side=4,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=max(mpos),las=1) #
     mtext("Allele frequency",side=2,line=0)
     mtext("Chromosomes",side=1,line=1.5,adj=0.4)
@@ -3435,6 +3452,71 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
 
 
 
+
+getEstimates <- function(logR, imba) {
+    #load('shortRegions.Rdata')
+    #logR=allRegions$regions$log2[allRegions$regions$lengthMB>5]
+    #imba=allRegions$regions$imba[allRegions$regions$lengthMB>5]
+    #logR=regs$logs
+    #imba=regs$scores
+    
+    # Find the max point, that is likely an integer copy number.
+    d=density(logR[abs(logR)<0.15],na.rm=T)
+    max=d$x[order(d$y,decreasing=T)][1]
+    
+    # Find optimal logR's for integer copy numbers
+    R=2^logR-2^max
+    deltas=seq(0.05,0.5,0.01) # Allow a delta-ratio of 5% to 50%
+    n=length(deltas)
+    dev=rep(NA,n)
+    for (i in 1:n) { 
+        delta=deltas[i]
+        mod=R %% delta
+        mod[mod>(delta/2)]=delta-mod[mod>(delta/2)]
+        dev[i]=mean(mod)
+    }
+    
+    best=deltas[dev/deltas==min(dev/deltas)]
+    
+    # guess the copy number at "max"
+    imbas=imba[abs(R)<best/4]
+    imbas=imbas[!is.na(imbas)]
+    d=density(imbas,na.rm=T)
+    n=length(d$y)
+    maxes=which(diff(d$y[1:(n-1)])>0 & diff(d$y[2:n])<0)
+    ## remove crappy maxes:
+    maxes=maxes[d$y[maxes] > 0.05*max(d$y[maxes])]
+    
+    cn=3
+    if (d$x[maxes][1]<0.15) # even copy number
+        cn=2
+    if (length(maxes)>2)
+        if (min(diff(maxes))/max(diff(maxes))>0.7)
+            cn=4
+    if (length(maxes)==1)
+        if (d$x[maxes]>0.35)
+            cn=1
+    
+    cn1=log2(2^max-(cn-1)*best)
+    try(cn1 <- median(logR[abs(logR-cn1)<0.1]),silent=T)
+    cn2=log2(2^max-(cn-2)*best)
+    try(cn2 <- median(logR[abs(logR-cn2)<0.1]),silent=T)
+    cn3=log2(2^max-(cn-3)*best)
+    try(cn3 <- median(logR[abs(logR-cn3)<0.1]),silent=T)
+
+    
+    R2=2^cn2
+    imba2=imba[abs(2^logR-R2)<best/4]
+    d=density(imba2,na.rm=T)
+    n=length(d$y)
+    maxes=which(diff(d$y[1:(n-1)])>0 & diff(d$y[2:n])<0)
+    ## remove crappy maxes:
+    maxes=maxes[d$y[maxes] > 0.05*max(d$y[maxes])]
+    if (length(maxes)==1) {
+        loh=0.75
+    } else loh=d$x[maxes[length(maxes)]]
+    return(round(c(cn1,cn2,cn3,loh),2))
+}
 
 
 
