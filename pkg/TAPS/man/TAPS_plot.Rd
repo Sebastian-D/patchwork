@@ -68,9 +68,10 @@ Optionally (recommended) also put segments.txt in your sample folder.
 Workflow:\cr
 1. From the folder containing your samples (sample folders) run TAPS_plot(). \cr
 2. Investigate the scatter plots generated in your sample folders. \cr
-3. To proceed with copy number calls, find and open the file "SampleData.txt". \cr
-4. For each sample, enter an interpretation of Log-Ratio @ copy number 2 ("cn2"), the difference in
-   Log-Ratio to a deletion ("delta") and the allelic imbalance ratio of CNNLOH ("loh"). Save the file. \cr
+3. To proceed with copy number calls, find and open the file "SampleData.xlsx". \cr
+4. For each sample, enter an interpretation of Log-Ratio @ copy number 1-3 ("cn1-3",
+   two+ of the three values are required) and the allelic imbalance ratio of LOH and 
+   cn2 ("loh"). Save the file. \cr
 5. Run TAPS_call(). \cr
 6. Inspect the karyotype_check images, and the new chromosome-wise images. \cr
 7. If all looks reasonable, you will find good copy number estimates in 'Copynumbers.csv'. \cr
