@@ -3461,10 +3461,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
 }
 
 
-
-
-
-getEstimates <- function(logR, imba) {
+getEstimates <- function(logR, imba, cellLines=F) {
     #load('shortRegions.Rdata')
     #logR=allRegions$regions$log2[allRegions$regions$lengthMB>5]
     #imba=allRegions$regions$imba[allRegions$regions$lengthMB>5]
@@ -3496,7 +3493,7 @@ getEstimates <- function(logR, imba) {
     n=length(d$y)
     maxes=which(diff(d$y[1:(n-1)])>0 & diff(d$y[2:n])<0)
     ## remove crappy maxes:
-    maxes=maxes[d$y[maxes] > 0.05*max(d$y[maxes])]
+    maxes=maxes[d$y[maxes] > 0.1*max(d$y[maxes])]
     
     cn=3
     if (d$x[maxes][1]<0.15) # even copy number
