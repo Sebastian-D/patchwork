@@ -3474,7 +3474,7 @@ getEstimates <- function(logR, imba, cellLines=F) {
     
     # Find optimal logR's for integer copy numbers
     R=2^logR-2^max
-    deltas=seq(0.05,0.5,0.01) # Allow a delta-ratio of 5% to 50%
+    deltas=seq(0.05,0.33,0.01) # Allow a delta-ratio of 5% to 50%
     n=length(deltas)
     dev=rep(NA,n)
     for (i in 1:n) { 
