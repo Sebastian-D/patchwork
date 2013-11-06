@@ -28,7 +28,7 @@ TAPS_call(samples='all',directory=getwd())
 
 \details{
 TAPS_call is the second step in the TAPS analysis, to be run after TAPS_plot. It requires: \cr
-1) Your interpretation of plots which you add to the SampleData.xlsx file: \cr
+1) Your interpretation of plots which you add to the SampleData.csv file: \cr
     cn1-cn3: The log-ratio of copy number 1-3 (in the main clone), any two or three of these values are required. \cr
     loh: The allelic imbalance of copy number 2 LOH. \cr
     (Default values are fine for fairly pure, near-diploid samples) \cr
