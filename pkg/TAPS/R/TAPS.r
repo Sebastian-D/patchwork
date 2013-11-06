@@ -735,7 +735,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
     tix$cn1 <- abs(regions$log2 - expectedAt) < diff(est)[1]/3        ## index of likely cn1 regions
     temp <- regions[tix$cn1,]
     med <- weightedMedian(temp$log2,temp$probes)
-    probes[1] <- sum(temp$probes)
+    probes[1] <- ifelse(is.null(med), 50, sum(temp$probes))
     int[1] <- ifelse(!is.null(med),med,expectedAt)
     
     ## likely cn3 regions sit near estimate
@@ -743,7 +743,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
     tix$cn3 <- abs(regions$log2 - expectedAt) < diff(est)[2]/3
     temp <- regions[tix$cn3,]
     med <- weightedMedian(temp$log2,temp$probes)
-    probes[3] <- sum(temp$probes)
+    probes[3] <- ifelse(is.null(med), 50, sum(temp$probes))
     int[3] <- ifelse(!is.null(med),med,expectedAt)
     
     ## cn4 follows at ...
@@ -752,7 +752,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
     tix$cn4 <- abs(regions$log2 - expectedAt) < mean(diff(int))/3
     temp <- regions[tix$cn4,]
     med <- weightedMedian(temp$log2,temp$probes)
-    probes[4] <- sum(temp$probes)
+    probes[4] <- ifelse(is.null(med), 50, sum(temp$probes))
     int[4] <- ifelse(!is.null(med),med,expectedAt)
     
     ## generalized for higher cns
@@ -765,7 +765,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
         tix[[thisCn]] <- abs(regions$log2 - expectedAt) < mean(diff(int))/5
         temp <- regions[tix[thisCn][[1]],]
         med <- weightedMedian(temp$log2,temp$probes)
-        probes[cn] <- sum(temp$probes)
+        probes[cn] <- ifelse(is.null(med), 0, sum(temp$probes))
         int[cn] <- ifelse(!is.null(med),med,expectedAt)
     }
     
