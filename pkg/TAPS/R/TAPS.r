@@ -1924,6 +1924,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     par(mar = c(0, 0, 0, 0))
     par(oma = c(0,0,0,0))
     par(mgp =c(1,0.5,0))
+    par(lend=1)
     
     #Calculate previous distance of whole genome so the next chromsome is added
     #at the correct coordinate
@@ -2099,7 +2100,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     
     #Add axis to the left,right and below of AI. The below axis is the chromosome numbers 1-24.
     axis(side=2,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
-    axis(side=1,at=pre,pos=0,labels=c(seq(from="1",to="22"),"X"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
+    axis(side=1,at=pre,pos=0,labels=c(seq(from=1,to=22),"X"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
     axis(side=4,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=max(mpos),las=1) #
     mtext("Allele frequency",side=2,line=0)
     mtext("Chromosomes",side=1,line=1.5,adj=0.4)
@@ -2288,6 +2289,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
         par(mar = c(0, 0, 0, 0))
         par(oma = c(0,0,0,0))
         par(mgp =c(0.5,0.25,0))
+        par(lend=1)
         
         #Select the correct chromosome and remove stuff lower than -1 
         mix <- mchr==as.character(this$chr) #& mval>(-1)
@@ -2644,6 +2646,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         par(mar = c(0, 0, 0, 0))
         par(oma = c(0,0,0,0))
         par(mgp =c(0.5,0.25,0))
+        par(lend=1)
         
         #Set colors for total and minor copynumber
         col=rep('#000000',sum(ix))
@@ -2690,6 +2693,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         par(mar = c(0, 0, 0, 0))
         par(oma = c(0,0,0,0))
         par(mgp =c(0.5,0.25,0))
+        par(lend=1)
         
         #Select the correct chromosome and remove stuff lower than -1 
         mix <- mchr==as.character(this$chr) #& mval>(-1)
@@ -3071,6 +3075,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     par(mar = c(0, 0, 0, 0))
     par(oma = c(0,0,0,0))
     par(mgp =c(0.5,0,0))
+    par(lend=1)
     par(xpd=T)
     
     #Select the correct chromosome and remove stuff lower than -1 
