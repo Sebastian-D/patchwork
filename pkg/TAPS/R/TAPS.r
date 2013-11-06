@@ -54,7 +54,7 @@ TAPS_plot <- function(#samples='all',
     }
     
    # create SampleData file if there is none.   
-    if (length(grep('SampleData.xlsx',dir()))==0) {
+    if (length(grep('SampleData.csv',dir()))==0) {
         if(!is.null(subsToSampleData))
             {
             sampleData <- data.frame(Sample=subsToSampleData,cn1= NA, cn2=NA, cn3=NA, loh=NA, MAPD=NA, MHOF=NA)
@@ -63,9 +63,9 @@ TAPS_plot <- function(#samples='all',
             {
             sampleData <- data.frame(Sample=subs,cn1= NA, cn2=NA, cn3=NA, loh=NA, MAPD=NA, MHOF=NA)
             }
-        write.xlsx(sampleData,'SampleData.xlsx',row.names=F)
+        save.txt(sampleData,'SampleData.csv')
     } else {
-        sampleData=read.xlsx('SampleData.xlsx',1)
+        sampleData=load.txt('SampleData.csv')
     }
 
     #if (samples[1]=='all') samples=rep(T,length(subs))
@@ -234,7 +234,7 @@ TAPS_plot <- function(#samples='all',
         cat('..done\n')
         setwd('..')
     }
-    write.xlsx(sampleData,'SampleData.xlsx',row.names=F)
+    write.txt(sampleData,'SampleData.csv')
 }
 ###
 
@@ -252,6 +252,7 @@ TAPS_call <- function(samples='all',directory=getwd()) {
     maxCn=12
     suppressPackageStartupMessages(library(xlsx))    
     
+    
     ## TAPS_call outputs the total and minor allele copy numbers of all segments as a text file, and as images for visual confirmation.
     ## sampleInfo_TAPS.txt must be present in each sample folder. If TAPS_plot could not make a good guess of the Log-R of copy number 2 
     ## and the Log-R difference to a deletion, you must interpret the scatter plots and edit sampleInfo_TAPS.txt.
@@ -267,13 +268,23 @@ TAPS_call <- function(samples='all',directory=getwd()) {
     setwd(directory)
     #subs <- getSubdirs()
     
-    if (length(grep('SampleData.xlsx',dir()))==1)
+    if (length(grep('SampleData.csv',dir()))==0)
     {
-        sampleData=read.xlsx('SampleData.xlsx',1)
+        if (length(grep('SampleData.xlsx',dir()))==1)
+        {
+            sampleData=read.xlsx('SampleData.xlsx',1)
+            save.txt(sampleData,'SampleData.csv')
+        }
+        sampleData=load.txt('SampleData.csv')
+    }
+    
+    if (length(grep('SampleData.csv',dir()))==1)
+    {
+        sampleData=load.txt('SampleData.csv')
     }
     else
     {
-        sampleData <- read.xlsx('../SampleData.xlsx',1)
+        sampleData <- load.txt('../SampleData.csv')
     }
     subs=as.character(sampleData$Sample)
     
@@ -290,15 +301,15 @@ TAPS_call <- function(samples='all',directory=getwd()) {
     for (i in 1:length(subs)) {
         setwd(subs[i])
         name <- subs[i]
-        sampleInfo <- sampleData[sampleData$Sample==subs[i],2:5]
-        if (nrow(sampleInfo)==1) {
+        sampleInfo <- sampleData[i,c('cn1','cn2','cn3','loh')]
+        if (nrow(sampleInfo)==1) if (sum(is.na(sampleInfo))<4) {
             
             cat(' ..loading', subs[i])
             Log2 <- readLog2()
             alf <- readAlf(localDir)
             segments <- readSegments()
             
-            #Some samples throw NA values, we simply remove these.
+            #Some samples contain NA values, we simply remove these.
             Log2=Log2[!is.nan(Log2$Value),]
             Log2=Log2[!is.na(Log2$Value),]
             
@@ -700,7 +711,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
     ## the Log-R and Allelic Imbalance Ratio of all the segments. 
     if (is.null(sampleInfo)) cat ('there was no estimation available for',name)
     
-    cns=1:maxCn; est=sampleInfo[1:3]; est[est==' ']=NA; est=as.numeric(est)
+    cns=1:maxCn; est=sampleInfo[1:3]; est[est==' ']=NA; est=as.numeric(as.character(est))
     m <- lm(2^est ~ cns[1:3])$coefficients # can handle one NA in est. This model is for "ratio as a function of copy number".
     est[is.na(est)] = log2(m[1]+cns[which(is.na(est))]*m[2]) # simple linear regression to fill the missing
     
@@ -950,10 +961,10 @@ setCNs <- function(allRegions,int,ai,model,maxCn=12) {
         for (cn in 0:maxCn) {
             t_int <- int[[paste('cn',cn,sep='')]]   ## get Log-R of particular cn from 'int'
             t_dis <- abs(regions$log2[i]-t_int)            ## distance to that particular cn
-            if (t_dis < distance) {                        ## nearest so far, save.
+            try (if (t_dis < distance) {                        ## nearest so far, save.
                 distance <- t_dis -> intDist[i]
                 Cn[i] <- cn
-            }
+            }, silent=T)
         }
     }        
 
@@ -973,10 +984,10 @@ setCNs <- function(allRegions,int,ai,model,maxCn=12) {
             t_ai <- ai[paste('cn',Cn[i],'m',m,sep='')][[1]]
             t_dis <- abs(regions$imba[i]-t_ai)
             #cat('Line',i,'Cn', Cn[i],'m:',m,'Comparing',t_dis,'with',t_int,'.......')
-            if (t_dis < distance) {
+            try( if (t_dis < distance) {
                 distance <- t_dis -> imbaDist[i]
                 mCn[i] <- m
-            }
+            }, silent=T)
         } else mCn[i] <- NA
         #fullCN[i] <- paste('cn',Cn[i],'m',mCn[i],sep='') # Full description
     }
@@ -1361,7 +1372,7 @@ TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
     
     suppressPackageStartupMessages(library(xlsx))    
     
-    sampleData <- read.xlsx('SampleData.xlsx',1)
+    sampleData <- load.txt('SampleData.txt')
     olddir <- getwd()
     if (!is.na(outdir)) {
         try(dir.create(outdir), silent=T)
@@ -1524,7 +1535,7 @@ TAPS_compare <- function(grp1, grp2, name1='1', name2='2', outdir='frequencies_c
     
     suppressPackageStartupMessages(library(xlsx))    
 
-    sampleData=read.xlsx('SampleData.xlsx',1)
+    sampleData=load.txt('SampleData.txt')
     
     subs=as.character(sampleData$Sample)
     
@@ -2643,11 +2654,11 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         #Check if name of sample is too long to be graphically pleasing and cut it if that is the case
         if(nchar(name)>12)
         {
-            mtext(paste("Detailed view with copynumbers of sample: ",substring(name,1,12),"\n Chromsome ",c,sep=""),side=3)
+            mtext(paste("Sample: ",substring(name,1,12),"\n Chromsome ",c,sep=""),side=3)
         }
         else
         {
-            mtext(paste("Detailed view with copynumbers of sample: ",name,"\n Chromsome ",c,sep=""),side=3)
+            mtext(paste("Sample: ",name,"\n Chromsome ",c,sep=""),side=3)
         }
         
         #------------------------------------------------------------
@@ -3075,7 +3086,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     #Titles,date/time and axis labels
     mtext(text="log-ratio",side=1,line=1.1,cex=1)
     mtext(text="Allelic imbalance",side=2,line=1.5,cex=1)
-    mtext(paste("Detailed view of sample: ",name,"\n Chromosome ",c,", Region: ",Rstart,"-",Rend,sep=""),side=3)
+    mtext(paste("Sample: ",name,"\n Chromosome ",c,", Region: ",Rstart,"-",Rend,sep=""),side=3)
     
     #------------------------------------------------------------
     #Top Right - Signal
