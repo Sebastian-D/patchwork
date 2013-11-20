@@ -334,7 +334,7 @@ TAPS_call <- function(samples='all',directory=getwd()) {
             
             u <- setCNs(allRegions,t$int,t$ai,t$model,maxCn)            ## Assigns copy number variant for all segments
             allRegions$regions <- u$regions
-            ## adjacent segments with idendical copy number are merged (except over centromere) and all are saved to a text file
+            ## adjacent segments with idendical copy number are NOT... merged (except over centromere) and all are saved to a text file
             save.txt(u$regions,file=paste(name,'_segmentCN.txt',sep='')) 
             regions=allRegions$regions
 
