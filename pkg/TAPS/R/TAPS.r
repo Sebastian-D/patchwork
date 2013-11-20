@@ -3505,7 +3505,7 @@ getEstimates <- function(logR, imba, cellLines=F) {
         if (d$x[maxes]>0.35)
             cn=1
     
-    cn1=log2(2^max-(cn-1)*best)
+    try(cn1=log2(2^max-(cn-1)*best),silent=T)
     try(cn1 <- median(logR[abs(logR-cn1)<0.1]),silent=T)
     cn2=log2(2^max-(cn-2)*best)
     try(cn2 <- median(logR[abs(logR-cn2)<0.1]),silent=T)
@@ -3515,6 +3515,7 @@ getEstimates <- function(logR, imba, cellLines=F) {
     
     R2=2^cn2
     imba2=imba[abs(2^logR-R2)<best/4]
+    if(sum(is.na(imba2)) > (length(imba2)/2) | length(imba2) < 4) return(c(NA,NA,NA,NA))
     d=density(imba2,na.rm=T)
     n=length(d$y)
     maxes=which(diff(d$y[1:(n-1)])>0 & diff(d$y[2:n])<0)
