@@ -13,11 +13,13 @@
 #   ##    ######### ##              ##    ##        ##       ##     ##    ##    
 #   ##    ##     ## ##        ##    ##    ##        ##       ##     ##    ##    
 #   ##    ##     ## ##         ######     ##        ########  #######     ##  
-
+#source('~/git/patchwork/pkg/TAPS/R/TAPS.r')
+# setwd('/media/safe/bjorn/TAPS-Try/NexusTxtFiles')
+# root <- '/media/safe/bjorn/TAPS-Try/NexusTxtFiles'
 
 TAPS_plot <- function(#samples='all',
                      directory=NULL,autoEstimate=FALSE,
-                      bin=400) {
+                      bin=400,cores=1) {
     #Automatically check, and if needed install, packages stats and fields
     
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
@@ -27,6 +29,9 @@ TAPS_plot <- function(#samples='all',
     suppressPackageStartupMessages(library(DNAcopy))
     suppressPackageStartupMessages(library(fields))
     suppressPackageStartupMessages(library(xlsx))    
+    suppressPackageStartupMessages(library(foreach))
+    suppressPackageStartupMessages(library(doMC))
+    suppressPackageStartupMessages(registerDoMC(cores=cores))
 
 
     #list.of.packages <- c("stats", "fields")
@@ -35,7 +40,7 @@ TAPS_plot <- function(#samples='all',
     
     if (is.null(directory))
     {
-        cat("Using working directory\n")
+        print("Using working directory")
         directory = "."
         #cat("You have not assigned a directory containing one or more folders of samples for TAPS_plot to execute. \n")
         #cat("Example: \"/user/mysamples/\" or, to run it in your current working directory, \".\" \n")
@@ -71,14 +76,22 @@ TAPS_plot <- function(#samples='all',
     #if (samples[1]=='all') samples=rep(T,length(subs))
     #if (is.logical(samples)) samples=which(samples)
     #subs=subs[samples]
+    root <- getwd()
+    print(paste('root: ',root,sep=''))
 
          
     
-    for (i in 1:length(subs)) {
-        setwd(subs[i])
+    # browser()
+    # for (i in 1:length(subs)) {
+    test <- foreach (i = 1:length(subs)) %dopar% {
+            print(i)
+            # browser()
+            # setwd(subs[i]) 
+        setwd(paste(root,'/',subs[i],sep=''))
         name <- subs[i]
         #if (length(grep('sampleData.csv',dir()))==0) save.txt(data.frame(Sample=name,cn2='',delta='',loh='',completed.analysis='no'),file='sampleData.csv')
-        cat(' ..loading', subs[i])
+        # cat(' ..loading', subs[i])
+        print(paste(i,': ',subs[i],': Opening',sep=''))
         
         if(length(grep("*.cyhd.cychp",dir()))==1)				##cyhd sample
         {
@@ -158,7 +171,7 @@ TAPS_plot <- function(#samples='all',
         segments <- segments[!is.na(segments$Value),]
         
         
-        cat(' ..processing')
+        # cat(' ..processing')
         if (is.null(segments)) {                                 ## segmentation using DNA-copy if needed (must then be installed)
             segments <- segment_DNAcopy(Log2)
             save.txt(segments,'_segments.txt') 
@@ -177,12 +190,20 @@ TAPS_plot <- function(#samples='all',
         }
         
         ## Sample QC 
-        sampleData$MAPD[i] <- MAPD <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
-        sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1)
+        # print(paste(i,': ',segments,', ',' sample QC',sep=''))
+        # sampleData$MAPD[i] <- MAPD <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
+        # sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1)
+        # print(round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2))
+        # print(round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1))
+
+        sampleData$MAPD[i] <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
+        sampleData$MHOF[i] <- round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1)
+
             #round(100*median(0.5+regs$hom[regs$scores<0.5],na.rm=T),1)        
         #MAID=round(median(abs(diff(regs$scores[!is.na(regs$scores)]))),3)
         
         #Save for TAPS_region()
+        print(paste(i,': taps_region()',sep=''))
         save(regs,Log2,alf,segments,file="TAPS_plot_output.Rdata")
         
         #save.txt(sampleData,file='../sampleData.csv')
@@ -201,18 +222,19 @@ TAPS_plot <- function(#samples='all',
             hg18=F
             }
 
-        cat('..plotting.\n')
+        # cat('..plotting.\n')
         
+        print(paste(i,': plotting',sep=''))
         OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                      as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
-                     name=name,MAPD=MAPD,MHOF=MHOF)                
+                     name=name,MAPD=sampleData$MAPD[i],MHOF=sampleData$MHOF[i])                
         
         ## Chromosome-wise plots for manual analysis
         regions=allRegions$regions
         
         karyotype_chroms(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                          as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,
-                         alf$Value,name=name,MAPD=MAPD,MHOF=MHOF)
+                         alf$Value,name=name,MAPD=sampleData$MAPD[i],MHOF=sampleData$MHOF[i])
         
         ## Finally add estimates if needed:
         e=NULL
@@ -231,10 +253,13 @@ TAPS_plot <- function(#samples='all',
             sampleData$loh=e[4]
         }
         
-        cat('..done\n')
-        setwd('..')
+        # cat('..done\n')
+        print(paste(i,': ',subs[i],': OK',sep=''))
+
+        setwd(root)
+        1
     }
-    write.txt(sampleData,'SampleData.csv')
+    # write.txt(sampleData,'SampleData.csv')
 }
 ###
 
@@ -454,7 +479,7 @@ readLog2 <- function() {
     ## This function reads Log-ratio from the file "probes.txt" which must be present in the current directory.
     Log2=NULL
     try( Log2 <- read.csv(file='probes.txt',header=T,sep='\t'), silent=T)
-    if (!is.null(Log2)) cat(' ..found probes.txt')
+    # if (!is.null(Log2)) cat(' ..found probes.txt')
     if (is.null(Log2)) {
         try( Log2 <- read.csv(file='_probes.txt',header=T,sep='\t'), silent=T)
         if (!is.null(Log2)) cat(' ..found _probes.txt')
@@ -493,7 +518,7 @@ readAlf <- function(localDir=NULL) {
     ## This funciton reads allele frequency [B/(A+B)] from the file 'snps.txt', which must be present in the current directory.
     alf=NULL
     try( alf <- read.csv(file='snps.txt',header=T,sep='\t'), silent=T)
-    if (!is.null(alf)) cat(' ..found snps.txt')
+    # if (!is.null(alf)) cat(' ..found snps.txt')
     if (is.null(alf)) {
         try( alf <- read.csv(file='_snps.txt',header=T,sep='\t'), silent=T)
         if (!is.null(alf)) cat(' ..found _snps.txt')
@@ -508,7 +533,7 @@ readSegments <- function() {
     ## Using a HMM is not recommended unless you have a homogenous, diploid sample. (And then there is more user-friendly software anyway.)
     segments=NULL
     try( segments <- read.csv(file='segments.txt',header=T,sep='\t'),silent=T)
-    if (!is.null(segments)) cat(' ..found segments.txt')
+    # if (!is.null(segments)) cat(' ..found segments.txt')
     if (is.null(segments)) { 
         try( segments <- read.csv(file='_segments.txt',header=T,sep='\t'),silent=T)
         if (!is.null(segments)) cat(' ..found _segments.txt')
