@@ -75,18 +75,16 @@ TAPS_plot <- function(#samples='all',
     #subs=subs[samples]
     root <- getwd()
     print(paste('root: ',root,sep=''))
-
-         
     
-    # browser()
     # for (i in 1:length(subs)) {
+    #junk only stores the list from foreach.
     junk <- foreach (i = 1:length(subs)) %dopar% {
-        print(i)
         setwd(paste(root,'/',subs[i],sep=''))
         name <- subs[i]
         #if (length(grep('sampleData.csv',dir()))==0) save.txt(data.frame(Sample=name,cn2='',delta='',loh='',completed.analysis='no'),file='sampleData.csv')
-        # cat(' ..loading', subs[i])
-        print(paste(i,': ',subs[i],': Opening',sep=''))
+        cat(' ..loading', subs[i])
+        # print(paste(i,': ',subs[i],': Opening',sep=''))
+        print(paste(i,'/',length(subs),': ',subs[i],' Loading',sep=''))
         
         if(length(grep("*.cyhd.cychp",dir()))==1)				##cyhd sample
         {
@@ -198,7 +196,7 @@ TAPS_plot <- function(#samples='all',
         #MAID=round(median(abs(diff(regs$scores[!is.na(regs$scores)]))),3)
         
         #Save for TAPS_region()
-        print(paste(i,': taps_region()',sep=''))
+        # print(paste(i,': taps_region()',sep=''))
         save(regs,Log2,alf,segments,file="TAPS_plot_output.Rdata")
         
         #save.txt(sampleData,file='../sampleData.csv')
@@ -218,8 +216,7 @@ TAPS_plot <- function(#samples='all',
             }
 
         # cat('..plotting.\n')
-        
-        print(paste(i,': plotting',sep=''))
+        # print(paste(i,': plotting',sep=''))
         OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                      as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
                      name=name,MAPD=sampleData$MAPD[i],MHOF=sampleData$MHOF[i])                
@@ -249,7 +246,8 @@ TAPS_plot <- function(#samples='all',
         }
         
         # cat('..done\n')
-        print(paste(i,': ',subs[i],': OK',sep=''))
+        # print(paste(i,': ',subs[i],': OK',sep=''))
+        print(paste(i,'/',length(subs),': ',subs[i],' OK',sep=''))
         setwd(root)
         1
     }
@@ -266,10 +264,13 @@ TAPS_plot <- function(#samples='all',
 #   ##    ##     ## ##         ######      ######  ##     ## ######## ######## 
 
 ###
-TAPS_call <- function(samples='all',directory=getwd()) {
+TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     minseg=1
     maxCn=12
     suppressPackageStartupMessages(library(xlsx))    
+    suppressPackageStartupMessages(library(foreach))
+    suppressPackageStartupMessages(library(doMC))
+    suppressPackageStartupMessages(registerDoMC(cores=cores))
     
     
     ## TAPS_call outputs the total and minor allele copy numbers of all segments as a text file, and as images for visual confirmation.
@@ -277,7 +278,7 @@ TAPS_call <- function(samples='all',directory=getwd()) {
     ## and the Log-R difference to a deletion, you must interpret the scatter plots and edit sampleInfo_TAPS.txt.
     if (is.null(directory))
     {
-        cat("No directory supplied, using working directory.")
+        print("No directory supplied, using working directory.")
         directory = "."
         #cat("You have not assigned a directory containing one or more folders of samples for TAPS_call to execute. \n")
         #cat("Example: \"/user/mysamples/\" or, to run it in your current working directory, \".\" \n")
@@ -317,13 +318,16 @@ TAPS_call <- function(samples='all',directory=getwd()) {
     if (is.logical(samples)) samples=which(samples)
     subs=subs[samples]
     
-    for (i in 1:length(subs)) {
+    # for (i in 1:length(subs)) {
+    #junk only stores the list from foreach.
+    junk <- foreach(i=1:length(subs)) %dopar% {
         setwd(subs[i])
         name <- subs[i]
         sampleInfo <- sampleData[i,c('cn1','cn2','cn3','loh')]
         if (nrow(sampleInfo)==1) if (sum(is.na(sampleInfo))<4) {
             
-            cat(' ..loading', subs[i])
+                # cat(' ..loading', subs[i])
+            print(paste(i,'/',length(subs),': ',subs[i],' Loading',sep=''))
             Log2 <- readLog2()
             alf <- readAlf(localDir)
             segments <- readSegments()
@@ -341,7 +345,7 @@ TAPS_call <- function(samples='all',directory=getwd()) {
             segments$Value <- segments$Value-mean(Log2$Value) 
             Log2$Value <- Log2$Value-mean(Log2$Value)
             
-            cat(' ..processing.\n')
+            # cat(' ..processing.\n')
             
             load('allRegions.Rdata')                            ## These were prepared in TAPS_plot
             load('shortRegions.Rdata')
@@ -384,12 +388,14 @@ TAPS_call <- function(samples='all',directory=getwd()) {
                                as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),
                                alf$Start,alf$Value,t,name=name,xlim=c(-1,1),ylim=c(0,1),parameters=parameters)
             
-            cat('..done\n')
-        } else cat('Skipped',name,'\n')
+            # cat('..done\n')
+            print(paste(i,'/',length(subs),': ',name,' ', 'OK',sep=''))
+        } else print(paste(i,'/',length(subs),': ',name,' ', 'Skipped',sep=''))
         
         setwd('..')
     }
     #save.txt(sampleData,file='sampleData.csv')
+    1
 }
 ###
 regsFromSegs <- function (Log2,alf, segments, bin=200,min=1) {
