@@ -13,9 +13,6 @@
 #   ##    ######### ##              ##    ##        ##       ##     ##    ##    
 #   ##    ##     ## ##        ##    ##    ##        ##       ##     ##    ##    
 #   ##    ##     ## ##         ######     ##        ########  #######     ##  
-#source('~/git/patchwork/pkg/TAPS/R/TAPS.r')
-# setwd('/media/safe/bjorn/TAPS-Try/NexusTxtFiles')
-# root <- '/media/safe/bjorn/TAPS-Try/NexusTxtFiles'
 
 TAPS_plot <- function(#samples='all',
                      directory=NULL,autoEstimate=FALSE,
@@ -83,10 +80,8 @@ TAPS_plot <- function(#samples='all',
     
     # browser()
     # for (i in 1:length(subs)) {
-    test <- foreach (i = 1:length(subs)) %dopar% {
-            print(i)
-            # browser()
-            # setwd(subs[i]) 
+    junk <- foreach (i = 1:length(subs)) %dopar% {
+        print(i)
         setwd(paste(root,'/',subs[i],sep=''))
         name <- subs[i]
         #if (length(grep('sampleData.csv',dir()))==0) save.txt(data.frame(Sample=name,cn2='',delta='',loh='',completed.analysis='no'),file='sampleData.csv')
@@ -255,7 +250,6 @@ TAPS_plot <- function(#samples='all',
         
         # cat('..done\n')
         print(paste(i,': ',subs[i],': OK',sep=''))
-
         setwd(root)
         1
     }
