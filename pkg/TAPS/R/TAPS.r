@@ -14,10 +14,9 @@
 #   ##    ##     ## ##        ##    ##    ##        ##       ##     ##    ##    
 #   ##    ##     ## ##         ######     ##        ########  #######     ##  
 
-
 TAPS_plot <- function(#samples='all',
                      directory=NULL,autoEstimate=FALSE,
-                      bin=400) {
+                      bin=400,cores=1) {
     #Automatically check, and if needed install, packages stats and fields
     
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
@@ -27,6 +26,9 @@ TAPS_plot <- function(#samples='all',
     suppressPackageStartupMessages(library(DNAcopy))
     suppressPackageStartupMessages(library(fields))
     suppressPackageStartupMessages(library(xlsx))    
+    suppressPackageStartupMessages(library(foreach))
+    suppressPackageStartupMessages(library(doMC))
+    suppressPackageStartupMessages(registerDoMC(cores=cores))
 
 
     #list.of.packages <- c("stats", "fields")
@@ -35,7 +37,7 @@ TAPS_plot <- function(#samples='all',
     
     if (is.null(directory))
     {
-        cat("Using working directory\n")
+        print("Using working directory")
         directory = "."
         #cat("You have not assigned a directory containing one or more folders of samples for TAPS_plot to execute. \n")
         #cat("Example: \"/user/mysamples/\" or, to run it in your current working directory, \".\" \n")
@@ -71,14 +73,18 @@ TAPS_plot <- function(#samples='all',
     #if (samples[1]=='all') samples=rep(T,length(subs))
     #if (is.logical(samples)) samples=which(samples)
     #subs=subs[samples]
-
-         
+    root <- getwd()
+    print(paste('root: ',root,sep=''))
     
-    for (i in 1:length(subs)) {
-        setwd(subs[i])
+    # for (i in 1:length(subs)) {
+    #junk only stores the list from foreach.
+    junk <- foreach (i = 1:length(subs)) %dopar% {
+        setwd(paste(root,'/',subs[i],sep=''))
         name <- subs[i]
         #if (length(grep('sampleData.csv',dir()))==0) save.txt(data.frame(Sample=name,cn2='',delta='',loh='',completed.analysis='no'),file='sampleData.csv')
-        cat(' ..loading', subs[i])
+        # cat(' ..loading', subs[i])
+        # print(paste(i,': ',subs[i],': Opening',sep=''))
+        print(paste(i,'/',length(subs),': ',subs[i],' Loading',sep=''))
         
         if(length(grep("*.cyhd.cychp",dir()))==1)				##cyhd sample
         {
@@ -158,11 +164,12 @@ TAPS_plot <- function(#samples='all',
         segments <- segments[!is.na(segments$Value),]
         
         
-        cat(' ..processing')
+        # cat(' ..processing')
         if (is.null(segments)) {                                 ## segmentation using DNA-copy if needed (must then be installed)
             segments <- segment_DNAcopy(Log2)
             save.txt(segments,'_segments.txt') 
         }
+        
         
         segments$Value <- segments$Value-mean(Log2$Value)     ## Median-centering
         Log2$Value <- Log2$Value-mean(Log2$Value)             ## Median-centering
@@ -177,12 +184,20 @@ TAPS_plot <- function(#samples='all',
         }
         
         ## Sample QC 
-        sampleData$MAPD[i] <- MAPD <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
-        sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1)
+        # print(paste(i,': ',segments,', ',' sample QC',sep=''))
+        # sampleData$MAPD[i] <- MAPD <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
+        # sampleData$MHOF[i] <- MHOF <- round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1)
+        # print(round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2))
+        # print(round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1))
+
+        sampleData$MAPD[i] <- round(median(abs(diff(Log2$Value[Log2$Chromosome=='chr1'][order(Log2$Start[Log2$Chromosome=='chr1'])]))),2)
+        sampleData$MHOF[i] <- round(100*median(0.5+abs(0.5-alf$Value[alf$Chromosome!='chrX'])),1)
+
             #round(100*median(0.5+regs$hom[regs$scores<0.5],na.rm=T),1)        
         #MAID=round(median(abs(diff(regs$scores[!is.na(regs$scores)]))),3)
         
         #Save for TAPS_region()
+        # print(paste(i,': taps_region()',sep=''))
         save(regs,Log2,alf,segments,file="TAPS_plot_output.Rdata")
         
         #save.txt(sampleData,file='../sampleData.csv')
@@ -201,18 +216,17 @@ TAPS_plot <- function(#samples='all',
             hg18=F
             }
 
-        cat('..plotting.\n')
-        
+        # cat('..plotting.\n')
         OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                      as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
-                     name=name,MAPD=MAPD,MHOF=MHOF)                
+                     name=name,MAPD=sampleData$MAPD[i],MHOF=sampleData$MHOF[i])                
         
         ## Chromosome-wise plots for manual analysis
         regions=allRegions$regions
         
         karyotype_chroms(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                          as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,
-                         alf$Value,name=name,MAPD=MAPD,MHOF=MHOF)
+                         alf$Value,name=name,MAPD=sampleData$MAPD[i],MHOF=sampleData$MHOF[i])
         
         ## Finally add estimates if needed:
         e=NULL
@@ -231,10 +245,13 @@ TAPS_plot <- function(#samples='all',
             sampleData$loh=e[4]
         }
         
-        cat('..done\n')
-        setwd('..')
+        # cat('..done\n')
+        # print(paste(i,': ',subs[i],': OK',sep=''))
+        print(paste(i,'/',length(subs),': ',subs[i],' OK',sep=''))
+        setwd(root)
+        1
     }
-    write.txt(sampleData,'SampleData.csv')
+    # write.txt(sampleData,'SampleData.csv')
 }
 ###
 
@@ -247,10 +264,13 @@ TAPS_plot <- function(#samples='all',
 #   ##    ##     ## ##         ######      ######  ##     ## ######## ######## 
 
 ###
-TAPS_call <- function(samples='all',directory=getwd()) {
+TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     minseg=1
     maxCn=12
     suppressPackageStartupMessages(library(xlsx))    
+    suppressPackageStartupMessages(library(foreach))
+    suppressPackageStartupMessages(library(doMC))
+    suppressPackageStartupMessages(registerDoMC(cores=cores))
     
     
     ## TAPS_call outputs the total and minor allele copy numbers of all segments as a text file, and as images for visual confirmation.
@@ -258,7 +278,7 @@ TAPS_call <- function(samples='all',directory=getwd()) {
     ## and the Log-R difference to a deletion, you must interpret the scatter plots and edit sampleInfo_TAPS.txt.
     if (is.null(directory))
     {
-        cat("No directory supplied, using working directory.")
+        print("No directory supplied, using working directory.")
         directory = "."
         #cat("You have not assigned a directory containing one or more folders of samples for TAPS_call to execute. \n")
         #cat("Example: \"/user/mysamples/\" or, to run it in your current working directory, \".\" \n")
@@ -298,13 +318,16 @@ TAPS_call <- function(samples='all',directory=getwd()) {
     if (is.logical(samples)) samples=which(samples)
     subs=subs[samples]
     
-    for (i in 1:length(subs)) {
+    # for (i in 1:length(subs)) {
+    #junk only stores the list from foreach.
+    junk <- foreach(i=1:length(subs)) %dopar% {
         setwd(subs[i])
         name <- subs[i]
         sampleInfo <- sampleData[i,c('cn1','cn2','cn3','loh')]
         if (nrow(sampleInfo)==1) if (sum(is.na(sampleInfo))<4) {
             
-            cat(' ..loading', subs[i])
+                # cat(' ..loading', subs[i])
+            print(paste(i,'/',length(subs),': ',subs[i],' Loading',sep=''))
             Log2 <- readLog2()
             alf <- readAlf(localDir)
             segments <- readSegments()
@@ -322,7 +345,7 @@ TAPS_call <- function(samples='all',directory=getwd()) {
             segments$Value <- segments$Value-mean(Log2$Value) 
             Log2$Value <- Log2$Value-mean(Log2$Value)
             
-            cat(' ..processing.\n')
+            # cat(' ..processing.\n')
             
             load('allRegions.Rdata')                            ## These were prepared in TAPS_plot
             load('shortRegions.Rdata')
@@ -334,7 +357,7 @@ TAPS_call <- function(samples='all',directory=getwd()) {
             
             u <- setCNs(allRegions,t$int,t$ai,t$model,maxCn)            ## Assigns copy number variant for all segments
             allRegions$regions <- u$regions
-            ## adjacent segments with idendical copy number are merged (except over centromere) and all are saved to a text file
+            ## adjacent segments with idendical copy number are NOT... merged (except over centromere) and all are saved to a text file
             save.txt(u$regions,file=paste(name,'_segmentCN.txt',sep='')) 
             regions=allRegions$regions
 
@@ -365,12 +388,14 @@ TAPS_call <- function(samples='all',directory=getwd()) {
                                as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),
                                alf$Start,alf$Value,t,name=name,xlim=c(-1,1),ylim=c(0,1),parameters=parameters)
             
-            cat('..done\n')
-        } else cat('Skipped',name,'\n')
+            # cat('..done\n')
+            print(paste(i,'/',length(subs),': ',name,' ', 'OK',sep=''))
+        } else print(paste(i,'/',length(subs),': ',name,' ', 'Skipped',sep=''))
         
         setwd('..')
     }
     #save.txt(sampleData,file='sampleData.csv')
+    1
 }
 ###
 regsFromSegs <- function (Log2,alf, segments, bin=200,min=1) {
@@ -454,7 +479,7 @@ readLog2 <- function() {
     ## This function reads Log-ratio from the file "probes.txt" which must be present in the current directory.
     Log2=NULL
     try( Log2 <- read.csv(file='probes.txt',header=T,sep='\t'), silent=T)
-    if (!is.null(Log2)) cat(' ..found probes.txt')
+    # if (!is.null(Log2)) cat(' ..found probes.txt')
     if (is.null(Log2)) {
         try( Log2 <- read.csv(file='_probes.txt',header=T,sep='\t'), silent=T)
         if (!is.null(Log2)) cat(' ..found _probes.txt')
@@ -493,7 +518,7 @@ readAlf <- function(localDir=NULL) {
     ## This funciton reads allele frequency [B/(A+B)] from the file 'snps.txt', which must be present in the current directory.
     alf=NULL
     try( alf <- read.csv(file='snps.txt',header=T,sep='\t'), silent=T)
-    if (!is.null(alf)) cat(' ..found snps.txt')
+    # if (!is.null(alf)) cat(' ..found snps.txt')
     if (is.null(alf)) {
         try( alf <- read.csv(file='_snps.txt',header=T,sep='\t'), silent=T)
         if (!is.null(alf)) cat(' ..found _snps.txt')
@@ -508,7 +533,7 @@ readSegments <- function() {
     ## Using a HMM is not recommended unless you have a homogenous, diploid sample. (And then there is more user-friendly software anyway.)
     segments=NULL
     try( segments <- read.csv(file='segments.txt',header=T,sep='\t'),silent=T)
-    if (!is.null(segments)) cat(' ..found segments.txt')
+    # if (!is.null(segments)) cat(' ..found segments.txt')
     if (is.null(segments)) { 
         try( segments <- read.csv(file='_segments.txt',header=T,sep='\t'),silent=T)
         if (!is.null(segments)) cat(' ..found _segments.txt')
@@ -735,7 +760,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
     tix$cn1 <- abs(regions$log2 - expectedAt) < diff(est)[1]/3        ## index of likely cn1 regions
     temp <- regions[tix$cn1,]
     med <- weightedMedian(temp$log2,temp$probes)
-    probes[1] <- sum(temp$probes)
+    probes[1] <- ifelse(is.null(med), 50, sum(temp$probes))
     int[1] <- ifelse(!is.null(med),med,expectedAt)
     
     ## likely cn3 regions sit near estimate
@@ -743,7 +768,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
     tix$cn3 <- abs(regions$log2 - expectedAt) < diff(est)[2]/3
     temp <- regions[tix$cn3,]
     med <- weightedMedian(temp$log2,temp$probes)
-    probes[3] <- sum(temp$probes)
+    probes[3] <- ifelse(is.null(med), 50, sum(temp$probes))
     int[3] <- ifelse(!is.null(med),med,expectedAt)
     
     ## cn4 follows at ...
@@ -752,7 +777,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
     tix$cn4 <- abs(regions$log2 - expectedAt) < mean(diff(int))/3
     temp <- regions[tix$cn4,]
     med <- weightedMedian(temp$log2,temp$probes)
-    probes[4] <- sum(temp$probes)
+    probes[4] <- ifelse(is.null(med), 50, sum(temp$probes))
     int[4] <- ifelse(!is.null(med),med,expectedAt)
     
     ## generalized for higher cns
@@ -765,7 +790,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
         tix[[thisCn]] <- abs(regions$log2 - expectedAt) < mean(diff(int))/5
         temp <- regions[tix[thisCn][[1]],]
         med <- weightedMedian(temp$log2,temp$probes)
-        probes[cn] <- sum(temp$probes)
+        probes[cn] <- ifelse(is.null(med), 0, sum(temp$probes))
         int[cn] <- ifelse(!is.null(med),med,expectedAt)
     }
     
@@ -3466,10 +3491,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
 }
 
 
-
-
-
-getEstimates <- function(logR, imba) {
+getEstimates <- function(logR, imba, cellLines=F) {
     #load('shortRegions.Rdata')
     #logR=allRegions$regions$log2[allRegions$regions$lengthMB>5]
     #imba=allRegions$regions$imba[allRegions$regions$lengthMB>5]
@@ -3482,7 +3504,7 @@ getEstimates <- function(logR, imba) {
     
     # Find optimal logR's for integer copy numbers
     R=2^logR-2^max
-    deltas=seq(0.05,0.5,0.01) # Allow a delta-ratio of 5% to 50%
+    deltas=seq(0.05,0.33,0.01) # Allow a delta-ratio of 5% to 50%
     n=length(deltas)
     dev=rep(NA,n)
     for (i in 1:n) { 
@@ -3501,7 +3523,7 @@ getEstimates <- function(logR, imba) {
     n=length(d$y)
     maxes=which(diff(d$y[1:(n-1)])>0 & diff(d$y[2:n])<0)
     ## remove crappy maxes:
-    maxes=maxes[d$y[maxes] > 0.05*max(d$y[maxes])]
+    maxes=maxes[d$y[maxes] > 0.1*max(d$y[maxes])]
     
     cn=3
     if (d$x[maxes][1]<0.15) # even copy number
@@ -3513,7 +3535,7 @@ getEstimates <- function(logR, imba) {
         if (d$x[maxes]>0.35)
             cn=1
     
-    cn1=log2(2^max-(cn-1)*best)
+    try(cn1 <- log2(2^max-(cn-1)*best),silent=T)
     try(cn1 <- median(logR[abs(logR-cn1)<0.1]),silent=T)
     cn2=log2(2^max-(cn-2)*best)
     try(cn2 <- median(logR[abs(logR-cn2)<0.1]),silent=T)
@@ -3523,6 +3545,7 @@ getEstimates <- function(logR, imba) {
     
     R2=2^cn2
     imba2=imba[abs(2^logR-R2)<best/4]
+    if(sum(is.na(imba2)) > (length(imba2)/2) | length(imba2) < 4) return(c(NA,NA,NA,NA))
     d=density(imba2,na.rm=T)
     n=length(d$y)
     maxes=which(diff(d$y[1:(n-1)])>0 & diff(d$y[2:n])<0)
@@ -3533,55 +3556,4 @@ getEstimates <- function(logR, imba) {
     } else loh=d$x[maxes[length(maxes)]]
     return(round(c(cn1,cn2,cn3,loh),2))
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

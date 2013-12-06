@@ -2,6 +2,8 @@ export(TAPS_plot,
 		TAPS_call,
 		TAPS_region,
 		TAPS_freq,
-		TAPS_compare)
+		TAPS_compare,
+                getEstimates)
+
 
 
