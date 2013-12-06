@@ -62,7 +62,7 @@ while (<VCF>)
 	#            chr1   11035 .    G     A      4.77  .    DP++ GT++  0/1:33,0,25:29    // the '++' means there was more information there but i shortened it
 	if ($_ =~ /(\S+)\t(\S+)\t\S+\t\S+\t(\S+)\t(\S+)\t\S+\t\S+\t\S+\t\S+/)
 		{
-		my ($vchr, $vpos, $cons, $consQual) = ($1,$2,$3,$4) #(split /\t/, $_)[0,1,4,5];
+		my ($vchr, $vpos, $cons, $consQual) = ($1,$2,$3,$4); #(split /\t/, $_)[0,1,4,5];
 
 		next if $cons eq 'N';
 		next if length $cons > 1;
@@ -75,7 +75,7 @@ while (<VCF>)
 			#            chr1   10296  c      30     ,$++  9<(A8<.#=#>#<!+:51!@!#!B#!!!!# // the '++' means there was more information there but i shortened it
 			if ($_ =~ /(\S+)\t(\S+)\t(\S+)\t(\S+)\t(\S+)\t\S+/)
 				{
-				my ($chr, $pos, $ref, $depth, $baseString) = ($1,$2,$3,$4,$5) #(split /\t/, $_)[0,1,2,3,4];
+				my ($chr, $pos, $ref, $depth, $baseString) = ($1,$2,$3,$4,$5); #(split /\t/, $_)[0,1,2,3,4];
 
 				#For testing purposes
 				# $j++;

@@ -39,6 +39,7 @@ while (<STDIN>)
 {
 	chomp;
 	#if ($_ == ""){next;}
+	#            chr1   10884  c      G      6     44   60    3      GGG   ??>
 	if ($_ =~ /(\S+)\t(\S+)\t(\S+)\t(\S+)\t(\S+)\t\S+\t\S+\t(\S+)\t(\S+)\t\S+/)
 	{
 		my ($chr, $pos, $ref, $cons, $consQual, $depth, $baseString) = ($1,$2,$3,$4,$5,$6,$7); #(split /\t/, $_)[0,1,2,3,4,7,8];
@@ -80,7 +81,7 @@ while (<STDIN>)
 	else
 	{
 		#print STDERR "In file $filename, line incompatible: $_ \n";
-		print STDERR "Line incompatible: $_ \n";
+		print STDERR "Line ",__LINE__," incompatible: $_ \n";
 	}
 }
 
