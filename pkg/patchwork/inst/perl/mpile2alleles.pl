@@ -56,91 +56,112 @@ $iupac{'T'}{'M'} = 'A|C';
 while (<VCF>)
 	{
 	chomp;
+	#Next if header
 	next if /^#/;
-	my ($vchr, $vpos, $cons, $consQual) = (split /\t/, $_)[0,1,4,5];
-
-	next if $cons eq 'N';
-	next if length $cons > 1;
-	$cons = uc $cons;
-
-	while (<PILEUP>) 
+	# 			 CHROM  POS   ID   REF   ALT    QUAL  FILTER INFO FORMAT HCC1954BL.bam
+	#            chr1   11035 .    G     A      4.77  .    DP++ GT++  0/1:33,0,25:29    // the '++' means there was more information there but i shortened it
+	if ($_ =~ /(\S+)\t(\S+)\t\S+\t\S+\t(\S+)\t(\S+)\t\S+\t\S+\t\S+\t\S+/)
 		{
-		chomp;
-		my ($chr, $pos, $ref, $depth, $baseString) = (split /\t/, $_)[0,1,2,3,4];
+		my ($vchr, $vpos, $cons, $consQual) = ($1,$2,$3,$4) #(split /\t/, $_)[0,1,4,5];
 
-		#For testing purposes
-		# $j++;
+		next if $cons eq 'N';
+		next if length $cons > 1;
+		$cons = uc $cons;
 
-		#uc upper case
-		$ref = uc $ref;
-		next if $ref eq '*';
-
-		#If the position and chromosome match between pileup and vcf
-		# add if smaller than
-		if ($vchr eq $chr && $vpos == $pos)
+		while (<PILEUP>) 
 			{
-			my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
-			$snps{$chr}{$pos}{'ref'} = $ref;
-			$snps{$chr}{$pos}{'snp'} = $snp;
-			$snps{$chr}{$pos}{'qual'} = $consQual;
+			chomp;
+			#            CHROM  POS    REF    COV    BASESTR            ?
+			#            chr1   10296  c      30     ,$++  9<(A8<.#=#>#<!+:51!@!#!B#!!!!# // the '++' means there was more information there but i shortened it
+			if ($_ =~ /(\S+)\t(\S+)\t(\S+)\t(\S+)\t(\S+)\t\S+/)
+				{
+				my ($chr, $pos, $ref, $depth, $baseString) = ($1,$2,$3,$4,$5) #(split /\t/, $_)[0,1,2,3,4];
 
-		# 	#For testing purposes
-		# $j == the faulty line number so we can see what is actually happening there
-		# 	if($j == 576673 || $j == 683784 || $j == 733447)
-		# 		{
-		# 		print OUT "Line: $. \n";
-		# 		print OUT "VCF: $vchr $vpos $cons $consQual \n";
-		# 		print OUT "PILEUP: $chr $pos $ref $depth $baseString \n";
-		# 		print OUT "snp: $snp \n";
-		# 		print OUT "assigned: $snps{$chr}{$pos}{'snp'} \n";
-		# 		$i++;
-		# 		}
+				#For testing purposes
+				# $j++;
 
-		# 	print OK "Line: $. \n";
-		# 	print OK "VCF: $vchr $vpos $cons $consQual \n";
-		# 	print OK "PILEUP: $chr $pos $ref $depth $baseString \n";
-		# 	print OK "snp: $snp \n";
-		# 	print OK "assigned: $snps{$chr}{$pos}{'snp'} \n";
-			
-		# 	if ($i == 3)
-		# 	{
-		# 		close(OUT);
-		# 		close(OK);
-		# 	}
+				#uc upper case
+				$ref = uc $ref;
+				next if $ref eq '*';
 
-			my $snpCount;
-			if ($snps{$chr}{$pos}{'snp'} eq 'A') {
-				$snpCount = $baseString =~ tr/Aa/Aa/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'C') {
-				$snpCount = $baseString =~ tr/Cc/Cc/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'G') {
-				$snpCount = $baseString =~ tr/Gg/Gg/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'T') {
-				$snpCount = $baseString =~ tr/Tt/Tt/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|C') {
-				$snpCount = $baseString =~ tr/AaCc/AaCc/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|G') {
-				$snpCount = $baseString =~ tr/AaGg/AaGg/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|T') {
-				$snpCount = $baseString =~ tr/AaTt/AaTt/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'G|C') {
-				$snpCount = $baseString =~ tr/GgCc/GgCc/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'G|T') {
-				$snpCount = $baseString =~ tr/GgTt/GgTt/;
-			} elsif ($snps{$chr}{$pos}{'snp'} eq 'C|T') {
-				$snpCount = $baseString =~ tr/CcTt/CcTt/;
-			} else {
-				$snpCount = 0;
+				#If the position and chromosome match between pileup and vcf
+				# add if smaller than
+				if ($vchr eq $chr && $vpos == $pos)
+					{
+					my $snp = ($cons =~ m/[AGCT]/) ? $cons : $iupac{$ref}{$cons};
+					$snps{$chr}{$pos}{'ref'} = $ref;
+					$snps{$chr}{$pos}{'snp'} = $snp;
+					$snps{$chr}{$pos}{'qual'} = $consQual;
+
+					# 	#For testing purposes
+					# $j == the faulty line number so we can see what is actually happening there
+					# 	if($j == 576673 || $j == 683784 || $j == 733447)
+					# 		{
+					# 		print OUT "Line: $. \n";
+					# 		print OUT "VCF: $vchr $vpos $cons $consQual \n";
+					# 		print OUT "PILEUP: $chr $pos $ref $depth $baseString \n";
+					# 		print OUT "snp: $snp \n";
+					# 		print OUT "assigned: $snps{$chr}{$pos}{'snp'} \n";
+					# 		$i++;
+					# 		}
+
+					# 	print OK "Line: $. \n";
+					# 	print OK "VCF: $vchr $vpos $cons $consQual \n";
+					# 	print OK "PILEUP: $chr $pos $ref $depth $baseString \n";
+					# 	print OK "snp: $snp \n";
+					# 	print OK "assigned: $snps{$chr}{$pos}{'snp'} \n";
+						
+					# 	if ($i == 3)
+					# 	{
+					# 		close(OUT);
+					# 		close(OK);
+					# 	}
+
+					my $snpCount;
+					if ($snps{$chr}{$pos}{'snp'} eq 'A') {
+						$snpCount = $baseString =~ tr/Aa/Aa/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'C') {
+						$snpCount = $baseString =~ tr/Cc/Cc/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'G') {
+						$snpCount = $baseString =~ tr/Gg/Gg/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'T') {
+						$snpCount = $baseString =~ tr/Tt/Tt/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|C') {
+						$snpCount = $baseString =~ tr/AaCc/AaCc/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|G') {
+						$snpCount = $baseString =~ tr/AaGg/AaGg/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'A|T') {
+						$snpCount = $baseString =~ tr/AaTt/AaTt/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'G|C') {
+						$snpCount = $baseString =~ tr/GgCc/GgCc/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'G|T') {
+						$snpCount = $baseString =~ tr/GgTt/GgTt/;
+					} elsif ($snps{$chr}{$pos}{'snp'} eq 'C|T') {
+						$snpCount = $baseString =~ tr/CcTt/CcTt/;
+					} else {
+						$snpCount = 0;
+					}
+					$snps{$chr}{$pos}{'depth'} = $depth;
+					$snps{$chr}{$pos}{'freq'} = $snpCount;
+					$snps{$chr}{$pos}{'pct'} = sprintf '%.2f', ($snpCount/$depth);
+
+					last;
+					}
+					elsif ($vchr eq $chr && $vpos < $pos) {
+						last;
+					}
+				}
+			else
+				{
+				#print STDERR "In file $filename, line incompatible: $_ \n";
+				print STDERR "MPILEUP line ",__LINE__," incompatible: $_ \n";
+				}
 			}
-			$snps{$chr}{$pos}{'depth'} = $depth;
-			$snps{$chr}{$pos}{'freq'} = $snpCount;
-			$snps{$chr}{$pos}{'pct'} = sprintf '%.2f', ($snpCount/$depth);
-
-			last;
-			}
-			elsif ($vchr eq $chr && $vpos < $pos) {
-				last;
-			}
+		}
+	else
+		{
+		#print STDERR "In file $filename, line incompatible: $_ \n";
+		print STDERR "VCF line ",__LINE__," incompatible: $_ \n";
 		}
 	}
 
