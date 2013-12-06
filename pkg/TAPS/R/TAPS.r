@@ -82,7 +82,7 @@ TAPS_plot <- function(#samples='all',
         setwd(paste(root,'/',subs[i],sep=''))
         name <- subs[i]
         #if (length(grep('sampleData.csv',dir()))==0) save.txt(data.frame(Sample=name,cn2='',delta='',loh='',completed.analysis='no'),file='sampleData.csv')
-        cat(' ..loading', subs[i])
+        # cat(' ..loading', subs[i])
         # print(paste(i,': ',subs[i],': Opening',sep=''))
         print(paste(i,'/',length(subs),': ',subs[i],' Loading',sep=''))
         
@@ -170,6 +170,7 @@ TAPS_plot <- function(#samples='all',
             save.txt(segments,'_segments.txt') 
         }
         
+        
         segments$Value <- segments$Value-mean(Log2$Value)     ## Median-centering
         Log2$Value <- Log2$Value-mean(Log2$Value)             ## Median-centering
         
@@ -216,7 +217,6 @@ TAPS_plot <- function(#samples='all',
             }
 
         # cat('..plotting.\n')
-        # print(paste(i,': plotting',sep=''))
         OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                      as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
                      name=name,MAPD=sampleData$MAPD[i],MHOF=sampleData$MHOF[i])                
