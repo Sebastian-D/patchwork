@@ -1977,6 +1977,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     par(mar = c(0, 0, 0, 0))
     par(oma = c(0,0,0,0))
     par(mgp =c(1,0.5,0))
+    par(lend=1)
     
     #Calculate previous distance of whole genome so the next chromsome is added
     #at the correct coordinate
@@ -2341,6 +2342,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
         par(mar = c(0, 0, 0, 0))
         par(oma = c(0,0,0,0))
         par(mgp =c(0.5,0.25,0))
+        par(lend=1)
         
         #Select the correct chromosome and remove stuff lower than -1 
         mix <- mchr==as.character(this$chr) #& mval>(-1)
@@ -2697,6 +2699,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         par(mar = c(0, 0, 0, 0))
         par(oma = c(0,0,0,0))
         par(mgp =c(0.5,0.25,0))
+        par(lend=1)
         
         #Set colors for total and minor copynumber
         col=rep('#000000',sum(ix))
@@ -2743,6 +2746,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         par(mar = c(0, 0, 0, 0))
         par(oma = c(0,0,0,0))
         par(mgp =c(0.5,0.25,0))
+        par(lend=1)
         
         #Select the correct chromosome and remove stuff lower than -1 
         mix <- mchr==as.character(this$chr) #& mval>(-1)
@@ -3124,6 +3128,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     par(mar = c(0, 0, 0, 0))
     par(oma = c(0,0,0,0))
     par(mgp =c(0.5,0,0))
+    par(lend=1)
     par(xpd=T)
     
     #Select the correct chromosome and remove stuff lower than -1 
