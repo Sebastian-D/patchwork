@@ -301,8 +301,7 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     if (length(grep('SampleData.csv',dir()))==1)
     {
         sampleData=load.txt('SampleData.csv')
-    }
-    else
+    } else
     {
         sampleData <- load.txt('../SampleData.csv')
     }
@@ -317,7 +316,8 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     if (samples[1]=='all') samples=rep(T,length(subs))
     if (is.logical(samples)) samples=which(samples)
     subs=subs[samples]
-    
+    sampleData <- sampleData[samples,]
+
     # for (i in 1:length(subs)) {
     #junk only stores the list from foreach.
     junk <- foreach(i=1:length(subs)) %dopar% {
@@ -825,7 +825,7 @@ findCNs <- function(Log2,alf,allRegions,regs,name=thisSubdir(),maxCn=10,ceiling=
     med <- weightedMedian(data$imba[ix],data$snps[ix]) ## Average allelic imbalance weighted on snp count
     ai$cn2m1 <- ifelse (!is.null(med),med,expectedAt)
     ## loh
-    expextedAt=loh_exp
+    expectedAt=loh_exp
     ix <- !ix
     med <- weightedMedian(data$imba[ix],data$snps[ix]) 
     ai$cn2m0 <- ifelse (!is.null(med),med,expectedAt)
