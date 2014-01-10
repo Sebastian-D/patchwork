@@ -381,7 +381,7 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
             #save parameters as strings
             parameters=paste("Parameters given: cn2:",sampleInfo$cn2," delta:",sampleInfo$delta," loh:",sampleInfo$loh)
             
-            karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,name=name)
+            #karyotype_check(regions$Chromosome,regions$Start,regions$End,regions$log2,regions$imba,regions$Cn,regions$mCn,t,name=name)
             
             karyotype_chromsCN(regions$Chromosome,regions$Start,regions$End,regions$log2,
                                regions$imba,regions$Cn,regions$mCn,hg18=hg18,
