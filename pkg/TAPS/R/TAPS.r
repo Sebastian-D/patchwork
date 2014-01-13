@@ -251,7 +251,7 @@ TAPS_plot <- function(#samples='all',
         setwd(root)
         1
     }
-    # write.txt(sampleData,'SampleData.csv')
+    save.txt(sampleData,'SampleData.csv')
 }
 ###
 

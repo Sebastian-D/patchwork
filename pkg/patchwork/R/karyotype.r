@@ -449,7 +449,7 @@ karyotype <- function(chr,start,end,int,ai,mchr,mpos,mval,schr,spos,sval,name=''
     
     #Add axis to the left,right and below of AI. The below axis is the chromosome numbers 1-24.
     axis(side=2,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
-    axis(side=1,at=pre,pos=0,labels=c(seq(from="1",to="22"),"X","Y"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
+    axis(side=1,at=pre,pos=0,labels=c(seq(from=1,to=22),"X","Y"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
     axis(side=4,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=max(mpos),las=1) #
     mtext("Allelic imbalance",side=2,line=0)
     mtext("Chromosomes",side=1,line=1.5,adj=0.4)

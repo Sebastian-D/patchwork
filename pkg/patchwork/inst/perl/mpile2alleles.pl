@@ -154,14 +154,14 @@ while (<VCF>)
 			else
 				{
 				#print STDERR "In file $filename, line incompatible: $_ \n";
-				print STDERR "MPILEUP line ",__LINE__," incompatible: $_ \n";
+				print STDERR "MPILEUP line $. incompatible: $_ \n";
 				}
 			}
 		}
 	else
 		{
 		#print STDERR "In file $filename, line incompatible: $_ \n";
-		print STDERR "VCF line ",__LINE__," incompatible: $_ \n";
+		print STDERR "VCF line $. incompatible: $_ \n";
 		}
 	}
 
