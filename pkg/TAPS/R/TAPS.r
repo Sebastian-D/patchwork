@@ -1397,7 +1397,7 @@ TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
     
     suppressPackageStartupMessages(library(xlsx))    
     
-    sampleData <- load.txt('SampleData.txt')
+    sampleData <- load.txt('SampleData.csv')
     olddir <- getwd()
     if (!is.na(outdir)) {
         try(dir.create(outdir), silent=T)
@@ -1560,7 +1560,7 @@ TAPS_compare <- function(grp1, grp2, name1='1', name2='2', outdir='frequencies_c
     
     suppressPackageStartupMessages(library(xlsx))    
 
-    sampleData=load.txt('SampleData.txt')
+    sampleData=load.txt('SampleData.csv')
     
     subs=as.character(sampleData$Sample)
     
@@ -3488,6 +3488,35 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     setwd("..")
 } , silent=F)
     
+}
+
+#Wrapper for getEstimates(). It will execute getEstimates in every sample folder.
+#If SampleData.csv already exists it will create the file SampleData_YYYY-MM-DD_HH-MM-SS.csv instead.
+TAPS_estimates <- function(path=getwd()) {
+    library(foreach)
+    library(TAPS)
+    # setwd("/media/safe/COAD_TCGA/NexusTxtFiles/tumorCELFiles")
+    root <- path
+    samples <- dir()[file.info(dir())$isdir]
+    # samples <- samples[grep('^[A-Z]',samples)]
+    datat <- foreach(sample=samples) %do% {
+        setwd(paste(root,'/',sample,sep=''))
+        if(file.exists('shortRegions.Rdata')) {
+            load('shortRegions.Rdata')
+            cn <- getEstimates(regs$logs,regs$scores)
+            try(rm(regs),T)
+            data.frame(Sample = sample,cn1=cn[1],cn2=cn[2],cn3=cn[3],loh=cn[4])
+        } else {
+            data.frame(Sample = sample,cn1=NA,cn2=NA,cn3=NA,loh=NA)
+        }
+    }
+    sampledata <- do.call(rbind,datat)
+    setwd(root)
+    if (file.exists('SampleData.csv')) {
+        write.table(sampledata,paste('SampleData',format(Sys.time(), "_%F_%T.csv"),sep=''),sep='\t',row.names=F)
+    } else {
+        write.table(sampledata,'SampleData.csv',sep='\t',row.names=F)
+    }
 }
 
 

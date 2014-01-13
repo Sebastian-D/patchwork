@@ -3,7 +3,7 @@ export(TAPS_plot,
 		TAPS_region,
 		TAPS_freq,
 		TAPS_compare,
-                getEstimates)
+                TAPS_estimates)
 
 
 
