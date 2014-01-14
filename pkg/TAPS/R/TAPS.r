@@ -25,7 +25,7 @@ TAPS_plot <- function(#samples='all',
     suppressPackageStartupMessages(library(stats))
     suppressPackageStartupMessages(library(DNAcopy))
     suppressPackageStartupMessages(library(fields))
-    suppressPackageStartupMessages(library(xlsx))    
+    #suppressPackageStartupMessages(library(xlsx))    
     suppressPackageStartupMessages(library(foreach))
     suppressPackageStartupMessages(library(doMC))
     suppressPackageStartupMessages(registerDoMC(cores=cores))
@@ -267,7 +267,7 @@ TAPS_plot <- function(#samples='all',
 TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     minseg=1
     maxCn=12
-    suppressPackageStartupMessages(library(xlsx))    
+    #suppressPackageStartupMessages(library(xlsx))    
     suppressPackageStartupMessages(library(foreach))
     suppressPackageStartupMessages(library(doMC))
     suppressPackageStartupMessages(registerDoMC(cores=cores))
@@ -292,6 +292,7 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     {
         if (length(grep('SampleData.xlsx',dir()))==1)
         {
+            try(library(xlsx))
             sampleData=read.xlsx('SampleData.xlsx',1)
             save.txt(sampleData,'SampleData.csv')
         }
