@@ -14,7 +14,8 @@ Install the packages that TAPS depends on to function correctly. <br /><br />
     install.packages("DNAcopy")
     install.packages("affxparser")
     install.packages("fields")
-    install.packages("xlsx")
+    install.packages("foreach")
+    install.packages("doMC")
 </pre>
 
 Install TAPS.
