@@ -1396,7 +1396,7 @@ addGenes <- function(data,genes) {
 ### Function for summarizing alteration frquencies in X samples
 TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
     
-    suppressPackageStartupMessages(library(xlsx))    
+    #suppressPackageStartupMessages(library(xlsx))    
     
     sampleData <- load.txt('SampleData.csv')
     olddir <- getwd()
@@ -1559,7 +1559,7 @@ sum_regionSet <- function(chroms, chromData, genes,
 ########### Group comparisons
 TAPS_compare <- function(grp1, grp2, name1='1', name2='2', outdir='frequencies_comp', hg19=T) {
     
-    suppressPackageStartupMessages(library(xlsx))    
+    #suppressPackageStartupMessages(library(xlsx))    
 
     sampleData=load.txt('SampleData.csv')
     
