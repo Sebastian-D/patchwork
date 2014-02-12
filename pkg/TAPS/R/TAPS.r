@@ -25,7 +25,7 @@ TAPS_plot <- function(#samples='all',
     suppressPackageStartupMessages(library(stats))
     suppressPackageStartupMessages(library(DNAcopy))
     suppressPackageStartupMessages(library(fields))
-    #suppressPackageStartupMessages(library(xlsx))    
+    suppressPackageStartupMessages(library(xlsx))    
     suppressPackageStartupMessages(library(foreach))
     suppressPackageStartupMessages(library(doMC))
     suppressPackageStartupMessages(registerDoMC(cores=cores))
@@ -105,7 +105,6 @@ TAPS_plot <- function(#samples='all',
             for (i in 1:nrows) {
                 Chromosome[i]=paste('chr', tempChr[i], sep="")
             }
-            
             
             Log2=as.data.frame(cbind(Chromosome, Start, End, Value))
             
@@ -485,6 +484,7 @@ readLog2 <- function() {
         try( Log2 <- read.csv(file='_probes.txt',header=T,sep='\t'), silent=T)
         if (!is.null(Log2)) cat(' ..found _probes.txt')
     }
+    Log2$Chromosome <- as.character(Log2$Chromosome)
     ## This code was used if Log-R must be read from .CNCHP file (Affymetrix Genotyping Console or APT). 
     ## NOT currently supported downstream as .CNCHP is lacks allele-specific information for Affy 250k/500k
     # if (is.null(Log2)) {   
@@ -539,6 +539,7 @@ readSegments <- function() {
         try( segments <- read.csv(file='_segments.txt',header=T,sep='\t'),silent=T)
         if (!is.null(segments)) cat(' ..found _segments.txt')
     }
+    segments$Chromosome <- as.character(segments$Chromosome)
     return (segments)
 }
 ###
