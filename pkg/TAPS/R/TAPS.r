@@ -3512,11 +3512,16 @@ TAPS_estimates <- function(path=getwd()) {
     }
     sampledata <- do.call(rbind,datat)
     setwd(root)
+    # if (file.exists('SampleData.csv')) {
+    #     write.table(sampledata,paste('SampleData',format(Sys.time(), "_%F_%T.csv"),sep=''),sep='\t',row.names=F)
+    # } else {
+    #     write.table(sampledata,'SampleData.csv',sep='\t',row.names=F)
+    # }
     if (file.exists('SampleData.csv')) {
-        write.table(sampledata,paste('SampleData',format(Sys.time(), "_%F_%T.csv"),sep=''),sep='\t',row.names=F)
-    } else {
-        write.table(sampledata,'SampleData.csv',sep='\t',row.names=F)
+            file.rename('SampleData.csv',paste('SampleData',format(Sys.time(), "_old_TAPS_estimates_%F_%T.csv"),sep=''))
     }
+    write.table(sampledata,'SampleData.csv',sep='\t',row.names=F)
+
 }
 
 
