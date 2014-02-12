@@ -81,7 +81,7 @@ while (<STDIN>)
 	else
 	{
 		#print STDERR "In file $filename, line incompatible: $_ \n";
-		print STDERR "Line ",__LINE__," incompatible: $_ \n";
+		print STDERR "Line $. incompatible: $_ \n";
 	}
 }
 
