@@ -16,7 +16,7 @@
 
 TAPS_plot <- function(#samples='all',
                      directory=NULL,autoEstimate=FALSE,
-                      bin=400,cores=1) {
+                      bin=400,cores=1,matched=FALSE) {
     #Automatically check, and if needed install, packages stats and fields
     
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
@@ -173,12 +173,12 @@ TAPS_plot <- function(#samples='all',
         segments$Value <- segments$Value-mean(Log2$Value)     ## Median-centering
         Log2$Value <- Log2$Value-mean(Log2$Value)             ## Median-centering
         
-        allRegions=NULL; if ('allRegions.Rdata' %in% dir()) load('allRegions.Rdata')
-        if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments)            ## Calculates necessary data for segments (all functions are in this file)
+        allRegions=NULL; #if ('allRegions.Rdata' %in% dir()) load('allRegions.Rdata')
+        if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments,matched=matched)            ## Calculates necessary data for segments (all functions are in this file)
         save(allRegions,file='allRegions.Rdata')
-        regs=NULL; if ('shortRegions.Rdata' %in% dir()) load('shortRegions.Rdata')
+        regs=NULL;# if ('shortRegions.Rdata' %in% dir()) load('shortRegions.Rdata')
         if (is.null(regs)) {
-            regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=5)    ## Calculates the same data for shortened segments
+            regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=5,matched)    ## Calculates the same data for shortened segments
             save(regs,file='shortRegions.Rdata')
         }
         
@@ -398,7 +398,7 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     1
 }
 ###
-regsFromSegs <- function (Log2,alf, segments, bin=200,min=1) {
+regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F) {
     ## This function builds short segments and calcualtes their average Log-R and Allelic Imbalance Ratio.
     rownames(Log2)=1:nrows(Log2)
     rownames(alf)=1:nrows(alf)
@@ -449,6 +449,9 @@ regsFromSegs <- function (Log2,alf, segments, bin=200,min=1) {
             regs$scores=c(regs$scores, min(xx)/max(xx) )                ## Allelic Imbalance Ratio = inner / outer cluster.
             regs$het=c(regs$het, min(xx))                                ## $het and $hom are no longer in use.
             regs$hom=c(regs$hom, max(xx))
+            if(matched == T | is.na(regs$scores[length(regs$scores)])) {
+                regs$scores[length(regs$scores)] <- 2*median(abs(thisalf$Value-.5),na.rm=T)
+            }
         }
     }
     regs=as.data.frame(regs)
@@ -543,7 +546,7 @@ readSegments <- function() {
     return (segments)
 }
 ###
-makeRegions <- function(Log2, alf, segments,dataType='Nexus') {
+makeRegions <- function(Log2, alf, segments,dataType='Nexus',matched=FALSE) {
     ## makeRegions is similar to "regsfromsegs" except regions are not subdivided before calculation of mean Log-R and Allelic Imbalance Ratio.
     regions=segments
     regions$Chromosome=as.character(segments$Chromosome)            ## Chromosome
@@ -577,6 +580,9 @@ makeRegions <- function(Log2, alf, segments,dataType='Nexus') {
                 } else xx=NA, silent=T)    
             } else xx=NA
             try(regions$imba[i] <- round( min(xx)/max(xx) ,2), silent=T)
+        }
+        if(matched == T | is.na(regions$imba[i])) {
+            regions$imba[i] <- 2*median(abs(alftemp-.5),na.rm=T)
         }
     }
     return(list('regions'=regions,'regionIx'=regionIx))
