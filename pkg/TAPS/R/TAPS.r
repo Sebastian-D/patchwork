@@ -157,18 +157,16 @@ TAPS_plot <- function(#samples='all',
         alf$Value[alf$Value<0]=0; alf$Value[alf$Value>1]=1
         
         segments <- readSegments()                                 ## segments if available (CBS recommended)
-        
-        #Remove NA values that some samples give.
-        segments <- segments[!is.nan(segments$Value),]
-        segments <- segments[!is.na(segments$Value),]
-        
-        
+ 
         # cat(' ..processing')
         if (is.null(segments)) {                                 ## segmentation using DNA-copy if needed (must then be installed)
             segments <- segment_DNAcopy(Log2)
             save.txt(segments,'_segments.txt') 
         }
-        
+
+        #Remove NA values that some samples give.
+        segments <- segments[!is.nan(segments$Value),]
+        segments <- segments[!is.na(segments$Value),]
         
         segments$Value <- segments$Value-mean(Log2$Value)     ## Median-centering
         Log2$Value <- Log2$Value-mean(Log2$Value)             ## Median-centering
@@ -361,6 +359,7 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
             save.txt(u$regions,file=paste(name,'_segmentCN.txt',sep='')) 
             regions=allRegions$regions
 
+            print(3)
             #save(u$model,file="model.Rdata")
             write.table(t(as.data.frame(u$model)),file='model.txt',row.names=T)
 
@@ -462,14 +461,14 @@ regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F) {
 segment_DNAcopy <- function(Log2) {
     ## If segmentation is required, DNAcopy is a good choice. Must be installed. 
     #library(DNAcopy)
-    cat('..Using DNAcopy to create segments:\n')
+    # cat('..Using DNAcopy to create segments:\n')
     segs=NULL
     chroms=c(as.character(1:22),'X','Y')
     chroms=paste('chr',chroms,sep='')
     for (c in 1:24) { # segment chromosome
         tlog=Log2[Log2$Chromosome==chroms[c],]    ## Log-R of this chromosome
         if (nrow(tlog)>0) {                        ## (ChrY may be absent)
-            cnaObject=segment(smooth.CNA(CNA(tlog$Value, rep(c,nrow(tlog)), tlog$Start, data.type='logratio',sampleid=paste('chr',c))), undo.splits='sdundo', undo.SD=1) 
+            cnaObject=segment(smooth.CNA(CNA(tlog$Value, rep(c,nrow(tlog)), tlog$Start, data.type='logratio',sampleid=paste('chr',c))), undo.splits='sdundo', undo.SD=1,verbose=0) 
             segs=rbind(segs,cnaObject$output)        ## Add result to data frame
         }
     }
@@ -480,14 +479,31 @@ segment_DNAcopy <- function(Log2) {
 ###
 readLog2 <- function() {
     ## This function reads Log-ratio from the file "probes.txt" which must be present in the current directory.
-    Log2=NULL
-    try( Log2 <- read.csv(file='probes.txt',header=T,sep='\t'), silent=T)
-    # if (!is.null(Log2)) cat(' ..found probes.txt')
-    if (is.null(Log2)) {
-        try( Log2 <- read.csv(file='_probes.txt',header=T,sep='\t'), silent=T)
-        if (!is.null(Log2)) cat(' ..found _probes.txt')
+    # Log2=NULL
+    # try( Log2 <- read.csv(file='probes.txt',header=T,sep='\t'), silent=T)
+    # if (is.null(Log2)) {
+    #     try( Log2 <- read.csv(file='_probes.txt',header=T,sep='\t'), silent=T)
+    #     if (!is.null(Log2)) cat(' ..found _probes.txt')
+    # }
+
+    if(file.exists('probes.txt')) {
+        Log2 <- read.csv(file='probes.txt',header=T,sep='\t')
+    } else if(file.exists('_probes.txt')) {
+        Log2 <- read.csv(file='_probes.txt',header=T,sep='\t')
+    } else if(file.exists('raw.txt')) {
+        Log2 <- read.csv(file='raw.txt',header=T,sep='\t')
+        colnames(Log2)[4:5] <- c('Start','Value')
+        Log2$Chromosome <- paste('chr',Log2$Chromosome,sep='')
+        Log2$Chromosome[Log2$Chromosome == 'chr24'] <- 'chrX'
+        Log2$Chromosome[Log2$Chromosome == 'chr25'] <- 'chrY'
+    } else {
+        print('No probes.txt found!')
     }
+
     Log2$Chromosome <- as.character(Log2$Chromosome)
+    #c("Chromosome", "Start", "End", "Value", "Array")
+
+
     ## This code was used if Log-R must be read from .CNCHP file (Affymetrix Genotyping Console or APT). 
     ## NOT currently supported downstream as .CNCHP is lacks allele-specific information for Affy 250k/500k
     # if (is.null(Log2)) {   
@@ -520,14 +536,28 @@ readLog2 <- function() {
 ###
 readAlf <- function(localDir=NULL) {
     ## This funciton reads allele frequency [B/(A+B)] from the file 'snps.txt', which must be present in the current directory.
-    alf=NULL
-    try( alf <- read.csv(file='snps.txt',header=T,sep='\t'), silent=T)
-    # if (!is.null(alf)) cat(' ..found snps.txt')
-    if (is.null(alf)) {
-        try( alf <- read.csv(file='_snps.txt',header=T,sep='\t'), silent=T)
-        if (!is.null(alf)) cat(' ..found _snps.txt')
+    # alf=NULL
+    # try( alf <- read.csv(file='snps.txt',header=T,sep='\t'), silent=T)
+    # if (is.null(alf)) {
+    #     try( alf <- read.csv(file='_snps.txt',header=T,sep='\t'), silent=T)
+    #     if (!is.null(alf)) cat(' ..found _snps.txt')
+    # }
+
+    if(file.exists('snps.txt')) {
+        alf <- read.csv(file='snps.txt',header=T,sep='\t')
+    } else if(file.exists('_snps.txt')) {
+        alf <- read.csv(file='_snps.txt',header=T,sep='\t')
+    } else if(file.exists('raw_snps.txt')) {
+        alf <- read.csv(file='raw_snps.txt',header=T,sep='\t')
+        colnames(alf)[c(4,6)] <- c('Start','Value')
+        alf$Chromosome <- paste('chr',alf$Chromosome,sep='')
+        alf$Chromosome[alf$Chromosome == 'chr24'] <- 'chrX'
+        alf$Chromosome[alf$Chromosome == 'chr25'] <- 'chrY'
+    } else {
+        print('No snps.txt found!')
     }
-    #alf=alf[alf$Value!=0.5,]
+    #c("Chromosome", "Start", "End", "Value", "Array")
+
     return (alf) 
 }
 ###
@@ -536,13 +566,18 @@ readSegments <- function() {
     ## The author recommends SNP-rank segmentation (NEXUS) or another CBS such as that in DNACopy.
     ## Using a HMM is not recommended unless you have a homogenous, diploid sample. (And then there is more user-friendly software anyway.)
     segments=NULL
-    try( segments <- read.csv(file='segments.txt',header=T,sep='\t'),silent=T)
+    if(file.exists('segments.txt')) {
+        segments <- read.csv(file='segments.txt',header=T,sep='\t')
+    }
+    # try( segments <- read.csv(file='segments.txt',header=T,sep='\t'),silent=T)
     # if (!is.null(segments)) cat(' ..found segments.txt')
     if (is.null(segments)) { 
-        try( segments <- read.csv(file='_segments.txt',header=T,sep='\t'),silent=T)
-        if (!is.null(segments)) cat(' ..found _segments.txt')
+        # try( segments <- read.csv(file='_segments.txt',header=T,sep='\t'),silent=T)
+        # if (!is.null(segments)) cat(' ..found _segments.txt')
     }
-    segments$Chromosome <- as.character(segments$Chromosome)
+    if(!is.null(segments)) {
+        segments$Chromosome <- as.character(segments$Chromosome)
+    }
     return (segments)
 }
 ###
@@ -1395,7 +1430,6 @@ addGenes <- function(data,genes) {
         ix=which(genes$chrom==as.character(data$Chromosome[i]) & genes$gtxStart<data$End[i] & genes$gtxEnd>data$Start[i])
         if (length(ix)>0) data$genes[i]=paste(sort(unique(genes$name2[ix])),collapse=', ')
     }
-    #browser()
     return(data)
 }
 
