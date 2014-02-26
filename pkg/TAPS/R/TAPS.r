@@ -1036,12 +1036,14 @@ setCNs <- function(allRegions,int,ai,model,maxCn=12) {
 
     ### Calculate model based Cns
     Cnx=Cn; for (cn in 0:maxCn) {
-        Cnx[Cn==cn]=cn + (2^regions$log2[Cn==cn]-2^int[[paste('cn',cn,sep='')]])/model$k
+        ix <- Cn==cn
+        ix[is.na(ix)] <- F
+        Cnx[ix]=(cn + (2^regions$log2[ix]-2^int[[paste('cn',cn,sep='')]])/model$k)
     }; Cnx[Cnx<0]=0
     Cn=round(Cnx)
     
     ## Set minor CN
-    for (i in 1:nrow(regions)) {       
+    for (i in (1:nrow(regions))[!is.na(Cn)]) {
         # set minor CN
         distance <- Inf
         if (Cn[i]<=1) {
