@@ -357,7 +357,6 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
             save.txt(u$regions,file=paste(name,'_segmentCN.txt',sep='')) 
             regions=allRegions$regions
 
-            print(3)
             #save(u$model,file="model.Rdata")
             write.table(t(as.data.frame(u$model)),file='model.txt',row.names=T)
 
