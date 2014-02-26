@@ -1,5 +1,3 @@
-## Det här är nya versionen.
-
 ## load('~/patchwork/pkg/TAPS/R/sysdata.rda')
 ## load('shortRegions.Rdata')
 ## load('allRegions.Rdata')
@@ -3631,5 +3629,317 @@ getEstimates <- function(logR, imba, cellLines=F) {
         loh=0.75
     } else loh=d$x[maxes[length(maxes)]]
     return(round(c(cn1,cn2,cn3,loh),2))
+}
+
+
+
+#      _ _      _    
+#  ___| (_) ___| | __
+# / __| | |/ __| |/ /
+#| (__| | | (__|   < 
+# \___|_|_|\___|_|\_\
+#                    
+#click
+
+drawImage <- function(file,dev=T,xlim,ylim) {
+        jpeg <- readJPEG(file)
+        if(dev==T) dev.new(height=11,width=15.5)
+        par(mar=c(2,3,1,1),las=1,xaxs='i',yaxs='i',lend=1)
+        plot(1, type="n", xlim=xlim, ylim=ylim,axes=F)
+        rasterImage(jpeg,xlim[1], ylim[1], xlim[2], ylim[2], interpolate =T)
+        # axis(1,at=seq(-3,3,0.25),lend=1)
+        # axis(2,at=seq(ylim[1],ylim[2],0.05),lend=1)
+}
+
+clickWrap <- function(n,xlim,ylim) {
+        y <- list()
+        opar <- par
+        for(i in 1:n) {
+                print(i)
+                col <- ifelse(i==1,'green','red')
+                y[[i]] <- clicker(col) 
+        }
+        dev.new()
+        par(mfrow=c(n,1),mar=c(2,2.5,.5,.5),xaxs='i',yaxs='i')
+        lapply(y, FUN = function(y) {
+               x <- 1:length(y)
+               fit <- lm(y ~ x)
+               xlim <- c(0.5,length(x)+.5)
+               ylim <- c(min(y)-min(y)*.1,max(y)+max(y)*.1)
+               plot(x,x*fit$coefficients[2]+fit$coefficients[1],type='l',ylim=ylim,xlim=xlim,las=1,lend=1)
+               par(new=T)
+               plot(x,y,xlab='',ylab='',axes=F,ylim=ylim,xlim=xlim,pch=20,cex=1.5)
+               legend('topright',legend=paste('R^2: ',round(as.numeric(summary(fit)[8]),4),sep=''))
+        })
+        locator(1)
+        try(dev.off(),T)
+        par(opar)
+}
+
+clicker <- function(col='black') {
+        print('Click on your values. Right click to close (This will redraw the image).')
+        print(col)
+        lastLogR <- locator(1,type='p',pch=20,col=col,cex=1.8)$x
+        y <- 2^lastLogR
+        cat(paste('#','logR','R','delta-R','\n',sep='\t'))
+        cat(paste(1,round(lastLogR,2),round(2^lastLogR,2),0,'\n',sep="\t"))
+        j <- 2
+        while(T) {
+                logR <- locator(1,type='p',pch=20,col=col,cex=1.8)$x
+                if(is.null(logR)) break
+                R <- 2^logR 
+                y <- append(y,R)
+                lastR <- 2^lastLogR
+                diff <- R - lastR
+                cat(paste(j,round(logR,3),round(R,3),round(diff,3),'\n',sep="\t"))
+                lastLogR <- logR      
+                j = j + 1
+        }
+        return(y)
+}
+
+copyNumberClicker <- function(maxy,miny) {
+        coord <- list()
+        for(i in 1:4) {
+                if(i<4) {
+                        print(paste("Left click on cn",i,". Right click if it doesn't exist",sep=''))
+                } else {
+                        print('Please select LOH')
+                }
+                tmp <- locator(n=1,type='p',pch=20,col='green',cex=1.8)
+                if (is.null(tmp$x)) tmp$x <- tmp$y <- NA
+                text(tmp, labels=c('cn1','cn2','cn3','LOH')[i],adj=1.5)
+                text(tmp, labels=if(i < 4) round(tmp$x,2) else round((tmp$y - miny) / (maxy - miny),2) ,adj=c(1.3,+2.2))
+                coord$x[i] <- tmp$x
+                coord$y[i] <- tmp$y
+        }
+        return(coord)
+}
+
+
+returnSkippedValues <- function(sample,sampleDataOri,done,skipped){ 
+    index <- sampleDataOri$Sample == sample
+    return(list(sample,sampleDataOri[index,2],sampleDataOri[index,3],sampleDataOri[index,4],sampleDataOri[index,5],done,skipped))
+}
+
+TAPS_click <- function(path = getwd(),resume = F) {
+
+    suppressPackageStartupMessages(library(tcltk))
+    suppressPackageStartupMessages(library(jpeg))
+    suppressPackageStartupMessages(library(foreach))
+    # require(xlsx)
+
+    root <- path
+    chr <- paste('Chromosome',c(1:22,'X'))
+    xlim <- c(-2.387, 2.16)
+    ylim <- c(0, 1)
+    maxy <- 0.9336337
+    miny <- 0.5170546
+
+    # sampleData <- read.csv('SampleData.csv',sep='\t',header=T,colClasses=c('character',rep('numeric',4)),stringsAsFactors=F)
+    sampleData <- read.csv('SampleData.csv',sep='\t',header=T,stringsAsFactors=F)
+    sampleDataOri <- sampleData
+
+    if(any(T == sampleData$done)) {
+        print(head(sampleData,25))
+        ans <- menu(c('Continue','Restart'),title='\n"Done"-column detected.\nWould you like to start from the beginning or continue from where you left off?')
+        if(ans==1) {
+            sampleData <- sampleData[sampleData$done == F, ]
+            newSampleData <- sampleData
+            restart <- F
+        } else {
+            newSampleData <- sampleData
+            newSampleData$done <- F
+            newSampleData$skipped <- F
+            restart <- T
+        }
+    } else {
+        newSampleData <- sampleData
+        newSampleData$done <- F
+        newSampleData$skipped <- F
+        restart <- F
+    }
+        
+
+    #index <- sampleData$Sample %in% examinedSampleData$Sample[examinedSampleData$done == T]
+    #sampleData <- sampleData[!index,]
+    #sampleData <- examinedSampleData[apply(examinedSampleData[,2:4],1,FUN=function(x) {sum(is.na(x))}) == 2,]
+
+    setwd(root)
+    close <- F
+
+    write.table(x=rbind(colnames(newSampleData)),file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,col.names=F)
+    if(nrow(sampleDataOri[sampleDataOri$done==T]) > 0) {
+        write.table(x=sampleDataOri[sampleDataOri$done==T,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,col.names=F,append=T)
+    }
+
+    copyNumbers <- foreach(sample=sampleData[,1] ,cn1=sampleData[,2],cn2=sampleData[,3],cn3=sampleData[,4],loh=sampleData[,5]) %do% {
+        if(close == T) {
+
+            # newSampleData[newSampleData$Sample == sample,] = list(sample,NA,NA,NA,NA,F,T)
+            newSampleData[newSampleData$Sample == sample,] = returnSkippedValues(sample,sampleDataOri,F,T)
+
+            write.table(x=newSampleData[newSampleData$Sample == sample,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,append=T,col.names=F)
+            return(newSampleData[newSampleData$Sample == sample,])
+        }
+        print(sample)
+        setwd(paste(root,sample,sep='/'))
+        file=dir()[grep('chr1.jpg',dir())]
+
+        # if(sum(is.na(c(cn1,cn2,cn3))) > 1 ) {
+        if(is.na(loh)) {
+            drawImage(file,T,xlim=xlim,ylim=ylim)
+        }
+
+        skip <- F
+        i <- 1
+        lastAnswer <- 0
+        coord <- list()
+        selectCn <- F
+
+        while(i > 0) {
+            # if(sum(is.na(c(cn1,cn2,cn3))) > 1) { #If no preexisting value exist 
+            # browser()
+            if(is.na(loh)) { #If no preexisting value exist 
+                if(lastAnswer == 10) {
+                    drawImage(file,xlim=xlim,ylim=ylim)
+                    lastAnswer <- 0
+                }
+
+                # Skip the menu and go directly to the copy number choice
+                if(selectCn == T) {
+                    answer <- 1
+                    selectCn = F
+                } else {
+                    answer <- menu(c('Choose copynumbers','Sample overview',chr,'Check separation','Skip sample',"Close program",'Browser()'),
+                                   graphics=TRUE,title=paste(sample,' (', which(sampleData$Sample==sample) ,'/' ,dim(sampleData)[1],')',sep=''))
+                }
+
+                tclServiceMode(TRUE)
+
+                if(answer == 1) { #Copy number menu
+                    if(lastAnswer == 2) drawImage(file,F,xlim=xlim,ylim=ylim)
+                    coord <- copyNumberClicker(maxy,miny)
+                    dev.off()
+                    i <- 10
+                } else if(answer == 2) { #Overview menu
+                    overview=dir()[grep('overview.jpg',dir())]
+                    drawImage(overview,F,xlim=xlim,ylim=ylim)
+                    if(lastAnswer == 0) lastAnswer <- 2
+                } else if(answer >= 3 & answer <=24) { #Select chromosome #1-22
+                    file=dir()[grep(paste('chr',answer-2,'.jpg',sep=''),dir())]
+                    drawImage(file,F,xlim=xlim,ylim=ylim)
+                } else if(answer == 25) { #Select the X-chromosome
+                    file=dir()[grep(paste('chr','X','.jpg',sep=''),dir())]
+                    drawImage(file,F,xlim=xlim,ylim=ylim)
+                } else if(answer == 26) { #Check separation
+                    ans <- menu(c('1       ','2    '),title='1 or 2?',graphics=T)
+                    tclServiceMode(TRUE)
+                    clickWrap(ans,xlim=xlim,ylim=ylim)              
+                    lastAnswer <- 10
+                    try(dev.off(),T)
+                } else if(answer == 27 | answer == 0) { #Skip sample
+                    try(dev.off(),T)
+                    # newSampleData[newSampleData$Sample == sample,] = list(sample,NA,NA,NA,NA,T,T)
+                    newSampleData[newSampleData$Sample == sample,] = returnSkippedValues(sample,sampleDataOri,F,T)
+                    write.table(x=newSampleData[newSampleData$Sample == sample,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,append=T,col.names=F)
+                    return(newSampleData[newSampleData$Sample == sample,])
+                } else if(answer == 28) { #Close everything!
+                    close <- T
+                    skip <- T
+                    i <- 0
+                    try(dev.off(),T)
+                    # newSampleData[newSampleData$Sample == sample,] = list(sample,NA,NA,NA,NA,F,T)
+                    newSampleData[newSampleData$Sample == sample,] = returnSkippedValues(sample,sampleDataOri,F,T)
+                    write.table(x=newSampleData[newSampleData$Sample == sample,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,append=T,col.names=F)
+                    return(newSampleData[newSampleData$Sample == sample,])
+                } else if(answer == 29) { #Get a browser()
+                    browser()
+                }
+
+            } else { #If pre-existing values for the sample exists, grab the values.
+                i <- 10
+                lohCoord <- loh * (maxy - miny) + miny
+                coord <- list(x=c(cn1,cn2,cn3,0),y=c(0,0,0,lohCoord) )
+                cn1 <- cn2 <- cn3 <- loh <- NA
+            }
+
+            if(i == 10) { # i will be equal to 10 when the user have choosen the copy numbers and will be promted if the values are correct.
+                drawImage(file,xlim=xlim,ylim=ylim)
+                LOH <- (coord$y[4] - miny) / (maxy - miny)
+                text(x=coord$x[1:3]-0.1,y=miny+0.016,labels=round(c(coord$x[1:3]),2))
+                text(x=coord$x[1:3]-.1,y=miny+0.036, c('cn1','cn2','cn3'))
+
+                #CN
+                segments(coord$x[1:3],miny,coord$x[1:3],maxy,lwd=1.5,lend=1)
+                segments(-2,coord$y[4],2,coord$y[4],lwd=1.5,lend=1)
+
+                #LOH
+                text(x=-1.82,y=coord$y[4]+.012,labels=round(c(LOH),2),cex=1,1)
+                text(x=-1.82,y=coord$y[4]+.032, c('LOH'),cex=1,1)
+
+                answer2 <- menu(c('Next sample','Redo sample','Redo copy number selection','Skip sample','Close program'),
+                                title=paste(sample,' (', which(sampleData$Sample==sample) ,'/' ,dim(sampleData)[1],')',sep=''),graphics=T)
+
+                if (answer2 == 1) {            # Next sample
+                    i <- 0
+                    size <- dev.size(units='px')
+                    dev.copy(png,filename=paste(sample,'_selected_cn_and_LOH.png',sep=''),width=size[1],height=size[2],units='px')
+                    dev.off()
+
+                } else if (answer2 == 2) {     #Redo sample
+                    i <- 1
+                    print(sample)
+                } else if (answer2 == 3) {     #Redo copy number selection
+                    i <- 1
+                    selectCn <- T
+                    print(sample)
+                } else if (answer2 == 4) {     #Skip sample
+                    try(dev.off(),T)
+                    # newSampleData[newSampleData$Sample == sample,] = list(sample,NA,NA,NA,NA,T,T)
+                    newSampleData[newSampleData$Sample == sample,] = returnSkippedValues(sample,sampleDataOri,F,T)
+                    write.table(x=newSampleData[newSampleData$Sample == sample,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,append=T,col.names=F)
+                    return(newSampleData[newSampleData$Sample == sample,])
+                } else if (answer2 == 5) {     #Close program
+                    close <- T
+                    skip <- T
+                    i <- 0
+                    try(dev.off(),T)
+                    # newSampleData[newSampleData$Sample == sample,] = list(sample,NA,NA,NA,NA,F,T)
+                    newSampleData[newSampleData$Sample == sample,] = returnSkippedValues(sample,sampleDataOri,F,T)
+                    write.table(x=newSampleData[newSampleData$Sample == sample,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,append=T,col.names=F)
+                    return(newSampleData[newSampleData$Sample == sample,])
+                }
+                lastAnswer <- 10
+                try(dev.off(),silent=T)
+            }
+        }
+        # Write data to the data.frame
+        if(skip==F) {
+            LOH <- (coord$y[4] - miny) / (maxy - miny)
+            newSampleData[newSampleData$Sample == sample,] = list(sample,coord$x[1],coord$x[2],coord$x[3],LOH,T,skip)
+            write.table(x=newSampleData[newSampleData$Sample == sample,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,append=T,col.names=F)
+            return(newSampleData[newSampleData$Sample == sample,])
+        } else {
+            # newSampleData[newSampleData$Sample == sample,] = list(sample,NA,NA,NA,NA,T,skip)
+            newSampleData[newSampleData$Sample == sample,] = returnSkippedValues(sample,sampleDataOri,F,skip)
+            write.table(x=newSampleData[newSampleData$Sample == sample,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,append=T,col.names=F)
+            return(newSampleData[newSampleData$Sample == sample,])
+        }
+        tclServiceMode(TRUE)
+        try(dev.off(),silent=T)
+        1
+    }
+    setwd(root)
+    if (file.exists('SampleData.csv')) {
+        file.rename('SampleData.csv',paste('SampleData',format(Sys.time(), "_old_TAPS_click_%F_%T.csv"),sep=''))
+    }
+    append <- nrow(sampleDataOri[sampleDataOri$done==T,])>0
+
+    if(restart == F) { 
+        write.table(sampleDataOri[sampleDataOri$done==T,],'SampleData.csv',sep='\t',row.names=F)
+    }
+    write.table(do.call(rbind,copyNumbers), 'SampleData.csv',sep='\t',row.names=F,append=append,col.names= !append)
+
 }
 
