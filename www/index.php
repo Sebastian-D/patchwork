@@ -94,9 +94,12 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 <!-- ======= END HEADER ====== -->
 
 <!-- <div id="container"> -->
-	<div id="left">
+<!--	<div id="left" style="padding-left:20px;">
+		<a href="http://patchwork.r-forge.r-project.org/">
+		<img id="Title" src="css/img/patchwork_logo_grey.png" alt="patchwork title" title="Patchwork" width="65%" height="65%">
+		</a>  -->
  		<h1 style="padding-left:20px; color:#C7C7C7;"><a href="http://patchwork.r-forge.r-project.org/" style="text-decoration:none; color:#C7C7C7;">Patchwork</a></h1>
- 	</div>
+ <!--	</div> -->
 
 <!-- 	<div id="right"> -->
 <!-- 		<a href="http://www.medsci.uu.se" accesskey="1" tabindex="2">
@@ -236,7 +239,7 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 		   	<br />
 		   	
 		   	<!-- Start of StatCounter Code for Default Guide -->
-			<script type="text/javascript">
+			<!-- <script type="text/javascript">
 				var sc_project=7876707; 
 				var sc_invisible=0; 
 				var sc_security="39e2d4af"; 
@@ -253,9 +256,9 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 						alt="drupal statistics module">
 					</a>
 				</div>
-			</noscript>
+			</noscript> -->
 			<!-- End of StatCounter Code for Default Guide -->
-			<div style="display:inline-block; width:2px; height:1px;"></div>
+			<!-- <div style="display:inline-block; width:2px; height:1px;"></div> -->
 			<!-- LAST MODIFIED -->
 			Last modified: 2013-06-18
 

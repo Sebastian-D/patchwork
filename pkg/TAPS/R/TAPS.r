@@ -1528,7 +1528,7 @@ sum_regionSet <- function(chroms, chromData, genes,
     
     ### Total frequency plot    
     #quartz(file=paste(comparison,'freq_dif',name1,name2,'png',sep='.'),width=15,height=4.5,dpi=300,type='png')
-    png(file=paste(comparison,'png',sep='.'),width=3000,height=800)
+    png(filename=paste(comparison,'png',sep='.'),width=3000,height=800)
     ylim <- c( -15, 110)
     plot(1,1,type='n',
          bty='n', ann=T, mar=c(0,0,0,0), oma=c(0,0,0,0),
@@ -1709,7 +1709,7 @@ compare_regionSet <- function(chroms, chromData, genes,
     
     ### Total and Differential frequency plot    
     #quartz(file=paste(comparison,'freq_dif',name1,name2,'png',sep='.'),width=15,height=4.5,dpi=300,type='png')
-    png(file=paste(comparison,'allFreqs',name1,name2,'png',sep='.'),width=3000,height=800)
+    png(filename=paste(comparison,'allFreqs',name1,name2,'png',sep='.'),width=3000,height=800)
     ylim <- c(-100, 110)
     plot(1,1,type='n',
          bty='n', ann=T, mar=c(0,0,0,0), oma=c(0,0,0,0),
@@ -3723,7 +3723,7 @@ returnSkippedValues <- function(sample,sampleDataOri,done,skipped){
     return(list(sample,sampleDataOri[index,2],sampleDataOri[index,3],sampleDataOri[index,4],sampleDataOri[index,5],done,skipped))
 }
 
-TAPS_click <- function(path = getwd(),resume = F) {
+TAPS_click <- function(path = getwd()) {
 
     suppressPackageStartupMessages(library(tcltk))
     suppressPackageStartupMessages(library(jpeg))

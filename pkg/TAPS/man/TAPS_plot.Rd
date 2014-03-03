@@ -20,7 +20,7 @@ Updates: Check http://patchwork.r-forge.r-project.org/ as we intend to extend so
 
 
 \usage{
-TAPS_plot(directory=NULL,bin=400)
+TAPS_plot(directory=NULL,autoEstimate=FALSE,bin=400,cores=1,matched=FALSE)
 }
 
 \arguments{
@@ -35,11 +35,17 @@ TAPS_plot(directory=NULL,bin=400)
 %	\item{xlim}{
 %	Default is c(-1,2).
 %	}
-%	\item{ylim}{
-%	Default is c(0,1).
-%	}
+	\item{autoEstimate}{
+	Default is FALSE. Development stage, do not use.
+	}
 	\item{bin}{
 	Default is 400.
+	}
+	\item{cores}{
+	Default is 1. Set amount of threads/cores to be used.
+	}
+	\item{matched}{
+	Default is FALSE.
 	}
 }
 
@@ -67,11 +73,11 @@ Optionally (recommended) also put segments.txt in your sample folder.
 
 Workflow:\cr
 1. From the folder containing your samples (sample folders) run TAPS_plot(). \cr
-2. Investigate the scatter plots generated in your sample folders. \cr
-3. To proceed with copy number calls, find and open the file "SampleData.csv". \cr
-4. For each sample, enter an interpretation of Log-Ratio @ copy number 1-3 ("cn1-3",
-   two+ of the three values are required) and the allelic imbalance ratio of LOH and 
-   cn2 ("loh"). Save the file. \cr
+2. Investigate the scatter plots generated in your sample folders, using human interpretation, TAPS_estimates() and TAPS_click(), or just TAPS_click(). \cr
+If using human interpretation:
+Find and open the file "SampleData.csv". \cr
+For each sample, enter an interpretation of Log-Ratio @ copy number 1-3 ("cn1-3", two+ of the three values are required) and the allelic imbalance ratio of LOH and cn2 ("loh"). Save the file. \cr
+
 5. Run TAPS_call(). \cr
 6. Inspect the karyotype_check images, and the new chromosome-wise images. \cr
 7. If all looks reasonable, you will find good copy number estimates in 'Copynumbers.csv'. \cr
@@ -87,5 +93,6 @@ http://www.biomedcentral.com/content/pdf/gb-2011-12-10-r108.pdf
 \author{
 Markus Mayrhofer, \email{markus.mayrhofer@medsci.uu.se} \cr
 Hanna Goransson Kultima, \email{hanna.goransson.kultima@medsci.uu.se} \cr
-Sebastian DiLorenzo, \email{sebastian.dilorenzo@medsci.uu.se}
+Sebastian DiLorenzo, \email{sebastian.dilorenzo@medsci.uu.se} \cr
+Björn Viklund, \email{bjorn.viklund@medsci.uu.se}
 }

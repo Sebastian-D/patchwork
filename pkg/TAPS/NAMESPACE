@@ -3,7 +3,8 @@ export(TAPS_plot,
 		TAPS_region,
 		TAPS_freq,
 		TAPS_compare,
-                TAPS_estimates)
+        TAPS_estimates,
+        TAPS_click)
 
 
 

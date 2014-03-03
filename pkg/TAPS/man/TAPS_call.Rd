@@ -14,7 +14,7 @@ TAPS_call calculates genome-wide total and minor copynumbers of tumor samples.
 }
 
 \usage{
-TAPS_call(samples='all',directory=getwd())
+TAPS_call(samples='all',directory=getwd(),cores=1)
 }
 
 \arguments{
@@ -23,6 +23,9 @@ TAPS_call(samples='all',directory=getwd())
 	}
 	\item{directory}{
 	Directory where the sample folders reside. Default is current directory.
+	}
+	\item{cores}{
+	Default is 1. Set amount of threads/cores to be used.
 	}
 }
 
@@ -45,5 +48,6 @@ http://www.biomedcentral.com/content/pdf/gb-2011-12-10-r108.pdf
 \author{
 Markus Mayrhofer, \email{markus.mayrhofer@medsci.uu.se} \cr
 Hanna Goransson Kultima, \email{hanna.goransson.kultima@medsci.uu.se} \cr
-Sebastian DiLorenzo, \email{sebastian.dilorenzo@medsci.uu.se}
+Sebastian DiLorenzo, \email{sebastian.dilorenzo@medsci.uu.se} \cr
+Björn Viklund, \email{bjorn.viklund@medsci.uu.se}
 }
