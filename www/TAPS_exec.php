@@ -171,6 +171,46 @@ when running TAPS_click() where you can either choose to accept TAPS_estimates()
 
 <h3>TAPS_click()</h3>
 
+<!-- Script for a slideshow -->
+<SCRIPT LANGUAGE="JavaScript">
+
+var num=1
+img1 = new Image ()
+img1.src = "css/img/TAPS_call_help2.png"
+img2 = new Image ()
+img2.src = "css/img/70_HCC1187__KaCh_chr1.png"
+img3 = new Image ()
+img3.src = "css/img/70_HCC1187_check.png"
+img4 = new Image ()
+img4.src = "css/img/Allelic_plot.png" 
+
+function slideshowNext()
+{
+num=num+1
+if (num==5)
+{num=1}
+document.s1.src=eval("img"+num+".src")
+document.s2.value=eval("text"+num)
+}
+
+function slideshowBack()
+{
+num=num-1
+if (num==0)
+{num=4}
+document.s1.src=eval("img"+num+".src")
+document.s2.value=eval("text"+num)
+}
+
+</SCRIPT>
+
+<CENTER>
+<IMG SRC="css/img/TAPS_call_help2.png" NAME="mypic" BORDER=0 HEIGHT="100%" WIDTH="880px">
+<p>
+
+<A HREF="JavaScript:slideshowBack()" style="text-decoration:none;"> Back</A>
+
+<A HREF="JavaScript:slideshowNext()" style="text-decoration:none;"> Next</A> 
 
 
 
