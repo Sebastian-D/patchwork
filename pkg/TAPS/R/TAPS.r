@@ -14,7 +14,7 @@
 
 TAPS_plot <- function(#samples='all',
                      directory=NULL,autoEstimate=FALSE,
-                      bin=400,cores=1,matched=FALSE) {
+                      bin=400,cores=1,matched=FALSE,allelePeaks=FALSE) {
     #Automatically check, and if needed install, packages stats and fields
     
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
@@ -150,9 +150,11 @@ TAPS_plot <- function(#samples='all',
         
         Log2=Log2[!is.nan(Log2$Value),]
         Log2=Log2[!is.na(Log2$Value),]
+        Log2 <- Log2[which(Log2$Value != -Inf & Log2$Value != +Inf ),]
         alf=alf[!is.nan(alf$Value),]
         alf=alf[!is.na(alf$Value),]
         alf$Value[alf$Value<0]=0; alf$Value[alf$Value>1]=1
+        alf <- alf[which(alf$Value != -Inf & alf$Value != +Inf ),]
         
         segments <- readSegments()                                 ## segments if available (CBS recommended)
  
@@ -166,15 +168,15 @@ TAPS_plot <- function(#samples='all',
         segments <- segments[!is.nan(segments$Value),]
         segments <- segments[!is.na(segments$Value),]
         
-        segments$Value <- segments$Value-mean(Log2$Value)     ## Median-centering
-        Log2$Value <- Log2$Value-mean(Log2$Value)             ## Median-centering
+        segments$Value <- segments$Value-median(Log2$Value,na.rm=T)     ## Median-centering
+        Log2$Value <- Log2$Value-median(Log2$Value,na.rm=T)             ## Median-centering
         
         allRegions=NULL; #if ('allRegions.Rdata' %in% dir()) load('allRegions.Rdata')
-        if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments,matched=matched)            ## Calculates necessary data for segments (all functions are in this file)
+        if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments,matched=matched,allelePeaks=allelePeaks)            ## Calculates necessary data for segments (all functions are in this file)
         save(allRegions,file='allRegions.Rdata')
         regs=NULL;# if ('shortRegions.Rdata' %in% dir()) load('shortRegions.Rdata')
         if (is.null(regs)) {
-            regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=5,matched)    ## Calculates the same data for shortened segments
+            regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=5,matched=matched,allelePeaks=allelePeaks)    ## Calculates the same data for shortened segments
             save(regs,file='shortRegions.Rdata')
         }
         
@@ -202,14 +204,11 @@ TAPS_plot <- function(#samples='all',
         
         #Test if hg18 or hg19 should be used. length of (hg18 chr19) > (hg19 chr19)
         hgtest=regs[regs$chr=="chr19",]
-        if(hgtest$end[length(hgtest$chr)] > 60000000)
-            {
+        if(hgtest$end[length(hgtest$chr)] > 60000000) {
             hg18=T
-            }
-        else
-            {
+        } else {
             hg18=F
-            }
+        }
 
         # cat('..plotting.\n')
         OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
@@ -394,11 +393,11 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     1
 }
 ###
-regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F) {
+regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F,allelePeaks=FALSE) {
     ## This function builds short segments and calcualtes their average Log-R and Allelic Imbalance Ratio.
     rownames(Log2)=1:nrows(Log2)
     rownames(alf)=1:nrows(alf)
-    regs=list('chr'=NULL,'start'=NULL,'end'=NULL,'logs'=NULL,'scores'=NULL,'het'=NULL,'hom'=NULL,'probes'=NULL,'snps'=NULL)
+    regs=list('chr'=NULL,'start'=NULL,'end'=NULL,'logs'=NULL,'scores'=NULL,'probes'=NULL,'snps'=NULL)
                                 #,'key1'=rep(NA,nrow(Log2)),'key2'=rep(NA,nrow(alf)))
     n=nrow(segments)
     s_check=NULL
@@ -429,30 +428,59 @@ regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F) {
             #regs$or_seg=c(regs$or_seg,c)    
             regs$start=c(regs$start,s_)                                    ## store start and end positions
             regs$end=c(regs$end,e_)
-            
-            if (nrow(thisalf)>min) {                                    ## Time to calculate Allelic Imbalance Ratio (if enough SNPs)
-                t1=sort( abs(thisalf$Value-0.5) )                            ## distance from middle (het) in the allele freq pattern, ascending
-                if (length(unique(t1))>3) {                                ## do not attempt clustering with too few snps
-                    xx=NULL
-                    try(xx <- kmeans(t1, 2),silent=T)                            ## Attempt k-means (Hartigan-Wong: has proven very stable)
-                    if (!is.null(xx)) if (min(xx$size) > 0.05*max(xx$size)) {    ## On some occations data quality is poor, requiring 5%+ heterozygous SNPs avoids most such cases.
-                        xx=xx$centers
-                    } else xx=NA
-                } else xx=NA      
-            } else xx=NA
-            #try (if (is.na(xx)) xx=0:1, silent=T)
-            try (if (length(xx)==0) xx=0:1, silent=T)
-            regs$scores=c(regs$scores, min(xx)/max(xx) )                ## Allelic Imbalance Ratio = inner / outer cluster.
-            regs$het=c(regs$het, min(xx))                                ## $het and $hom are no longer in use.
-            regs$hom=c(regs$hom, max(xx))
-            if(matched == T | is.na(regs$scores[length(regs$scores)])) {
-                regs$scores[length(regs$scores)] <- 2*median(abs(thisalf$Value-.5),na.rm=T)
-            }
+            temp = NA
+            try(temp <- allelicImbalance(thisalf$Value,min,matched,allelePeaks),silent=T)
+            regs$scores =c(regs$scores,temp)
+            # if (nrow(thisalf)>min) {                                    ## Time to calculate Allelic Imbalance Ratio (if enough SNPs)
+            #     t1=sort( abs(thisalf$Value-0.5) )                            ## distance from middle (het) in the allele freq pattern, ascending
+            #     if (length(unique(t1))>3) {                                ## do not attempt clustering with too few snps
+            #         xx=NULL
+            #         try(xx <- kmeans(t1, 2),silent=T)                            ## Attempt k-means (Hartigan-Wong: has proven very stable)
+            #         if (!is.null(xx)) if (min(xx$size) > 0.05*max(xx$size)) {    ## On some occations data quality is poor, requiring 5%+ heterozygous SNPs avoids most such cases.
+            #             xx=xx$centers
+            #         } else xx=NA
+            #     } else xx=NA      
+            # } else xx=NA
+            ##try (if (is.na(xx)) xx=0:1, silent=T)
+            # try (if (length(xx)==0) xx=0:1, silent=T)
+            # regs$scores=c(regs$scores, min(xx)/max(xx) )                ## Allelic Imbalance Ratio = inner / outer cluster.
+            # regs$het=c(regs$het, min(xx))                                ## $het and $hom are no longer in use.
+            # regs$hom=c(regs$hom, max(xx))
+            # if(matched == T | is.na(regs$scores[length(regs$scores)])) {
+            #     regs$scores[length(regs$scores)] <- 2*median(abs(thisalf$Value-.5),na.rm=T)
+            # }
         }
     }
     regs=as.data.frame(regs)
     regs=regs[!is.na(regs$logs),]  ### MODDAT MARKUS MAJ 2013
     return (regs)
+}
+allelicImbalance <- function (data,min,matched=F,allelePeaks=F) {
+    if(matched == T ) {
+         return(2*median(abs(data$Value-.5),na.rm=T))
+    }
+    if(allelePeaks == F) {
+        if (length(data)>min) {                                    ## Time to calculate Allelic Imbalance Ratio (if enough SNPs)
+            t1=sort( abs(data-0.5) )                            ## distance from middle (het) in the allele freq pattern, ascending
+            if (length(unique(t1))>3) {                                ## do not attempt clustering with too few snps
+                xx=NULL
+                try(xx <- kmeans(t1, 2),silent=T)                            ## Attempt k-means (Hartigan-Wong: has proven very stable)
+                if (!is.null(xx)) if (min(xx$size) > 0.05*max(xx$size)) {    ## On some occations data quality is poor, requiring 5%+ heterozygous SNPs avoids most such cases.
+                    xx=xx$centers
+                } else xx=NA
+            } else xx=NA      
+        } else xx=NA
+        #try (if (is.na(xx)) xx=0:1, silent=T)
+        #try (if (length(xx)==0) xx=0:1, silent=T)
+        #regs$scores=c(regs$scores, min(xx)/max(xx) )                ## Allelic Imbalance Ratio = inner / outer cluster.
+        #regs$het=c(regs$het, min(xx))                                ## $het and $hom are no longer in use.
+        #regs$hom=c(regs$hom, max(xx))
+        return( min(xx)/max(xx) )
+    }
+    #The new shiet
+    if(allelePeaks == T) {
+        return(1-max(kmeans(data,2)$centers))
+    }
 }
 ###
 segment_DNAcopy <- function(Log2) {
@@ -578,7 +606,7 @@ readSegments <- function() {
     return (segments)
 }
 ###
-makeRegions <- function(Log2, alf, segments,dataType='Nexus',matched=FALSE) {
+makeRegions <- function(Log2, alf, segments,dataType='Nexus',matched=FALSE,allelePeaks=F) {
     ## makeRegions is similar to "regsfromsegs" except regions are not subdivided before calculation of mean Log-R and Allelic Imbalance Ratio.
     regions=segments
     regions$Chromosome=as.character(segments$Chromosome)            ## Chromosome
@@ -588,6 +616,8 @@ makeRegions <- function(Log2, alf, segments,dataType='Nexus',matched=FALSE) {
     #regions$log2=round(regions$Value,4)
     regions$imba=NA                                                 ## Allelic Imbalance Ratio
     regionIx=NULL                                                   ## Not currently used
+    regionIx$Log2 <- list()
+    regionIx$alf <- list()
     for (i in 1:nrows(regions)) {
         log2temp=which(equals(Log2$Chromosome,regions$Chromosome[i])) ## index of Log-R (current chrom)
         alftemp=which(equals(alf$Chromosome,regions$Chromosome[i]))    ## index of Allele frequency (current chrom)
@@ -601,21 +631,25 @@ makeRegions <- function(Log2, alf, segments,dataType='Nexus',matched=FALSE) {
         log2temp=Log2$Value[log2temp]
         regions$log2[i]=median(log2temp)
         alftemp=alf$Value[alftemp]
-        if (length(alftemp)>3) {                ## Prepare to calculate Allelic Imbalance Ratio
-            if (dataType=="Nexus") t1=sort( abs(alftemp-0.5) ) ## distance from middle (het), ascending
-            if (dataType=="CNCHP") t1=sort( abs(alftemp)-0 ) ## This is not currently in use, was intended for analysis of SNP6 .CNCHP data.
-            if (length(unique(t1))>5) { ## Avoid calculating Allelic Imbalance Ratio unless there are several different values to cluster
-                xx=NA
-                xx=try(kmeans(t1, 2), silent=T)            ## This part is nearly identical to that of 'regsfromsegs()'
-                try( if (min(xx$size) > 0.05*max(xx$size)) {
-                    xx=xx$centers
-                } else xx=NA, silent=T)    
-            } else xx=NA
-            try(regions$imba[i] <- round( min(xx)/max(xx) ,2), silent=T)
-        }
-        if(matched == T | is.na(regions$imba[i])) {
-            regions$imba[i] <- 2*median(abs(alftemp-.5),na.rm=T)
-        }
+        temp = NA
+        try(temp <- allelicImbalance(alftemp,min,matched=matched,allelePeaks=allelePeaks),silent=T)
+        regions$imba[i]  <- temp
+
+        # if (length(alftemp)>3) {                ## Prepare to calculate Allelic Imbalance Ratio
+        #     if (dataType=="Nexus") t1=sort( abs(alftemp-0.5) ) ## distance from middle (het), ascending
+        #     if (dataType=="CNCHP") t1=sort( abs(alftemp)-0 ) ## This is not currently in use, was intended for analysis of SNP6 .CNCHP data.
+        #     if (length(unique(t1))>5) { ## Avoid calculating Allelic Imbalance Ratio unless there are several different values to cluster
+        #         xx=NA
+        #         xx=try(kmeans(t1, 2), silent=T)            ## This part is nearly identical to that of 'regsfromsegs()'
+        #         try( if (min(xx$size) > 0.05*max(xx$size)) {
+        #             xx=xx$centers
+        #         } else xx=NA, silent=T)    
+        #     } else xx=NA
+        #     try(regions$imba[i] <- round( min(xx)/max(xx) ,2), silent=T)
+        # }
+        # if(matched == T | is.na(regions$imba[i])) {
+        #     regions$imba[i] <- 2*median(abs(alftemp-.5),na.rm=T)
+        # }
     }
     return(list('regions'=regions,'regionIx'=regionIx))
 }
