@@ -2054,6 +2054,9 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     par(mgp =c(1,0.5,0))
     par(lend=1)
     
+    #Remove chrY,M,XY
+    mval[mchr=='chrY'|mchr=='chrXY'|mchr=='chrM']=NA    
+    
     #Calculate previous distance of whole genome so the next chromsome is added
     #at the correct coordinate
     pre=rep(NA,23)
@@ -2207,6 +2210,9 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     par(mar = c(0, 0, 0, 0))
     par(oma = c(0,0,0,0))
     par(mgp =c(1,0.5,0))
+    
+    #Remove chrY,M,XY
+    sval[mchr=='chrY'|mchr=='chrXY'|mchr=='chrM']=NA    
     
     #Index to avoid spos/sval values that are all the way at 0 or 1.
     ix = !(sval %in% c(0,1))
