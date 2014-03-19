@@ -176,7 +176,7 @@ TAPS_plot <- function(#samples='all',
         save(allRegions,file='allRegions.Rdata')
         regs=NULL;# if ('shortRegions.Rdata' %in% dir()) load('shortRegions.Rdata')
         if (is.null(regs)) {
-            regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=5,matched=matched,allelePeaks=allelePeaks)    ## Calculates the same data for shortened segments
+            regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=30,matched=matched,allelePeaks=allelePeaks)    ## Calculates the same data for shortened segments
             save(regs,file='shortRegions.Rdata')
         }
         
