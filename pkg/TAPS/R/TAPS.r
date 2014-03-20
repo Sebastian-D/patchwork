@@ -1089,7 +1089,7 @@ setCNs <- function(allRegions,int,ai,model,maxCn=12) {
         }
     }
     
-    ### beräkna tumörcellshalt!!
+    ### beräkna tumorcellshalt!!
     # Mha modellparameter
     ## empirical delta for whole copy: 0.55
     model$k2=model$k*model$meanCn

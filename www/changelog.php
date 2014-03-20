@@ -14,15 +14,26 @@ Here you can find the recent changes made to the patchwork and patchworkCG packa
 	See Patchwork -> Installation </li>
 </ul> -->
 
+ <hr class="alt1" />
+
+<h5 style="display:inline-block;">TAPS 2.1 - </h5><div style="display:inline-block; width:1px;"></div>
+<h6 style="display:inline-block;">04/03/2014</h6>
+<ul>
+	<li>New function: TAPS_estimate(). Automatic estimation of allele-specific copynumbers for all samples that have completed TAPS_plot()</li>
+	<li>New function: TAPS_click(). Use a GUI to accept TAPS_estimates() values or add your own interpretation through direct interaction with the TAPS_plot() plots. </li>
+	<li>New function: TAPS_region(). Zoom in on a region specified by user which includes known gene information.</li>
+	<li>Updates to homepage regarding TAPS usage.</li>
+</ul>
+
 <hr class="alt1" />
 
-<h5 style="display:inline-block;">patchwork v2.4 & TAPS 2.0- </h5><div style="display:inline-block; width:1px;"></div>
+<h5 style="display:inline-block;">patchwork v2.4 & TAPS 2.0 - </h5><div style="display:inline-block; width:1px;"></div>
 <h6 style="display:inline-block;">11/09/2013</h6>
 <ul>
 	<li>Complete makeover of patchwork plots visualization. Now includes cytoband information. </li>
 	<li>New function: patchwork.region(). Shows a region you specify of a chromosome. Contains Known Gene information </li>
-	<li>New function: TAPS_compare. Compare aberratuin frequencies in two groups of samples.</li>
-	<li>New function: TAPS_freq. Summary of aberration frequencies in several samples.</li>
+	<li>New function: TAPS_compare(). Compare aberration frequencies in two groups of samples.</li>
+	<li>New function: TAPS_freq(). Summary of aberration frequencies in several samples.</li>
 </ul>
 
 

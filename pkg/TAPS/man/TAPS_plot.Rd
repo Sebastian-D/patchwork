@@ -28,7 +28,7 @@ TAPS_plot(directory=NULL,autoEstimate=FALSE,bin=400,cores=1,matched=FALSE)
 	%Default is 'all'. Alternatively, supply a (boolean, integer or sample name) vector of included samples.
 	%}
 	\item{directory}{
-	Default is getwd(). Specifying to a specific samples directory will run TAPS_plot on that directory.
+	Default is NULL. If NULL getwd() is used. Specifying to a specific samples directory will run TAPS_plot on that directory.
 	Specifying a directory containing one or more subdirectories that are samples (and not any other subdirectories
 	or TAPS_plot will error when trying to run them!) will iteratively run TAPS_plot on all samples.
 	}
@@ -45,7 +45,7 @@ TAPS_plot(directory=NULL,autoEstimate=FALSE,bin=400,cores=1,matched=FALSE)
 	Default is 1. Set amount of threads/cores to be used.
 	}
 	\item{matched}{
-	Default is FALSE.
+	Default is FALSE. Set to TRUE if a matched normal has been used to remove homozygous snp allele frequencies. 
 	}
 }
 
@@ -94,5 +94,5 @@ http://www.biomedcentral.com/content/pdf/gb-2011-12-10-r108.pdf
 Markus Mayrhofer, \email{markus.mayrhofer@medsci.uu.se} \cr
 Hanna Goransson Kultima, \email{hanna.goransson.kultima@medsci.uu.se} \cr
 Sebastian DiLorenzo, \email{sebastian.dilorenzo@medsci.uu.se} \cr
-Björn Viklund, \email{bjorn.viklund@medsci.uu.se}
+Bjorn Viklund, \email{bjorn.viklund@medsci.uu.se}
 }

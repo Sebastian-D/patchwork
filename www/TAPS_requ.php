@@ -10,7 +10,7 @@ If you have some other data please contact us as it will likely work but as of w
 <br /><br />
 
 Your data can be prepared using Nexus (BioDiscovery, not free), ChAS (Affymetrix, free) or manually. 
-Using Nexus has the benefit of being able to use their segmentation which reduces running time of TAPS.
+Using Nexus has the benefit of using their segmentation which reduces running time of TAPS.
 <br /><br />
 
 If you have used <b>Nexus</b>; we recommend using the SNPRank segmentation algorithm as it is

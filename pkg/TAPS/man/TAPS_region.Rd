@@ -20,7 +20,7 @@ TAPS_region(directory=NULL,chr,region,hg18=F)
 
 \arguments{
 	\item{directory}{
-	Default is getwd().
+	Default is getwd(). Directory must contain TAPS_plot_output.Rdata, an output from TAPS_plot(), which contains all information that TAPS_region() needs.
 	}
 	\item{chr}{
 	Supply the chromosome you wish to look at. ex: chr=1
@@ -48,6 +48,6 @@ http://www.biomedcentral.com/content/pdf/gb-2011-12-10-r108.pdf
 Markus Mayrhofer, \email{markus.mayrhofer@medsci.uu.se} \cr
 Hanna Goransson Kultima, \email{hanna.goransson.kultima@medsci.uu.se} \cr
 Sebastian DiLorenzo, \email{sebastian.dilorenzo@medsci.uu.se}
-Björn Viklund, \email{bjorn.viklund@medsci.uu.se}
+Bjorn Viklund, \email{bjorn.viklund@medsci.uu.se}
 }
 

@@ -4,16 +4,16 @@
 alt="Flowchart of processes and data for patchwork" title="Flowchart of data and processes for patchwork">
 </div><br />
 
-<h4>patchwork.plot()</h4>
+<center><h3>patchwork.plot()</h3></center>
 
 patchwork.plot() is a function that visualizes allele-specific copy numbers from
  whole-genome sequenced data of tumors.<br /><br />
 
 It is recommended that you run patchwork from a "clean" working directory to avoid the risk
- of having files overwrite in the case of running patchwork on multiple samples.<br /><br />
+ of overwriting when running patchwork on multiple samples.<br /><br />
 
 Execution may take quite a while depending on the size of your sample,
-if possible run it on a dedicated computer. (A 50GB tumor sample with a matched 50GB normal sample took ~6 hours
+if possible, run it on a dedicated computer. (A 50GB tumor sample with a matched 50GB normal sample took ~6 hours
 and used 10GB (out of 24GB available) RAM. However
 there are many factors that influence runtime so be generous with time/RAM allocation!)<br /><br />
 
@@ -210,10 +210,9 @@ Example run of patchwork.plot() where output has been left for display: <br />
 		(Some warning messages about trying to load the files in the checklist below is not uncommon)
 </pre>
 
-If you get any errors not mentioned on the homepage please send us an <a onmouseover="popup('sebastian.dilorenzo(at)medsci.uu.se <br /> markus.mayrhofer(at)medsci.uu.se <br /> anders.isaksson(at)medsci.uu.se');">email</a>, and we will get back to you as soon as possible!<br /><br />
+If you get any errors not mentioned on the homepage please send us an <a onmouseover="popup('sebastian.dilorenzo(at)medsci.uu.se <br /> markus.mayrhofer(at)medsci.uu.se <br /> bjorn.viklund(at)medsci.uu.se <br /> anders.isaksson(at)medsci.uu.se');">email</a> and we will get back to you as soon as possible!<br /><br />
 
-Your working directory should now have the plots generated from the function, 1 overview
- plot and 24 chromosomal plots. <br /><br />
+If execution went well your working directory should have 1 overview plot and 24 chromosomal plots. <br /><br />
 
 The working directory should also contain these files, where (prefix) is the name of your BAM file
  without the .bam file ending: <br />
@@ -232,12 +231,12 @@ the chromosomes again. <br /><br />
 
 <div style="text-align: center;">
 <b>
-TO COMPLETELY RE-RUN PATCHWORK FROM SCRATCH ALL OF THE ABOVE FILES NEED TO BE DELETED FROM YOUR WORKING DIRECTORY
+TO COMPLETELY RE-RUN PATCHWORK FROM SCRATCH ALL OF THE .Rdata FILES NEED TO BE DELETED FROM YOUR WORKING DIRECTORY
 </b>
 </div>
 <br />
 
- <h4>patchwork.copynumbers()</h4>
+ <center><h3>patchwork.copynumbers()</h3></center>
 
 
  The function patchwork.copynumbers() uses the relationship between coverage
@@ -288,32 +287,33 @@ Arguments:
 
 To infer the arguments for patchwork.copynumbers() you will need to look at one of the chromosomal
 plots generated using patchwork.plot(). The structure and relationships in the plot can be interpreted
-to figure out the most probable locations of the allele-specific copynumbers. <br /><br />
+to figure out the most probable locations of the allele-specific copy numbers. <br /><br />
 
 
 For information to help you understand the axis, allelic imbalance and coverage, and layout of the plot click <a href="AI_Cov.php" target="_blank" style="text-decoration:none;">here</a>.
+There is also a description of patchwork.plot() generated plots in <a href="pw.resu.php" target="_blank" style="text-decoration:none;">Results tab.</a>
 <br /><br />
 
 Now lets take a look at the structure and placement of clusters on the whole genome plot.
 What do we expect a hypothetical plots arrangement of clusters to look like? We know that the average ploidy of the
 sample will be 1 on coverage axis as it is normalized. The sample may be highly rearranged but quite often this is
-a starting point for finding copynumber 2 or copynumber 3. As there will be less reads
-covering copynumber 1 in the sample than higher copynumbers and copynumber 1 cannot have different
-allele constitutions, by its very nature of being one allele, copynumber 1 will be represented by a
+a starting point for finding copy number 2 or copy number 3. As there will be less reads
+covering copy number 1 in the sample than higher copy numbers and copy number 1 cannot have different
+allele constitutions, by its very nature of being one allele, copy number 1 will be represented by a
 single cluster far to the left on coverage axis when compared to the other clusters.<br />
 Sometimes the X chromosome can be far left as well, so you may want to take a peek at the X chromosomes plot to
 avoid the risk of it disturbing your assessment.
-So what if we do not have any copynumber 1 in the sample? Then perhaps the far left
-of the plot will be occupied by two clusters, indicating the LoH and diploid state of copynumber 2. It then stands to reason
-that the next cluster we will encounter, again; moving from left to right on coverage axis, will be of copynumber 3. In the
-same way we would expect copynumber 2 to follow copynumber 1 in the previous scenario. <br />
+What if we do not have any copy number 1 in the sample? Then perhaps the far left
+of the plot will be occupied by two clusters, indicating the LoH and diploid state of copy number 2. It then stands to reason
+that the next cluster we will encounter, again; moving from left to right on coverage axis, will be copy number 3. In the
+same way we would expect copy number 2 to follow copy number 1 in the previous scenario. <br />
 
 It is with reasoning such as this, looking at the plot and how the clusters are arranged and what cluster constitutions are
-physically possible, that we can determine the allele-specific copynumbers in our sample.<br /><br />
+physically possible, that we can determine the allele-specific copy numbers in our sample.<br /><br />
 
 Here is the topmost section of one such plot with some added bars and text for tutorial purposes. The plot
 shows the whole genome in grey and the chosen chromosome, not important in this guide, in red to blue gradient.
-From this whole genome picture you can then use the arrangement of the clustered areas to estimate copynumbers
+From this whole genome picture you can then use the arrangement of the clustered areas to estimate copy numbers
 and allele-specific information. <br /><br />
 
 <img id="fig1pw" src="css/img/Fig1pw_tut.png" alt="Input arguments patchwork.copynumbers" title="Figure 1 patchwork"
@@ -321,7 +321,7 @@ and allele-specific information. <br /><br />
 
 
 The <b>cn2</b> argument is the position of copy number 2. In this example cn2 is ~0.8.<br />
-The <b>delta</b> argument is the difference between two copynumbers on the coverage axis. In this example we
+The <b>delta</b> argument is the difference between two copy numbers on the coverage axis. In this example we
 used copy number 2 and copy number 3, but we could as well have used copy number 2 and the unmarked copy number
 1 to the left of copy number 2. Delta does not take negative argument input. In this example delta is ~0.28.<br />
 The <b>het</b> argument is the position of heterozygous copy number 2 on the allelic imbalance axis. In this example

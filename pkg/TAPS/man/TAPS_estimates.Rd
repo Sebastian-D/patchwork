@@ -47,5 +47,5 @@ http://www.biomedcentral.com/content/pdf/gb-2011-12-10-r108.pdf
 Markus Mayrhofer, \email{markus.mayrhofer@medsci.uu.se} \cr
 Hanna Goransson Kultima, \email{hanna.goransson.kultima@medsci.uu.se} \cr
 Sebastian DiLorenzo, \email{sebastian.dilorenzo@medsci.uu.se} \cr
-Björn Viklund, \email{bjorn.viklund@medsci.uu.se}
+Bjorn Viklund, \email{bjorn.viklund@medsci.uu.se}
 }

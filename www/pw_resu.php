@@ -1,70 +1,72 @@
-<h4>Plots of patchwork.plot()</h4>
+<center><h3>Plots of patchwork.plot()</h3></center>
 
-After running patchwork.plot() you should have 24 plots in your working directory similar
-to the example plot below, one for each chromosome and two overviews.<br /><br />
+After running patchwork.plot() you have 24 chromosomal plots in your working directory similar
+to the example plot below. <br /><br />
 
 For information regarding allelic imbalance and coverage click <a href="AI_Cov.php" target="_blank" style="text-decoration:none;">here</a>.
 
-<h5>Top part of the plot</h5>
+<center><h4>Top part of the plot</h4></center>
 
 The clusters in the plot display regions of certain allelic constitution and copy number.
 The copy number increases along the Coverage axis while paternal/maternal allele ratio
 becomes less balanced along the Allelic Imbalance axis.<br /><br />
 
 The chromosome in question is colored against a background of the complete genome in grey.
-A colored circles gradient and size correlate with its segments position and size on the
+A colored circles gradient and size correlate with the segments position and size on the
  chromosome. Colors of segments match within different fields of the plot.
  The circles are semi-transparent so a darker hue, both for colored and grey,
  indicate a greater amount of genomic content in that region.<br /><br />
 
 The structure and relationships in the plot can be interpreted
-to figure out the most probable location the allele-specific copynumbers.
+to figure out the most probable location of the allele-specific copy numbers.
 Each cluster has a certain copy number and allele content.<br /><br />
 
 Quote from Execution tab: <br />
 <adress><p>
-	"What do we expect a hypothetical plots arrangement of clusters to look like? We know that the average ploidy of the sample will
-	be 1 on coverage axis as it is normalized. The sample may be highly rearranged but quite often this is a starting point for
-	finding copynumber 2 or copynumber 3. As there will be less reads
-	covering copynumber 1 in the sample than higher copynumbers and copynumber 1 cannot have different allele constitutions, by
-	its very nature of being one allele, copynumber 1 will be represented by a single cluster farthest to the left on coverage
-	axis when compared to the other clusters.<br />
-	So what if we do not have any copynumber 1 in the sample? Then perhaps the far left
-	of the plot will be occupied by two clusters, indicating the LoH and diploid state of copynumber 2. It then stands to reason
-	that the next cluster we will encounter, again; moving from left to right on coverage axis, will be of copynumber 3. In the
-	same way we would expect copynumber 2 to follow copynumber 1 in the previous scenario. <br />
+	"What do we expect a hypothetical plots arrangement of clusters to look like? We know that the average ploidy of the
+sample will be 1 on coverage axis as it is normalized. The sample may be highly rearranged but quite often this is
+a starting point for finding copy number 2 or copy number 3. As there will be less reads
+covering copy number 1 in the sample than higher copy numbers and copy number 1 cannot have different
+allele constitutions, by its very nature of being one allele, copy number 1 will be represented by a
+single cluster far to the left on coverage axis when compared to the other clusters.<br />
+Sometimes the X chromosome can be far left as well, so you may want to take a peek at the X chromosomes plot to
+avoid the risk of it disturbing your assessment.
+What if we do not have any copy number 1 in the sample? Then perhaps the far left
+of the plot will be occupied by two clusters, indicating the LoH and diploid state of copy number 2. It then stands to reason
+that the next cluster we will encounter, again; moving from left to right on coverage axis, will be copy number 3. In the
+same way we would expect copy number 2 to follow copy number 1 in the previous scenario. <br />
 
-	It is with reasoning such as this, looking at the plot and how the clusters are arranged and what cluster constitutions are
-	physically possible, that we can determine the allele-specific copynumbers in our sample."<br />
+It is with reasoning such as this, looking at the plot and how the clusters are arranged and what cluster constitutions are
+physically possible, that we can determine the allele-specific copy numbers in our sample."<br />
 </p></adress>
 <br />
 
-Far left on the Coverage axis is a small cluster. As it has the lowest coverage in the sample and is a single cluster
-seen in allelic imbalance perspective it is copy number 1.
+To the far left on the plot on the Coverage axis is a small cluster. As it has the lowest coverage in the sample and is a single cluster
+,as seen in allelic imbalance context, it is reasonably copy number 1.<br />
 Moving to the right the next two clusters, lower cluster is quite small,
-are the allelic states of copy number 2. Following this reasoning the next set of clusters
+are the allelic states of copy number 2. <br /> Following this reasoning the next set of clusters
 must be copy number 3, then 4 etc. The average copy number for the sample is just above 3.
 
 This arrangement of the genome is labeled farther down in one of the plots generated by
 patchwork.copynumbers() or in our section above on allelic imbalance, however before using
- that function you will need to be able to determine the constitution of the tumor
-  genome as it is used as input arguments for patchwork.copynumbers()!
+ patchwork.copynumbers() you will need to be able to determine the constitution of the tumor
+  genome as it is used as input arguments!
 
 <img id="fig2pw" src="css/img/tumor.bam_karyotype.chr18.png" alt="Results example patchwork.plot"
  title="Figure 2 patchwork"
  style="width:880px;"><br /><br />
 
 
- <h5>Middle part of the plot</h5>
+ <center><h4>Middle part of the plot</h4></center>
 
 The chromosome in questions coverage plotted against the chromosomes coordinates.
 
-<h5>Bottom part of the plot</h5>
+<center><h4>Bottom part of the plot</h4></center>
 
 The chromosome in questions allelic imbalance plotted against the
- chromosomes coordinates.
+ chromosomes coordinates.<br /><br />
 
-<br /><br /><h4>Plots of patchwork.copynumbers()</h4>
+<center><h3>Plots of patchwork.copynumbers()</h3></center>
 
 This plot, arbitrarily named "check", is not chromosome specific and shows
 the complete tumor genome with assigned tags for copy number and allele content,

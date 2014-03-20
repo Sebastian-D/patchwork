@@ -62,15 +62,15 @@ $(document).ready(function(){
 		});
 		
 		// stop play button
-		wrap.find('.slideshow-buttons')
-		.append('<li class="slideshow-stop"><a href="#slideshow-stop">Stop</a></li>');
-		wrap.find('.slideshow-stop a').click(function(e){
-			e.preventDefault();
-			if(!wrap.hasClass('paused')) { next = wrap.find('.slideshow li.current');}
-			else{ next = null; }
-			var slideshow = $(this).parents('.slideshow-wrap').find('ul.slideshow');
-			KSslideshow(slideshow, next);
-		});
+		// wrap.find('.slideshow-buttons')
+		// .append('<li class="slideshow-stop"><a href="#slideshow-stop">Stop</a></li>');
+		// wrap.find('.slideshow-stop a').click(function(e){
+		// 	e.preventDefault();
+		// 	if(!wrap.hasClass('paused')) { next = wrap.find('.slideshow li.current');}
+		// 	else{ next = null; }
+		// 	var slideshow = $(this).parents('.slideshow-wrap').find('ul.slideshow');
+		// 	KSslideshow(slideshow, next);
+		// });
 		
 		// button events
 		$('.slideshow-buttons li:first').addClass('current');
@@ -91,6 +91,15 @@ $(document).ready(function(){
 		var nav = slideshow.parents('.slideshow-wrap').find('.slideshow-buttons li');
 		var sstop = nav.filter('.slideshow-stop');	
 		
+		// scroll
+		var scrollEffect = inner.scrollTo(next, 0);
+		current.removeClass('current');
+		next.addClass('current');
+		nav.removeClass('current').eq(next.index()).addClass('current');
+		slideshow.delay(1000000).animate({alpha:1}, function(){
+			if(wrap.hasClass('paused') == false){ KSslideshow(slideshow, null);  }
+		});
+
 		// next slide
 		if(next == null) {
 			next = current.next();		
@@ -101,15 +110,6 @@ $(document).ready(function(){
 			wrap.addClass('paused');
 			sstop.find('a').html('Play');
 		}
-		
-		// scroll
-		var scrollEffect = inner.scrollTo(next, 1000);
-		current.removeClass('current');
-		next.addClass('current');
-		nav.removeClass('current').eq(next.index()).addClass('current');
-		slideshow.delay(3000).animate({alpha:1}, function(){
-			if(wrap.hasClass('paused') == false){ KSslideshow(slideshow, null);  }
-		});
 	}
 	
 	/*---------------------------------

@@ -5,17 +5,21 @@
 <html><head>
 <title>Patchwork</title>
 <meta charset="UTF-8">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link type="text/plain" rel="author" href="http://patchwork.r-forge.r-project.org/humans.txt" />
 
 <meta name="description" content="Tutorial and information regarding Patchwork and PatchworkCG, an allele-specific visualization tool developed for cancer genomes." />
 <meta name="author" content="Sebastian DiLorenzo" />
 <meta name="keywords" content="Cancer,patchwork,patchworkCG,CompleteGenomics,R,visualization,Sequencing,Rforge,NGS,WGS,Allelic,Imbalance,Coverage,Allele-specific,Copy number" />
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script> -->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+
 <noscript>
 Your browser does not support JavaScript! Enable it for this page to work as intended.
 </noscript>
+
 <!-- <script type='text/javascript' src='js/jquery.ba-hashchange.min.js'></script>
 <script type='text/javascript' src='js/dynamicpage.js'></script> -->
 <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -24,7 +28,10 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 <script type="text/javascript" src="js/kickstart.js"></script>
 <link rel="stylesheet" type="text/css" href="css/kickstart.css" media="all" />
                      	<!-- CUSTOM STYLES -->
-<link rel="stylesheet" type="text/css" href="style.css" media="all" />    
+<link rel="stylesheet" type="text/css" href="style.css" media="all" />
+<!-- <link rel="stylesheet" type="text/css" href="css/kickstart-slideshow.css" media="all" /> -->
+
+<!--<link rel="stylesheet" type="text/css" href="css/fonts/fontawesome/css/font-awesome.min.css" media="all" />    -->
 
 
 <script type="text/javascript" src="js/sidebar.js"></script>
@@ -235,7 +242,8 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 
 		   	Anders Isaksson	- anders.isaksson(at)medsci.uu.se <br />
 
-		   	<br />
+		   	Björn Viklund - bjorn.viklund(at)medsci.uu.se <br />
+
 		   	<br />
 		   	
 		   	<!-- Start of StatCounter Code for Default Guide -->
@@ -260,7 +268,7 @@ Your browser does not support JavaScript! Enable it for this page to work as int
 			<!-- End of StatCounter Code for Default Guide -->
 			<!-- <div style="display:inline-block; width:2px; height:1px;"></div> -->
 			<!-- LAST MODIFIED -->
-			Last modified: 2013-06-18
+			Last modified: 2014-03-03
 
 
 		</div>
