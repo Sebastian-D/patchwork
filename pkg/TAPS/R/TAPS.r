@@ -172,7 +172,7 @@ TAPS_plot <- function(#samples='all',
         Log2$Value <- Log2$Value-median(Log2$Value,na.rm=T)             ## Median-centering
         
         allRegions=NULL; #if ('allRegions.Rdata' %in% dir()) load('allRegions.Rdata')
-        if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments,matched=matched,allelePeaks=allelePeaks)            ## Calculates necessary data for segments (all functions are in this file)
+        if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments,matched=matched,min=30,allelePeaks=allelePeaks)            ## Calculates necessary data for segments (all functions are in this file)
         save(allRegions,file='allRegions.Rdata')
         regs=NULL;# if ('shortRegions.Rdata' %in% dir()) load('shortRegions.Rdata')
         if (is.null(regs)) {
@@ -365,13 +365,11 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
             #Test if hg18 or hg19 should be used. length of (hg18 chr19) > (hg19 chr19)
             hgtest=regions[regions$Chromosome=="chr19",]
             if(hgtest$End[length(hgtest$Chromosome)] > 60000000)
-                {
+            {
                 hg18=T
-                }
-            else 
-                {
+            } else {
                 hg18=F
-                }
+            }
 
             #save parameters as strings
             parameters=paste("Parameters given: cn2:",sampleInfo$cn2," delta:",sampleInfo$delta," loh:",sampleInfo$loh)
@@ -455,7 +453,7 @@ regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F,allelePeak
     regs=regs[!is.na(regs$logs),]  ### MODDAT MARKUS MAJ 2013
     return (regs)
 }
-allelicImbalance <- function (data,min,matched=F,allelePeaks=F) {
+allelicImbalance <- function (data,min=30,matched=F,allelePeaks=F) {
     if(matched == T ) {
          return(2*median(abs(data$Value-.5),na.rm=T))
     }
@@ -606,7 +604,7 @@ readSegments <- function() {
     return (segments)
 }
 ###
-makeRegions <- function(Log2, alf, segments,dataType='Nexus',matched=FALSE,allelePeaks=F) {
+makeRegions <- function(Log2, alf, segments,dataType='Nexus',min=30,matched=FALSE,allelePeaks=F) {
     ## makeRegions is similar to "regsfromsegs" except regions are not subdivided before calculation of mean Log-R and Allelic Imbalance Ratio.
     regions=segments
     regions$Chromosome=as.character(segments$Chromosome)            ## Chromosome
@@ -2605,11 +2603,10 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
 
 karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,schr,spos,sval,t,name='',xlim=c(-1.02,1.82),ylim=0:1, maxCn=8,parameters)  
 {   
-    if(hg18==T)
-        {
+    if(hg18==T) {
         chroms=chroms_hg18
         chromData=chromData_hg18
-        }
+    }
     #Get ideogram
     #ideogram=getIdeogram()
     
@@ -2706,8 +2703,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         par(oma = c(0,0,0,0))
         par(mgp =c(0.5,0.25,0))
         
-        if(c!=23)
-        {
+        if(c!=23) {
             #Whole genome overview plot
             #Note that we are plotting chrY in the background, despite the fact that it is not an "active" chromosome.
             plot(c(int[notix],int[ix]),c(ai[notix],ai[ix]),
@@ -2720,9 +2716,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
                  col = c(col[notix],col[ix]),
                  xlim = c(-1,1.5),
                  ylim = ylim)
-        }
-        else
-        {
+        } else {
             plot(int[notix],ai[notix],
                  pch=16,
                  cex=size[notix],
@@ -2736,12 +2730,9 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         }
         
         xix=chr=="chrX"
-        if(c!=23)
-        {
+        if(c!=23) {
             points(int[xix],ai[xix],pch=4,col='#46464680')
-        }
-        else
-        {
+        } else {
             points(int[xix],ai[xix],pch=4,col=col[ix]) 
         }
         
