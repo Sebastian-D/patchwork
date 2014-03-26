@@ -3770,6 +3770,7 @@ TAPS_click <- function(path = getwd()) {
 
     # sampleData <- read.csv('SampleData.csv',sep='\t',header=T,colClasses=c('character',rep('numeric',4)),stringsAsFactors=F)
     sampleData <- read.csv('SampleData.csv',sep='\t',header=T,stringsAsFactors=F)
+    if(any(colnames(sampleData) %in% c('MAPD','MHOF'))) sampleData <- sampleData[,1:5]
     sampleDataOri <- sampleData
 
     if(any(T == sampleData$done)) {
