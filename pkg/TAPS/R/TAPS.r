@@ -1467,7 +1467,6 @@ addGenes <- function(data,genes) {
 ### Markus 2013.
 ### Function for summarizing alteration frquencies in X samples
 TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
-    
     #suppressPackageStartupMessages(library(xlsx))    
     
     sampleData <- load.txt('SampleData.csv')
@@ -1500,14 +1499,15 @@ TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
         table$meanCn <- meanCns[i] <- round(weightedMean(table$Cn_[ix], table$lengthMB[ix]),2)    
         samples <- rbind(samples,table) 
     }
-    
-    samples=samples[samples$Chromosome!='chrY',]
+
+    samples=samples[!is.na(samples$Cn),]
+    regs=samples[samples$Chromosome!='chrY',]
     
     if (hg19) genes <- knownGene else genes <- knownGene_hg18
     genes$name2=genes$gAlias
     genes$chrom=genes$chr
     
-    regs=samples
+    
     n=length(unique(regs$name))
     
     gaincolor='#007602'
@@ -1630,7 +1630,7 @@ sum_regionSet <- function(chroms, chromData, genes,
 
 ########### Group comparisons
 TAPS_compare <- function(grp1, grp2, name1='1', name2='2', outdir='frequencies_comp', hg19=T) {
-    
+
     #suppressPackageStartupMessages(library(xlsx))    
 
     sampleData=load.txt('SampleData.csv')
@@ -1662,14 +1662,15 @@ TAPS_compare <- function(grp1, grp2, name1='1', name2='2', outdir='frequencies_c
     nSamples=length(grps)
     
     for (i in 1:nSamples) {
-        table <- load.txt(paste(olddir,'/',subs[i],'/',subs[i],'_segmentCN.txt',sep=''))
+        table <- load.txt(paste(olddir,'/',grps[i],'/',grps[i],'_segmentCN.txt',sep=''))
         table$n <- i
-        table$name <- as.character(subs[i])    
+        table$name <- as.character(grps[i])    
         ix <- as.numeric(deChrom_ucsc(table$Chromosome)) <= 22
         table$meanCn <- meanCns[i] <- round(weightedMean(table$Cn_[ix], table$lengthMB[ix]),2)    
         samples <- rbind(samples,table) 
     }
     
+    samples=samples[!is.na(samples$Cn),]
     samples=samples[samples$Chromosome!='chrY',]
     
     if (hg19) genes <- knownGene else genes <- knownGene_hg18
@@ -1723,7 +1724,6 @@ compare_regionSet <- function(chroms, chromData, genes,
                               comparison='', 
                               name1='1', name2='2', 
                               color='#000000') {    
-
     p_cutoff <- 0.05
     freq_cutoff <- 0
     
