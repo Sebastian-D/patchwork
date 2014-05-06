@@ -84,7 +84,7 @@ TAPS_plot <- function(#samples='all',
         # print(paste(i,': ',subs[i],': Opening',sep=''))
         print(paste(i,'/',length(subs),': ',subs[i],' Loading',sep=''))
         
-        if(length(grep("*.cyhd.cychp",dir()))==1)				##cyhd sample
+        if(length(grep("*.cychp",dir()))==1)				##cychp sample
         {
             ##read CYCHP file from ChAS with log-ratio info##
             ################################################
@@ -120,7 +120,7 @@ TAPS_plot <- function(#samples='all',
             ##read txt file from ChAS with snp info##
             #########################################
             
-            name=list.files(".",pattern="*.cyhd.txt")
+            name=c(list.files(".",pattern="*.cy750K.txt"),list.files(".",pattern="*.cyhd.txt"))
             tempalf=read.table(file=name, header=FALSE, sep="\t", skip=12)
             SignalA=tempalf$V4
             SignalB=tempalf$V5
