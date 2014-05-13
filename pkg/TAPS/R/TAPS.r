@@ -388,7 +388,7 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
         setwd('..')
     }
     #save.txt(sampleData,file='sampleData.csv')
-    1
+    
 }
 ###
 regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F,allelePeaks=FALSE) {
@@ -455,7 +455,7 @@ regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F,allelePeak
 }
 allelicImbalance <- function (data,min=30,matched=F,allelePeaks=F) {
     if(matched == T ) {
-         return(2*median(abs(data$Value-.5),na.rm=T))
+         return(2*median(abs(data-.5),na.rm=T))
     }
     if(allelePeaks == F) {
         if (length(data)>min) {                                    ## Time to calculate Allelic Imbalance Ratio (if enough SNPs)
@@ -3565,11 +3565,12 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
 #Wrapper for getEstimates(). It will execute getEstimates in every sample folder.
 #If SampleData.csv already exists it will create the file SampleData_YYYY-MM-DD_HH-MM-SS.csv instead.
 TAPS_estimates <- function(path=getwd()) {
-    library(foreach)
-    library(TAPS)
+    suppressPackageStartupMessages(library(foreach))
+    suppressPackageStartupMessages(library(TAPS))
     # setwd("/media/safe/COAD_TCGA/NexusTxtFiles/tumorCELFiles")
     root <- path
-    samples <- dir()[file.info(dir())$isdir]
+    samples <- dir(path)[file.info(cbind(paste(path,cbind(dir(path)),sep='/')))$isdir]
+    # samples <- dir(path)[file.info(path)$isdir]
     # samples <- samples[grep('^[A-Z]',samples)]
     datat <- foreach(sample=samples) %do% {
         setwd(paste(root,'/',sample,sep=''))
@@ -3593,6 +3594,7 @@ TAPS_estimates <- function(path=getwd()) {
             file.rename('SampleData.csv',paste('SampleData',format(Sys.time(), "_old_TAPS_estimates_%F_%T.csv"),sep=''))
     }
     write.table(sampledata,'SampleData.csv',sep='\t',row.names=F)
+    print('OK')
 
 }
 
@@ -3769,7 +3771,7 @@ TAPS_click <- function(path = getwd()) {
     miny <- 0.5170546
 
     # sampleData <- read.csv('SampleData.csv',sep='\t',header=T,colClasses=c('character',rep('numeric',4)),stringsAsFactors=F)
-    sampleData <- read.csv('SampleData.csv',sep='\t',header=T,stringsAsFactors=F)
+    sampleData <- read.csv(paste(path,'SampleData.csv',sep='/'),sep='\t',header=T,stringsAsFactors=F)
     if(any(colnames(sampleData) %in% c('MAPD','MHOF'))) sampleData <- sampleData[,1:5]
     sampleDataOri <- sampleData
 
