@@ -26,7 +26,7 @@ TAPS_plot <- function(#samples='all',
     suppressPackageStartupMessages(library(xlsx))    
     suppressPackageStartupMessages(library(foreach))
     try(suppressPackageStartupMessages(library(doMC)),silent=T)
-    try(suppressPackageStartupMessages(registerDoMC(cores=cores),silent=T)
+    try(suppressPackageStartupMessages(registerDoMC(cores=cores)),silent=T)
 
 
     #list.of.packages <- c("stats", "fields")
@@ -264,7 +264,7 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     #suppressPackageStartupMessages(library(xlsx))    
     suppressPackageStartupMessages(library(foreach))
     try(suppressPackageStartupMessages(library(doMC)),silent=T)
-    try(suppressPackageStartupMessages(registerDoMC(cores=cores),silent=T)
+    try(suppressPackageStartupMessages(registerDoMC(cores=cores)),silent=T)
     
     
     ## TAPS_call outputs the total and minor allele copy numbers of all segments as a text file, and as images for visual confirmation.
