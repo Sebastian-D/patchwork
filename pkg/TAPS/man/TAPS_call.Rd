@@ -25,7 +25,7 @@ TAPS_call(samples='all',directory=getwd(),cores=1)
 	Directory where the sample folders reside. Default is current directory.
 	}
 	\item{cores}{
-	Default is 1. Set amount of threads/cores to be used.
+	Default is 1. Only supported on unix based systems. Set amount of threads/cores to be used.
 	}
 }
 

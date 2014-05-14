@@ -42,7 +42,7 @@ TAPS_plot(directory=NULL,autoEstimate=FALSE,bin=400,cores=1,matched=FALSE)
 	Default is 400.
 	}
 	\item{cores}{
-	Default is 1. Set amount of threads/cores to be used.
+	Default is 1. Only supported on unix based systems. Set amount of threads/cores to be used.
 	}
 	\item{matched}{
 	Default is FALSE. Set to TRUE if a matched normal has been used to remove homozygous snp allele frequencies. 
