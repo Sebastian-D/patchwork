@@ -20,7 +20,7 @@ Updates: Check http://patchwork.r-forge.r-project.org/ as we intend to extend so
 
 
 \usage{
-TAPS_plot(directory=NULL,autoEstimate=FALSE,bin=400,cores=1,matched=FALSE)
+TAPS_plot(directory=NULL,autoEstimate=FALSE,bin=400,cores=1,matched=FALSE,allelePeaks=FALSE)
 }
 
 \arguments{
@@ -46,6 +46,9 @@ TAPS_plot(directory=NULL,autoEstimate=FALSE,bin=400,cores=1,matched=FALSE)
 	}
 	\item{matched}{
 	Default is FALSE. Set to TRUE if a matched normal has been used to remove homozygous snp allele frequencies. 
+	}
+	\item{allelePeaks}{
+	Default is FALSE. Set to TRUE if SNP values are allele peaks, not B-allele frequency. 
 	}
 }
 
