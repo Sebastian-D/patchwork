@@ -3973,8 +3973,13 @@ TAPS_click <- function(path = getwd()) {
 
     if(restart == F) { 
         write.table(sampleDataOri[sampleDataOri$done==T,],'SampleData.csv',sep='\t',row.names=F)
+    } 
+
+    if (restart == T ) {
+        write.table(do.call(rbind,copyNumbers), 'SampleData.csv',sep='\t',row.names=F,append=F,col.names= T)
+    } else {
+        write.table(do.call(rbind,copyNumbers), 'SampleData.csv',sep='\t',row.names=F,append=append,col.names= !append)
     }
-    write.table(do.call(rbind,copyNumbers), 'SampleData.csv',sep='\t',row.names=F,append=append,col.names= !append)
 
 }
 
