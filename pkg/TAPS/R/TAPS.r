@@ -1123,7 +1123,7 @@ setCNs <- function(allRegions,int,ai,model,maxCn=12) {
     
     ### beräkna tumorcellshalt!!
     # Mha modellparameter
-    ## empirical delta for whole copy: 0.63 for Cyto/SNP6 and 0.48 for Illu
+    ## empirical delta-R for ±one copy in diploid sample: 0.63 for Cyto/SNP6 and 0.48 for Illu
     model$k2=model$k*model$meanCn
     model$tumorDNA_fromLogR=model$k2/0.63
     model$tumorCell_fromLogR=1/ (1+model$meanCn/2* (1/model$tumorDNA_fromLogR -1))
