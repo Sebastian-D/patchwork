@@ -293,7 +293,7 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
         sampleData=load.txt('SampleData.csv')
     }
     
-    if (length(grep('SampleData.csv',dir()))==1)
+    if (length(grep('SampleData.csv$',dir()))==1)
     {
         sampleData=load.txt('SampleData.csv')
     } else
@@ -3804,7 +3804,7 @@ TAPS_click <- function(path = getwd()) {
     close <- F
 
     write.table(x=rbind(colnames(newSampleData)),file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,col.names=F)
-    if(nrow(sampleDataOri[sampleDataOri$done==T]) > 0) {
+    if(nrow(sampleDataOri[sampleDataOri$done==T,]) > 0) {
         write.table(x=sampleDataOri[sampleDataOri$done==T,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,col.names=F,append=T)
     }
 
