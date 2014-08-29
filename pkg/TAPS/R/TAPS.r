@@ -1932,8 +1932,8 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
                                       bottom=c(rep(2*(0.75/3)+0.15,8),rep((0.75/3)+0.15,8),rep(0.15,8)),
                                       top=c(rep(0.9,8),rep(2*(0.75/3)+0.15,8),rep((0.75/3)+0.15,8)))),1) #screen 1 becomes screen 3 - 26
     
-    split.screen(as.matrix(data.frame(left=c(rep(0.05,3)),
-                                      right=c(rep(1,3)),
+    split.screen(as.matrix(data.frame(left=c(rep(0.015,3)),
+                                      right=c(rep(0.987,3)),
                                       bottom=c(0.15,0.5,0.55),
                                       top=c(0.5,0.55,1))),2) #screen 2 become screen 27-29
     
@@ -1959,7 +1959,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     
     #nchr=24; if (sum(chr=='chrY')==0) nchr=23
     #Loop over and plot the 24 chromosomes
-    for (c in 1:23) 
+    for (c in 1:24) 
     {
         #Pick a chromosome
         this <- chroms[chroms$c==c,]
@@ -2053,12 +2053,13 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     par(lend=1)
     
     #Remove chrY,M,XY
-    mval[mchr=='chrY'|mchr=='chrXY'|mchr=='chrM']=NA    
+    mval[mchr=='chrXY'|mchr=='chrM']=NA    
+    # mval[mchr=='chrY'|mchr=='chrXY'|mchr=='chrM']=NA    
     
     #Calculate previous distance of whole genome so the next chromsome is added
     #at the correct coordinate
-    pre=rep(NA,23)
-    for (c in 1:23)
+    pre=rep(NA,24)
+    for (c in 1:24)
     {
         this <- chroms[chroms$c==c,]
         ix <- chr==as.character(this$chr)
@@ -2118,7 +2119,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
          col = '#00000003',
          xaxt="n",
          axes=F,
-         ylim = c(ymin,ymax),
+         ylim = c(-2,2),
          xlim = c(0,max(mpos))
     )
     
@@ -2135,7 +2136,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
         lwd=1)
     
     #Add colored segment information for each chromosome, red to blue gradient.
-    for(c in 1:23)
+    for(c in 1:24)
     {
         this <- chroms[chroms$c==c,]
         ix <- chr==as.character(this$chr)
@@ -2210,7 +2211,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     par(mgp =c(1,0.5,0))
     
     #Remove chrY,M,XY
-    sval[mchr=='chrY'|mchr=='chrXY'|mchr=='chrM']=NA    
+    sval[mchr=='chrXY'|mchr=='chrM']=NA    
     
     #Index to avoid spos/sval values that are all the way at 0 or 1.
     ix = !(sval %in% c(0,1))
@@ -2232,7 +2233,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     
     #Add axis to the left,right and below of AI. The below axis is the chromosome numbers 1-24.
     axis(side=2,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
-    axis(side=1,at=pre,pos=0,labels=c(seq(from=1,to=22),"X"),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
+    axis(side=1,at=pre,pos=0,labels=c(seq(from=1,to=22),"X",'Y'),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
     axis(side=4,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=max(mpos),las=1) #
     mtext("Allele frequency",side=2,line=0)
     mtext("Chromosomes",side=1,line=1.5,adj=0.4)
