@@ -2305,7 +2305,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
     #size[length>10000000]=4
     
     #Loop over each chromosome. (Not chromosomeY as of writing)     
-    for (c in 1:23) 
+    for (c in 1:24) 
     {
         
         #Select the chromosome
@@ -2376,8 +2376,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
                  col = c(col[notix],col[ix]),
                  xlim = xlim,
                  ylim = ylim)
-        }
-        else
+        } else
         {
             plot(int[notix],ai[notix],
                  pch=16,
@@ -2395,8 +2394,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
         if(c!=23)
         {
             points(int[xix],ai[xix],pch=4,cex=0.5,col='#46464620')
-        }
-        else
+        } else
         {
             points(int[xix],ai[xix],pch=4,cex=0.5,col=col[ix]) 
         }
