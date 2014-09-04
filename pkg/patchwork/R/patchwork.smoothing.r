@@ -47,8 +47,8 @@ patchwork.smoothing <- function(data,normaldata=NULL,reference=NULL,chroms)
 				j=kbposix[i]
 				#Create 50 bp windows to take median coverage of for tumor and normal/reference
 				ix <- (j-(window/2)):(j+(window/2))
-				coverage[i] <- mean(norm[ix], na.rm=T)
-				refcoverage[i] <- mean(reference[ix], na.rm=T)
+				coverage[i] <- median(norm[ix], na.rm=T)
+				refcoverage[i] <- median(reference[ix], na.rm=T)
 				}
 			kbsegs <- rbind(kbsegs,data.frame('chr'=c,kbpos,coverage,refcoverage))
 			}
