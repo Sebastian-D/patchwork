@@ -2005,12 +2005,10 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
         if(c == 23)
         {
             mtext("X", side = 3, line = -1, adj = 0.8, cex = 1)
-        }
-        else if(c == 24)
+        } else if(c == 24)
         {
             mtext("Y", side = 3, line = -1, adj = 0.8, cex = 1)  
-        }
-        else
+        } else
         {
             mtext(c, side = 3, line = -1, adj = 0.8, cex = 1)
         }
@@ -2062,6 +2060,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     for (c in 1:24)
     {
         this <- chroms[chroms$c==c,]
+        if(nrow(this) == 0) next
         ix <- chr==as.character(this$chr)
         mix <- mchr==as.character(this$chr) #& mval>=(-2)
         six <- schr==as.character(this$chr)
@@ -2082,8 +2081,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
         if(c>1)
         {
             prelength=prelength+chroms$length[chroms$c==(c-1)]
-        }
-        else
+        } else
         {
             prelength=0
         }
@@ -2210,7 +2208,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     par(oma = c(0,0,0,0))
     par(mgp =c(1,0.5,0))
     
-    #Remove chrY,M,XY
+    #Remove M,XY
     sval[mchr=='chrXY'|mchr=='chrM']=NA    
     
     #Index to avoid spos/sval values that are all the way at 0 or 1.
@@ -2310,6 +2308,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
         
         #Select the chromosome
         this <- chroms[chroms$c==c,]
+        if(nrow(this) == 0) next
         
         #Initialize jpeg
         jpeg(paste(name,'_karyotype.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
