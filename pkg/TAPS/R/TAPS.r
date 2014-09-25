@@ -2076,7 +2076,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
         {
             ymax = 1
         }
-        seqminmax=seq(ymin,ymax,by=0.5)
+        seqminmax=seq(-2,2,by=0.5)
         
         if(c>1)
         {
@@ -2445,7 +2445,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
         #{
         #    ymax = 1
         #}
-        seqminmax=seq(ymin,ymax,by=0.5)
+        seqminmax=seq(-2,2,by=0.5)
         
         #Create an index of colors relating to the positions and lengths on this chromosome
         col=rep('#000000',sum(ix))
@@ -2462,7 +2462,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
              axes=F,
              col = '#00000005',
              xlim = c(0,this$length),
-             ylim = c(ymin,ymax))
+             ylim = c(-2,2))
         
         #Add colored segments based on the log-ratio data
         segments(x0=start[ix],x1=end[ix],
@@ -2480,8 +2480,8 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
              #labels=c("-1","-.5","0",".5","1","1.5"),
              cex.axis=0.6,las=1)
         # 1: below
-        axis(side=1,tck=0.926,col='#80808040',at=seq(5e6,this$length,by=5e6),
-             labels=FALSE,cex.axis=0.6,pos=ymin)
+        # axis(side=1,tck=1.041,col='#80808040',at=seq(5e6,this$length,by=5e6),labels=FALSE,cex.axis=0.6,pos=ymin)
+        segments(x0=seq(5e6,this$length,by=5e6),x1=seq(5e6,this$length,by=5e6),y0=-2,y1=2,col='#80808040')
         #axis(side=1,tck=0,pos=ymin,
         #     cex.axis=0.6,las=1)
         # 3: top
