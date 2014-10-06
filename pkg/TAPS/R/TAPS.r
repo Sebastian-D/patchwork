@@ -1243,6 +1243,7 @@ karyotype_check <- function(chr,start,end,int,ai,Cn,mCn,t,name='') { #xlim=c(-1.
 
 ## Pileups
 pileup <- function(regions) { #, nsamples) {
+    if (nrow(regions)==0) return(data.frame(Chromosome=integer(0),Start=integer(0),End=integer(0),Count=integer(0)))
     chrs <- unique(as.character(regions$Chromosome))
     if (length(chrs)>1) { # if more than one chrom, run them separately.
         pile=NULL
@@ -1268,6 +1269,7 @@ pileup <- function(regions) { #, nsamples) {
 
 pileup_dif <- function(regions1,regions2) {
     chrs <- unique(c(as.character(regions1$Chr),as.character(regions2$Chr)))
+    if (length(chrs)==0) return(data.frame(Chromosome=integer(0),Start=integer(0),End=integer(0),Count1=integer(0),Count2=integer(0)))
     if (length(chrs)>1) { # if more than one chrom, run them separately.
         pile=NULL
         for (i in 1:length(chrs)) pile <- rbind(pile,pileup_dif(regions1[as.character(regions1$Chr)==chrs[i],], regions2[as.character(regions2$Chr)==chrs[i],]))
@@ -1308,6 +1310,9 @@ pileup_dif <- function(regions1,regions2) {
 
 
 pvals <- function(regions,tot1,tot2) {
+    if (nrow(regions)==0) return(data.frame(Chromosome=integer(0),Start=integer(0),End=integer(0),Count1=integer(0),Count2=integer(0),
+                                            percent1=integer(0),precent2=integer(0),precent=integer(0),p.value=integer(0),
+                                            odds.ratio=integer(0),conf_low=integer(0),conf_high=integer(0)))
     p <- rep(1,nrow(regions))
     or <- rep(1,nrow(regions))
     conf_low <- rep(NA,nrow(regions))
@@ -1575,18 +1580,19 @@ sum_regionSet <- function(chroms, chromData, genes,
     #mtext(text="Allelic imbalance",side=2,line=4,las=3,cex=2)
     #mtext(text="Coverage, all segments",side=1,line=4,cex=2,las=1)
     
-    data <- pile
-    data$e <- 0 -> data$s
-    for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
-    data$s <- data$s+data$Start
-    data$e <- data$e+data$End
-    rect( 
-        xleft=data$s, xright=data$e,
-        ybottom=0,ytop=data$Percent,
-        col=color,   
-        border=NA,
-    )
-    
+    if (nrow(pile)>0) {
+        data <- pile
+        data$e <- 0 -> data$s
+        for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
+        data$s <- data$s+data$Start
+        data$e <- data$e+data$End
+        rect( 
+            xleft=data$s, xright=data$e,
+            ybottom=0,ytop=data$Percent,
+            col=color,   
+            border=NA,
+        )
+    }
     ## The chrom labels
     text(
         x=chroms$before+chroms$length/2,
@@ -1755,71 +1761,75 @@ compare_regionSet <- function(chroms, chromData, genes,
          )
     #mtext(text="Allelic imbalance",side=2,line=4,las=3,cex=2)
     #mtext(text="Coverage, all segments",side=1,line=4,cex=2,las=1)
-    
-    ## Group 1
-    data <- pile1
-    data$e <- 0 -> data$s
-    for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
-    data$s <- data$s+data$Start
-    data$e <- data$e+data$End
-    rect( 
-        xleft=data$s, xright=data$e,
-        ybottom=0,ytop=data$Percent,
-        col=color,   
-        border=NA,
-    )
-    
-    ## Group 2
-    data <- pile2
-    data$e <- 0 -> data$s
-    for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
-    data$s <- data$s+data$Start
-    data$e <- data$e+data$End
-    rect( 
-        xleft=data$s, xright=data$e,
-        ybottom=0,ytop= -data$Percent,
-        col=color,   
-        border=NA,
-    )
-    
-    ### The difference
-    data <- dif
-    data$e <- 0 -> data$s
-    for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
-    data$s <- data$s+data$Start
-    data$e <- data$e+data$End
-    data <- data[order(data$percent,decreasing=T),]
-    
-    #difcolor <- colorRampPalette(c("#FFFFFF",color),space="rgb")(4)[2]
-    
-    rect( 
-        xleft=data$s, xright=data$e,
-        ybottom=0,ytop=data$percent,
-        #ybottom=data$conf_low,ytop=data$conf_high,
-        col=difcolor,   
-        border=NA
-    )
-    
-    ## The significant
     mhcolor=colorRampPalette(c("#FFFFFF",color),space="rgb")(5)[3]
-    data=data[data$p.value<p_cutoff & abs(data$percent)>freq_cutoff,]
-    if (nrow(data)>0) {
+    
+    if (nrow(pile1)>0) {
+        ## Group 1
+        data <- pile1
+        data$e <- 0 -> data$s
+        for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
+        data$s <- data$s+data$Start
+        data$e <- data$e+data$End
         rect( 
             xleft=data$s, xright=data$e,
-            ybottom= -100,ytop=-95,
-            col='#000000',   
-            border=NA
+            ybottom=0,ytop=data$Percent,
+            col=color,   
+            border=NA,
         )
     }
-    ## The OR
-    #for (i in 1:23) {
-    #    temp=data[data$Chr==as.character(chroms$chr[i]),]
-    #    if (nrow(temp)>5) {
-    #        temp$odds.ratio[temp$odds.ratio<1 & temp$odds.ratio>0]=1/temp$odds.ratio[temp$odds.ratio<1 & temp$odds.ratio>0]
-    #        temp=temp[order(temp$odds.ratio,decreasing=T),][1,]
-    #        text(x=chroms$before[i]+mean(temp$Start,temp$End), y=-105, cex=1.3, label=round(temp$odds.ratio,1))                
-    #    }
-    #}
+    if (nrow(pile2)>0) {
+        ## Group 2
+        data <- pile2
+        data$e <- 0 -> data$s
+        for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
+        data$s <- data$s+data$Start
+        data$e <- data$e+data$End
+        rect( 
+            xleft=data$s, xright=data$e,
+            ybottom=0,ytop= -data$Percent,
+            col=color,   
+            border=NA,
+        )
+    }
+    if (nrow(dif)>0) {
+        ### The difference
+        data <- dif
+        data$e <- 0 -> data$s
+        for (i in 1:23) data$s[data$Chromosome==as.character(chroms$Chr[i])] <- chroms$before[i] -> data$e[data$Chromosome==as.character(chroms$Chr[i])]
+        data$s <- data$s+data$Start
+        data$e <- data$e+data$End
+        data <- data[order(data$percent,decreasing=T),]
+        
+        #difcolor <- colorRampPalette(c("#FFFFFF",color),space="rgb")(4)[2]
+        
+        rect( 
+            xleft=data$s, xright=data$e,
+            ybottom=0,ytop=data$percent,
+            #ybottom=data$conf_low,ytop=data$conf_high,
+            col=difcolor,   
+            border=NA
+        )
+        
+        ## The significant
+        data=data[data$p.value<p_cutoff & abs(data$percent)>freq_cutoff,]
+        if (nrow(data)>0) {
+            rect( 
+                xleft=data$s, xright=data$e,
+                ybottom= -100,ytop=-95,
+                col='#000000',   
+                border=NA
+            )
+        }
+        ## The OR
+        #for (i in 1:23) {
+        #    temp=data[data$Chr==as.character(chroms$chr[i]),]
+        #    if (nrow(temp)>5) {
+        #        temp$odds.ratio[temp$odds.ratio<1 & temp$odds.ratio>0]=1/temp$odds.ratio[temp$odds.ratio<1 & temp$odds.ratio>0]
+        #        temp=temp[order(temp$odds.ratio,decreasing=T),][1,]
+        #        text(x=chroms$before[i]+mean(temp$Start,temp$End), y=-105, cex=1.3, label=round(temp$odds.ratio,1))                
+        #    }
+        #}
+    }
     axis(2,at=c(-97),#,-105), 
          labels=c('sign.'),#, 'BestOR'), 
          pos=0,
@@ -1854,6 +1864,12 @@ compare_regionSet <- function(chroms, chromData, genes,
         y0=seq(-80,80,10),y1=seq(-80,80,10),                
         col='#00000070',
         lwd=1,lty=3
+    )
+    segments(
+        x0=0,x1=sum(chroms$length),
+        y0=0,y1=0,                
+        col='#00000090',
+        lwd=1,lty=1
     )
     
     ## Y axis ticks
