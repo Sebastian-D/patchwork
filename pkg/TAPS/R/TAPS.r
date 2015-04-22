@@ -14,7 +14,7 @@
 
 TAPS_plot <- function(#samples='all',
                      directory=NULL,autoEstimate=FALSE,
-                      bin=400,cores=1,matched=FALSE,allelePeaks=FALSE) {
+                      bin=250,cores=1,matched=FALSE,allelePeaks=FALSE) {
     #Automatically check, and if needed install, packages stats and fields
     
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
@@ -141,12 +141,16 @@ TAPS_plot <- function(#samples='all',
             alf$Start = as.integer(as.character(alf$Start))
             alf$End = as.integer(as.character(alf$End))
             alf$Value = as.numeric(as.character(alf$Value))
-        }
-        else
-        {
+        } else if (file.exists('rawcopy.Rdata')) {
+            load('rawcopy.Rdata')
+            Log2=probes.txt[,2:5]
+            alf=snps.txt[,2:5]
+        } else {
             Log2 <- readLog2()                                     ## Log-R
             alf <- readAlf()                                         ## Allele Frequency
         }
+        
+        #browser()
         
         Log2=Log2[!is.nan(Log2$Value),]
         Log2=Log2[!is.na(Log2$Value),]
@@ -156,7 +160,7 @@ TAPS_plot <- function(#samples='all',
         alf$Value[alf$Value<0]=0; alf$Value[alf$Value>1]=1
         alf <- alf[which(alf$Value != -Inf & alf$Value != +Inf ),]
         
-        segments <- readSegments()                                 ## segments if available (CBS recommended)
+        segments <- readSegments()                                ## segments if available (CBS recommended)
  
         # cat(' ..processing')
         if (is.null(segments)) {                                 ## segmentation using DNA-copy if needed (must then be installed)
@@ -175,6 +179,7 @@ TAPS_plot <- function(#samples='all',
         if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments,matched=matched,min=30,allelePeaks=allelePeaks)            ## Calculates necessary data for segments (all functions are in this file)
         save(allRegions,file='allRegions.Rdata')
         regs=NULL;# if ('shortRegions.Rdata' %in% dir()) load('shortRegions.Rdata')
+        #browser()
         if (is.null(regs)) {
             regs <- regsFromSegs(Log2,alf,segments,bin=bin,min=30,matched=matched,allelePeaks=allelePeaks)    ## Calculates the same data for shortened segments
             save(regs,file='shortRegions.Rdata')
@@ -211,6 +216,7 @@ TAPS_plot <- function(#samples='all',
         }
 
         # cat('..plotting.\n')
+        #browser()
         OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                      as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
                      name=name,MAPD=sampleData$MAPD[i],MHOF=sampleData$MHOF[i])                
@@ -391,69 +397,99 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
     
 }
 ###
-regsFromSegs <- function (Log2,alf, segments, bin=200,min=1,matched=F,allelePeaks=FALSE) {
+segMatch <- function(segments.txt,probes.txt) {
+    ## Returns a data frame with probes.startIx probes.endIx
+    #verry fast
+    colnames(segments.txt)[colnames(segments.txt)=='chr']='Chromosome'
+    colnames(segments.txt)[colnames(segments.txt)=='start']='Start'
+    colnames(segments.txt)[colnames(segments.txt)=='end']='End'
+    
+    segStarts=data.frame(n.seg=1:nrow(segments.txt),n.pos=NA,chr=chrom_n(segments.txt$Chromosome),pos=segments.txt$Start,type='start')
+    segEnds=data.frame(n.seg=1:nrow(segments.txt),n.pos=NA,chr=chrom_n(segments.txt$Chromosome),pos=segments.txt$End,type='end')
+    lpos=data.frame(n.seg=NA,n.pos=1:nrow(probes.txt),chr=chrom_n(probes.txt$Chromosome),pos=(probes.txt$Start+probes.txt$End)/2,type='logr')
+    dummy1=data.frame(n.seg=NA,n.pos=NA,chr=-Inf,pos=-Inf,type='logr')
+    dummy2=data.frame(n.seg=NA,n.pos=NA,chr=Inf,pos=Inf,type='logr')
+    
+    table=rbind(segStarts,segEnds,lpos,dummy1,dummy2)
+    table=table[order(table$chr,table$pos),]
+    
+    start=(table$type=='start')
+    end=(table$type=='end')
+    #l=(table$type=='logr')
+    
+    # omitting segment ends, let segment start "n.pos" be that of the next marker
+    table$n.pos[!end][start[!end]] <- table$n.pos[!end][which(start[!end])+1]
+    
+    # omitting segment starts, let segment end "n.pos" be that of the previous marker
+    table$n.pos[!start][end[!start]] <- table$n.pos[!start][which(end[!start])-1]
+    
+    # re-create a data frame with startIx and endIx (in probes.txt) per segment
+    indices=data.frame(startIx=table$n.pos[start],endIx=table$n.pos[end])
+    
+    na=is.na(indices$startIx+indices$endIx)
+    na[!na] = indices$startIx[!na]>indices$endIx[!na]
+    indices$startIx[na] <- indices$endIx[na] <- NA
+    
+    return(indices)
+}
+regsFromSegs <- function (Log2,alf, segments, bin=150,min=1,matched=F,allelePeaks=FALSE) {
     ## This function builds short segments and calcualtes their average Log-R and Allelic Imbalance Ratio.
     rownames(Log2)=1:nrows(Log2)
     rownames(alf)=1:nrows(alf)
-    regs=list('chr'=NULL,'start'=NULL,'end'=NULL,'logs'=NULL,'scores'=NULL,'probes'=NULL,'snps'=NULL)
+    regs=NULL #list('chr'=NULL,'start'=NULL,'end'=NULL,'logs'=NULL,'scores'=NULL,'probes'=NULL,'snps'=NULL)
                                 #,'key1'=rep(NA,nrow(Log2)),'key2'=rep(NA,nrow(alf)))
     n=nrow(segments)
     s_check=NULL
+    
+    pMatch=segMatch(segments,Log2)
+    sMatch=segMatch(segments,alf)
+    
     for (c in 1:n) { ## for every segment
-        tlog=Log2[Log2$Chromosome==segments$Chromosome[c],] ## Log-R on this chromosome
-        talf=alf[alf$Chromosome==segments$Chromosome[c],] ## Allele Freq on this chromosome
-        tlog=tlog[(tlog$Start>=segments$Start[c])&(tlog$Start<segments$End[c]),] ## Log-R on this segment
-        talf=talf[(talf$Start>=segments$Start[c])&(talf$Start<segments$End[c]),] ## Allele Freq on this segment
+        #tlog=Log2[Log2$Chromosome==segments$Chromosome[c],] ## Log-R on this chromosome
+        #talf=alf[alf$Chromosome==segments$Chromosome[c],] ## Allele Freq on this chromosome
+        #tlog=tlog[(tlog$Start>=segments$Start[c])&(tlog$Start<segments$End[c]),] ## Log-R on this segment
+        #talf=talf[(talf$Start>=segments$Start[c])&(talf$Start<segments$End[c]),] ## Allele Freq on this segment
         
-        tsnps=nrow(talf)    ## number of snps and probes in this segment
-        tprobes=nrow(tlog)
+        tsnps=sMatch[c,2]-sMatch[c,1]+1; if (is.na(tsnps)) tsnps=0   #nrow(talf)    ## number of snps and probes in this segment
+        tprobes=pMatch[c,2]-pMatch[c,1]+1; if (is.na(tsnps)) tsnps=0   #nrow(tlog)
         tnregs=max(trunc(tsnps/bin),1) ## Further split into how many (a minimum of 1) subsegments
         tcuts=segments$Start[c] ## The first start pos
         tlength=segments$End[c]-segments$Start[c]    ## Length of this whole segment
         for (i in 1:tnregs) tcuts = c(tcuts, tcuts[1]+round(i/tnregs*tlength)) ## Break the segment at these positions
         
-        for (r in 1:(tnregs)) {    ## build the subsegments
-            regs$chr=c(regs$chr,as.character(segments$Chromosome[c]))    ## Chromosome
-            s_=tcuts[r]                                                     ## Start
-            e_=tcuts[r+1]                                                 ## End
-            thisalf=talf[(talf$Start>=s_)&(talf$Start<=e_),]             ## get the Log-R values
-            thislog=tlog[(tlog$Start>=s_)&(tlog$Start<=e_),]             ## and the allele frequency
-            #regs$key1[as.integer(rownames(thislog))]=length(regs$chr)    ## store their positions for fast access during plotting
-            #regs$key2[as.integer(rownames(thisalf))]=length(regs$chr)    ## --"--
-            regs$logs=c( regs$logs, mean(thislog$Value) )                ## store average log ratio of this segment
-            regs$probes=c(regs$probes,nrow(thislog))                    ## store number of probes
-            regs$snps=c(regs$snps,nrow(thisalf))                        ## store number of bi-allelic probes (SNPs)
-            #regs$or_seg=c(regs$or_seg,c)    
-            regs$start=c(regs$start,s_)                                    ## store start and end positions
-            regs$end=c(regs$end,e_)
+        tab=data.frame(chr=segments$Chromosome[c],start=tcuts[-length(tcuts)],end=tcuts[-1],logs=NA,scores=NA,probes=0,snps=0)
+        if (is.null(regs)) regs=tab else regs=rbind(regs,tab)
+    }
+    
+    pMatch=segMatch(regs,Log2)
+    sMatch=segMatch(regs,alf)
+        
+    for (i in 1:nrow(regs)) {    ## build the subsegments
+        #regs$chr=c(regs$chr,as.character(segments$Chromosome[c]))    ## Chromosome
+        #s_=tcuts[r]                                                     ## Start
+        #e_=tcuts[r+1]                                                 ## End
+        #thisalf=talf[(talf$Start>=s_)&(talf$Start<=e_),]             ## get the Log-R values
+        #thislog=tlog[(tlog$Start>=s_)&(tlog$Start<=e_),]             ## and the allele frequency
+        #regs$key1[as.integer(rownames(thislog))]=length(regs$chr)    ## store their positions for fast access during plotting
+        #regs$key2[as.integer(rownames(thisalf))]=length(regs$chr)    ## --"--
+        if (!is.na(pMatch[i,1])) { 
+            regs$logs[i]=median(Log2$Value[pMatch[i,1]:pMatch[i,2]],na.rm=T)  ## store average log ratio of this segment
+            regs$probes[i]=pMatch[i,2]-pMatch[i,1]+1                   ## store number of probes
+        }
+        if (!is.na(sMatch[i,1])) { 
             temp = NA
-            try(temp <- allelicImbalance(thisalf$Value,min,matched,allelePeaks),silent=T)
-            regs$scores =c(regs$scores,temp)
-            # if (nrow(thisalf)>min) {                                    ## Time to calculate Allelic Imbalance Ratio (if enough SNPs)
-            #     t1=sort( abs(thisalf$Value-0.5) )                            ## distance from middle (het) in the allele freq pattern, ascending
-            #     if (length(unique(t1))>3) {                                ## do not attempt clustering with too few snps
-            #         xx=NULL
-            #         try(xx <- kmeans(t1, 2),silent=T)                            ## Attempt k-means (Hartigan-Wong: has proven very stable)
-            #         if (!is.null(xx)) if (min(xx$size) > 0.05*max(xx$size)) {    ## On some occations data quality is poor, requiring 5%+ heterozygous SNPs avoids most such cases.
-            #             xx=xx$centers
-            #         } else xx=NA
-            #     } else xx=NA      
-            # } else xx=NA
-            ##try (if (is.na(xx)) xx=0:1, silent=T)
-            # try (if (length(xx)==0) xx=0:1, silent=T)
-            # regs$scores=c(regs$scores, min(xx)/max(xx) )                ## Allelic Imbalance Ratio = inner / outer cluster.
-            # regs$het=c(regs$het, min(xx))                                ## $het and $hom are no longer in use.
-            # regs$hom=c(regs$hom, max(xx))
-            # if(matched == T | is.na(regs$scores[length(regs$scores)])) {
-            #     regs$scores[length(regs$scores)] <- 2*median(abs(thisalf$Value-.5),na.rm=T)
-            # }
+            try(temp <- allelicImbalance(alf$Value[sMatch[i,1]:sMatch[i,2]],min,matched,allelePeaks),silent=T)
+            regs$scores[i]=temp
+            regs$snps[i]=sMatch[i,2]-sMatch[i,1]+1                       
         }
     }
-    regs=as.data.frame(regs)
+
+    #regs=as.data.frame(regs)
     regs=regs[!is.na(regs$logs),]  ### MODDAT MARKUS MAJ 2013
     return (regs)
 }
 allelicImbalance <- function (data,min=30,matched=F,allelePeaks=F) {
+    #browser()
     if(matched == T ) {
          return(2*median(abs(data-.5),na.rm=T))
     }
@@ -604,8 +640,19 @@ readSegments <- function() {
     return (segments)
 }
 ###
+chrom_n <- function(data) {
+    out=rep(Inf,length(data))
+    for (c in c(1:22)) {
+        out[data==paste('chr',c, sep='')]=c
+    }
+    out[data=='chrX']=23
+    out[data=='chrY']=24
+    out[data=='chrM']=25
+    return(out)
+}
 makeRegions <- function(Log2, alf, segments,dataType='Nexus',min=30,matched=FALSE,allelePeaks=F) {
     ## makeRegions is similar to "regsfromsegs" except regions are not subdivided before calculation of mean Log-R and Allelic Imbalance Ratio.
+    #browser()
     regions=segments
     regions$Chromosome=as.character(segments$Chromosome)            ## Chromosome
     regions$lengthMB=round((regions$End-regions$Start)/1000000,3)    ## length in megabases
@@ -616,19 +663,28 @@ makeRegions <- function(Log2, alf, segments,dataType='Nexus',min=30,matched=FALS
     regionIx=NULL                                                   ## Not currently used
     regionIx$Log2 <- list()
     regionIx$alf <- list()
+    
+    pMatch=segMatch(regions,Log2)
+    sMatch=segMatch(regions,alf)
+    
     for (i in 1:nrows(regions)) {
-        log2temp=which(equals(Log2$Chromosome,regions$Chromosome[i])) ## index of Log-R (current chrom)
-        alftemp=which(equals(alf$Chromosome,regions$Chromosome[i]))    ## index of Allele frequency (current chrom)
+        #log2temp=which(equals(Log2$Chromosome,regions$Chromosome[i])) ## index of Log-R (current chrom)
+        #alftemp=which(equals(alf$Chromosome,regions$Chromosome[i]))    ## index of Allele frequency (current chrom)
         
-        log2temp=log2temp [Log2$Start[log2temp]>=regions$Start[i] & Log2$Start[log2temp]<regions$End[i]]    ## index of Log-R (current segment)
-        alftemp=alftemp [alf$Start[alftemp]>=regions$Start[i] & alf$Start[alftemp]<regions$End[i]]        ## index of Allele frequency (current segment)
+        #log2temp=log2temp [Log2$Start[log2temp]>=regions$Start[i] & Log2$Start[log2temp]<regions$End[i]]    ## index of Log-R (current segment)
+        #alftemp=alftemp [alf$Start[alftemp]>=regions$Start[i] & alf$Start[alftemp]<regions$End[i]]        ## index of Allele frequency (current segment)
+        
+        log2temp=Log2$Value[pMatch[i,1]:pMatch[i,2]]    ## index of Log-R (current segment)
+        alftemp=numeric(0)
+        if (!is.na(sMatch[i,1])) alftemp=alf$Value[sMatch[i,1]:sMatch[i,2]]        ## index of Allele frequency (current segment)
+        
         regions$probes[i]=length(log2temp)
         regions$snps[i]=length(alftemp)
-        regionIx$Log2[[i]]=log2temp            ## indexes of Log-R and Allele Frequency are saved for future use (plot color coding)
-        regionIx$alf[[i]]=alftemp
-        log2temp=Log2$Value[log2temp]
-        regions$log2[i]=median(log2temp)
-        alftemp=alf$Value[alftemp]
+        #regionIx$Log2[[i]]=log2temp            ## indexes of Log-R and Allele Frequency are saved for future use (plot color coding)
+        #regionIx$alf[[i]]=alftemp
+        #log2temp=Log2$Value[log2temp]
+        regions$log2[i]=median(log2temp, na.rm=T)
+        #alftemp=alf$Value[alftemp]
         temp = NA
         try(temp <- allelicImbalance(alftemp,min,matched=matched,allelePeaks=allelePeaks),silent=T)
         regions$imba[i]  <- temp
@@ -1906,7 +1962,6 @@ compare_regionSet <- function(chroms, chromData, genes,
 
 OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval,name='',xlim=c(-1,1.5),ylim=c(0,1),MAPD,MHOF)
 {
-
     if(hg18==T)
         {
         chroms=chroms_hg18
@@ -1936,7 +1991,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     #size[length>10000000]=0.8
     
     #Define the name,dimensions and resolution of the plot.
-    jpeg(paste(name,'_overview.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
+    jpeg(paste(name,'_overview.jpg',sep=''),width=11.7,height=8.3,units="in",res=600)
     
     #split the plot into desired formation
     split.screen(figs=c(2,1)) #two rows, one column
@@ -2327,7 +2382,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
         if(nrow(this) == 0) next
         
         #Initialize jpeg
-        jpeg(paste(name,'_karyotype.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
+        jpeg(paste(name,'_karyotype.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=600)
         
         #split plot into desired formation
         split.screen(as.matrix(data.frame(left=c(rep(0.05,4)),
@@ -2667,7 +2722,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         this <- chroms[chroms$c==c,]
         
         #Initialize jpeg
-        jpeg(paste(name,'_karyotypeCN.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
+        jpeg(paste(name,'_karyotypeCN.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=600)
         
         #split plot into desired formation
         split.screen(as.matrix(data.frame(left=c(0.05,rep(0.47,4)),
@@ -3128,7 +3183,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     Rend = max(region)
     
     #Initialize jpeg
-    jpeg(paste(name,'_',this$chr,'_region_',Rstart,"-",Rend,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
+    jpeg(paste(name,'_',this$chr,'_region_',Rstart,"-",Rend,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=600)
     
     #split plot into desired formation
     split.screen(as.matrix(data.frame(left=c(rep(0.05,4),rep(0.47,3)),
@@ -3903,7 +3958,7 @@ TAPS_click <- function(path = getwd()) {
                     write.table(x=newSampleData[newSampleData$Sample == sample,],file=paste(root,'backup.csv',sep='/'),sep='\t',row.names=F,append=T,col.names=F)
                     return(newSampleData[newSampleData$Sample == sample,])
                 } else if(answer == 29) { #Get a browser()
-                    browser()
+                    #browser()
                 }
 
             } else { #If pre-existing values for the sample exists, grab the values.
