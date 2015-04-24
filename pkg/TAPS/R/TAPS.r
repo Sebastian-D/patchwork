@@ -1991,7 +1991,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     #size[length>10000000]=0.8
     
     #Define the name,dimensions and resolution of the plot.
-    jpeg(paste(name,'_overview.jpg',sep=''),width=11.7,height=8.3,units="in",res=600)
+    jpeg(paste(name,'_overview.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
     
     #split the plot into desired formation
     split.screen(figs=c(2,1)) #two rows, one column
@@ -2382,7 +2382,7 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
         if(nrow(this) == 0) next
         
         #Initialize jpeg
-        jpeg(paste(name,'_karyotype.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=600)
+        jpeg(paste(name,'_karyotype.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
         
         #split plot into desired formation
         split.screen(as.matrix(data.frame(left=c(rep(0.05,4)),
@@ -2722,7 +2722,7 @@ karyotype_chromsCN <- function(chr,start,end,int,ai,Cn,mCn,hg18,mchr,mpos,mval,s
         this <- chroms[chroms$c==c,]
         
         #Initialize jpeg
-        jpeg(paste(name,'_karyotypeCN.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=600)
+        jpeg(paste(name,'_karyotypeCN.',this$chr,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
         
         #split plot into desired formation
         split.screen(as.matrix(data.frame(left=c(0.05,rep(0.47,4)),
@@ -3183,7 +3183,7 @@ TAPS_region <- function(directory=NULL,chr,region,hg18=F)
     Rend = max(region)
     
     #Initialize jpeg
-    jpeg(paste(name,'_',this$chr,'_region_',Rstart,"-",Rend,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=600)
+    jpeg(paste(name,'_',this$chr,'_region_',Rstart,"-",Rend,'.jpg',sep=''),width=11.7,height=8.3,units="in",res=300)
     
     #split plot into desired formation
     split.screen(as.matrix(data.frame(left=c(rep(0.05,4),rep(0.47,3)),
