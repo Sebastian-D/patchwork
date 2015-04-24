@@ -175,6 +175,7 @@ TAPS_plot <- function(#samples='all',
         segments$Value <- segments$Value-median(Log2$Value,na.rm=T)     ## Median-centering
         Log2$Value <- Log2$Value-median(Log2$Value,na.rm=T)             ## Median-centering
         
+        #browser()
         allRegions=NULL; #if ('allRegions.Rdata' %in% dir()) load('allRegions.Rdata')
         if (is.null(allRegions)) allRegions <- makeRegions(Log2, alf, segments,matched=matched,min=30,allelePeaks=allelePeaks)            ## Calculates necessary data for segments (all functions are in this file)
         save(allRegions,file='allRegions.Rdata')
@@ -665,6 +666,9 @@ makeRegions <- function(Log2, alf, segments,dataType='Nexus',min=30,matched=FALS
     regionIx$alf <- list()
     
     pMatch=segMatch(regions,Log2)
+    na=is.na(pMatch[,1])
+    regions=regions[!na,]
+    pMatch=pMatch[!na,]
     sMatch=segMatch(regions,alf)
     
     for (i in 1:nrows(regions)) {
