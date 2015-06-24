@@ -15,6 +15,7 @@
 TAPS_plot <- function(#samples='all',
                      directory=NULL,autoEstimate=FALSE,
                       bin=250,cores=1,matched=FALSE,allelePeaks=FALSE) {
+    cores=1
     #Automatically check, and if needed install, packages stats and fields
     
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
@@ -155,10 +156,12 @@ TAPS_plot <- function(#samples='all',
         Log2=Log2[!is.nan(Log2$Value),]
         Log2=Log2[!is.na(Log2$Value),]
         Log2 <- Log2[which(Log2$Value != -Inf & Log2$Value != +Inf ),]
+        Log2=chromFix(Log2)
         alf=alf[!is.nan(alf$Value),]
         alf=alf[!is.na(alf$Value),]
         alf$Value[alf$Value<0]=0; alf$Value[alf$Value>1]=1
         alf <- alf[which(alf$Value != -Inf & alf$Value != +Inf ),]
+        alf=chromFix(alf)
         
         segments <- readSegments()                                ## segments if available (CBS recommended)
  
@@ -266,6 +269,7 @@ TAPS_plot <- function(#samples='all',
 
 ###
 TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
+    cores=1
     minseg=1
     maxCn=12
     #suppressPackageStartupMessages(library(xlsx))    
@@ -330,19 +334,31 @@ TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
             
                 # cat(' ..loading', subs[i])
             print(paste(i,'/',length(subs),': ',subs[i],' Loading',sep=''))
-            Log2 <- readLog2()
-            alf <- readAlf(localDir)
+            if (file.exists('rawcopy.Rdata')) {
+                load('rawcopy.Rdata')
+                Log2=probes.txt[,2:5]
+                alf=snps.txt[,2:5]
+            } else {
+                Log2 <- readLog2()
+                alf <- readAlf(localDir)
+            }
             segments <- readSegments()
             
             #Some samples contain NA values, we simply remove these.
             Log2=Log2[!is.nan(Log2$Value),]
+            Log2=chromFix(Log2)
+            
             Log2=Log2[!is.na(Log2$Value),]
             
             alf=alf[!is.nan(alf$Value),]
             alf=alf[!is.na(alf$Value),]
+            alf=chromFix(alf)
+            
             
             segments <- segments[!is.nan(segments$Value),]
             segments <- segments[!is.na(segments$Value),]    
+            segments=chromFix(segments)
+            
             
             segments$Value <- segments$Value-mean(Log2$Value) 
             Log2$Value <- Log2$Value-mean(Log2$Value)
@@ -1533,7 +1549,7 @@ addGenes <- function(data,genes) {
 ### Function for summarizing alteration frquencies in X samples
 TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
     #suppressPackageStartupMessages(library(xlsx))    
-    
+    #browser()
     sampleData <- load.txt('SampleData.csv')
     olddir <- getwd()
     if (!is.na(outdir)) {
@@ -1556,14 +1572,17 @@ TAPS_freq <- function(samples='all', outdir='frequencies', hg19=T) {
     ## Load and parse all samples
     samples <- meanCns <- NULL
     
-    for (i in 1:nSamples) {
+    for (i in 1:nSamples) try( {
+        #cat(subs[i],'\n')
         table <- load.txt(paste(olddir,'/',subs[i],'/',subs[i],'_segmentCN.txt',sep=''))
         table$n <- i
         table$name <- as.character(subs[i])    
         ix <- as.numeric(deChrom_ucsc(table$Chromosome)) <= 22
+        table=table[!is.na(ix),]
+        ix <- as.numeric(deChrom_ucsc(table$Chromosome)) <= 22
         table$meanCn <- meanCns[i] <- round(weightedMean(table$Cn_[ix], table$lengthMB[ix]),2)    
         samples <- rbind(samples,table) 
-    }
+    }, silent=T)
 
     samples=samples[!is.na(samples$Cn),]
     regs=samples[samples$Chromosome!='chrY',]
@@ -4056,3 +4075,8 @@ TAPS_click <- function(path = getwd()) {
 
 }
 
+chromFix <- function(data) {
+    if (any(data$Chromosome=='1'))
+        data$Chromosome=paste('chr',data$Chromosome,sep='')
+    return(data)
+}
