@@ -15,7 +15,7 @@
 TAPS_plot <- function(#samples='all',
                      directory=NULL,autoEstimate=FALSE,
                       bin=250,cores=1,matched=FALSE,allelePeaks=FALSE) {
-    cores=1
+    # cores=1
     #Automatically check, and if needed install, packages stats and fields
     
     #Load stats. It should be in all, at least semi-new, R distributions so we dont need to install.package it or
@@ -77,6 +77,7 @@ TAPS_plot <- function(#samples='all',
     
     # for (i in 1:length(subs)) {
     #junk only stores the list from foreach.
+    sampleData$MHOF <- sampleData$MAPD <- NA
     junk <- foreach (i = 1:length(subs)) %dopar% {
         setwd(paste(root,'/',subs[i],sep=''))
         name <- subs[i]
@@ -269,7 +270,7 @@ TAPS_plot <- function(#samples='all',
 
 ###
 TAPS_call <- function(samples='all',directory=getwd(),cores=1) {
-    cores=1
+    # cores=1
     minseg=1
     maxCn=12
     #suppressPackageStartupMessages(library(xlsx))    
@@ -4080,3 +4081,4 @@ chromFix <- function(data) {
         data$Chromosome=paste('chr',data$Chromosome,sep='')
     return(data)
 }
+
