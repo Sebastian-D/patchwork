@@ -519,8 +519,8 @@ allelicImbalance <- function (data,min=30,matched=F,allelePeaks=F) {
                 try(xx <- kmeans(t1, 2),silent=T)                            ## Attempt k-means (Hartigan-Wong: has proven very stable)
                 if (!is.null(xx)) if (min(xx$size) > 0.05*max(xx$size)) {    ## On some occations data quality is poor, requiring 5%+ heterozygous SNPs avoids most such cases.
                     xx=xx$centers
-                } else xx=NA
-            } else xx=NA      
+                } else xx=median(t1,na.rm = T)
+            } else xx=median(t1,na.rm = T)      
         } else xx=NA
         #try (if (is.na(xx)) xx=0:1, silent=T)
         #try (if (length(xx)==0) xx=0:1, silent=T)
