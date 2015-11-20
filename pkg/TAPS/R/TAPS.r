@@ -221,7 +221,6 @@ TAPS_plot <- function(#samples='all',
         }
 
         # cat('..plotting.\n')
-        #browser()
         OverviewPlot(regs$chr,regs$start,regs$end,regs$logs,regs$scores,hg18=hg18,
                      as.character(Log2$Chromosome),Log2$Start,Log2$Value,as.character(alf$Chromosome),alf$Start,alf$Value,
                      name=name,MAPD=sampleData$MAPD[i],MHOF=sampleData$MHOF[i])                
@@ -2403,6 +2402,8 @@ karyotype_chroms <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,
         
         #Select the chromosome
         this <- chroms[chroms$c==c,]
+        #Skip current chromosome if it doesn't exist.
+        if(!any(as.character(this$chr) == chr)) next()
         if(nrow(this) == 0) next
         
         #Initialize jpeg
