@@ -2217,7 +2217,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     
     #Add axis to the left & right of signal
     axis(side=2,tck=-0.025,at=seqminmax,cex.axis=0.6,pos=0,las=1)
-    axis(side=4,tck=-0.025,at=seqminmax,cex.axis=0.6,pos=max(mpos),las=1)
+    axis(side=4,tck=-0.025,at=seqminmax,cex.axis=0.6,pos=sum(chroms$length),las=1)
     mtext("Log-ratio",side=2,line=0)
     
     #Add grey segments
@@ -2248,7 +2248,7 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     
     #Add a bar between chromosomes to distinguish them
     segments(
-        x0=c(chroms$before,sum(chroms$length),max(mpos)),x1=c(chroms$before,sum(chroms$length),max(mpos)),
+        x0=c(chroms$before,sum(chroms$length)),x1=c(chroms$before,sum(chroms$length)),
         y0=-100,y1=100,                
         col='#000000',
         lwd=1)
@@ -2326,13 +2326,13 @@ OverviewPlot <- function(chr,start,end,int,ai,hg18,mchr,mpos,mval,schr,spos,sval
     #Add axis to the left,right and below of AI. The below axis is the chromosome numbers 1-24.
     axis(side=2,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=0,las=1)
     axis(side=1,at=pre,pos=0,labels=c(seq(from=1,to=22),"X",'Y'),cex.axis=0.55,lty=0)#,tck=0,col.ticks='#00000000')
-    axis(side=4,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=max(mpos),las=1) #
+    axis(side=4,tck=-0.04,at=seq(from=0,to=1,by=0.2),cex.axis=0.6,pos=sum(chroms$length),las=1) #
     mtext("Allele frequency",side=2,line=0)
     mtext("Chromosomes",side=1,line=1.5,adj=0.4)
     
     #Add a bar between chromosomes to distinguish them
     segments(
-        x0=c(chroms$before,sum(chroms$length),max(mpos)),x1=c(chroms$before,sum(chroms$length),max(mpos)),
+        x0=c(chroms$before,sum(chroms$length)),x1=c(chroms$before,sum(chroms$length)),
         y0=0,y1=100,                
         col='#000000',
         lwd=1)
