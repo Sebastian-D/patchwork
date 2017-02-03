@@ -1,3 +1,5 @@
+Documentation and manual: http://patchwork.r-forge.r-project.org/
+
 Patchwork is a bioinformatic tool for analyzing and visualizing allele-specific copy numbers and loss-of-heterozygosity in cancer genomes. The data input is in the format of whole-genome sequencing data which enables characterization of genomic alterations ranging in size from point mutations to entire chromosomes.
 High quality results are obtained even if samples have low coverage, ~4x, low tumor cell content or are aneuploid. 
 
