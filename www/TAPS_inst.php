@@ -16,6 +16,7 @@ Install the packages that TAPS depends on to function correctly. <br /><br />
     install.packages("fields")
     install.packages("foreach")
     install.packages("jpeg")
+    install.packages("xlsx")
 
     #Only on unix-based systems
     install.packages("doMC")
