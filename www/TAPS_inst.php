@@ -11,8 +11,9 @@ Enable all repositories in R so the dependencies of TAPS can be found.<br /><br 
 Install the packages that TAPS depends on to function correctly. <br /><br />
 
 <pre>
-    install.packages("DNAcopy")
-    install.packages("affxparser")
+    source("https://bioconductor.org/biocLite.R")
+    biocLite("DNAcopy")
+    biocLite("affxparser")
     install.packages("fields")
     install.packages("foreach")
     install.packages("jpeg")
